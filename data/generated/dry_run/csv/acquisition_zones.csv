@@ -1,0 +1,6 @@
+zone_id,project_name,gazette_notification_no,corridor_geojson,status
+ACQ-000001,Dhaka-Aricha Highway 8-Lane Expansion Project,DHAKA-GAZ-ARIPA-2024-101,"{""type"": ""Polygon"", ""coordinates"": [[[90.315, 23.79], [90.32, 23.79], [90.32, 23.83], [90.315, 23.83], [90.315, 23.79]]]}",SECTION_4_NOTIFIED
+ACQ-000002,Savar EPZ Modern Logistics Corridor,DHAKA-GAZ-ARIPA-2024-102,"{""type"": ""Polygon"", ""coordinates"": [[[90.285, 23.85], [90.29, 23.85], [90.29, 23.87], [90.285, 23.87], [90.285, 23.85]]]}",SECTION_7_VERIFIED
+ACQ-000003,Turag River Eco-Restoration Buffer Zone,DHAKA-GAZ-ARIPA-2023-88,"{""type"": ""Polygon"", ""coordinates"": [[[90.335, 23.8], [90.345, 23.8], [90.345, 23.825], [90.335, 23.825], [90.335, 23.8]]]}",SECTION_8_AWARDED
+ACQ-000004,Birulia-Ashulia Ring Embankment Link,DHAKA-GAZ-ARIPA-2025-15,"{""type"": ""Polygon"", ""coordinates"": [[[90.3, 23.87], [90.305, 23.87], [90.305, 23.89], [90.3, 23.89], [90.3, 23.87]]]}",SECTION_4_NOTIFIED
+ACQ-000005,Dhaka Mass Rapid Transit Line-5 (Northern Route),DHAKA-GAZ-ARIPA-2024-220,"{""type"": ""Polygon"", ""coordinates"": [[[90.325, 23.78], [90.33, 23.78], [90.33, 23.81], [90.325, 23.81], [90.325, 23.78]]]}",SECTION_7_VERIFIED

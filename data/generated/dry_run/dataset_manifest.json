@@ -1,0 +1,53 @@
+{
+  "dataset_name": "BHUMI_SYNC_SYNTHETIC_DATASET_DRY_RUN",
+  "schema_version": "1.0.0",
+  "generator_script": "generators/generate_synthetic_dataset.py",
+  "generator_seed": 20261018,
+  "generation_timestamp": "2026-10-16T17:46:44.472836+00:00Z",
+  "target_scale": {
+    "parcels": 1000,
+    "owners": 200
+  },
+  "actual_row_counts": {
+    "parcels": 1000,
+    "owners": 200,
+    "parcel_ownership": 1085,
+    "deeds": 429,
+    "transactions": 429,
+    "ownership_events": 120,
+    "mutation_records": 414,
+    "documents": 11,
+    "tax_records": 1000,
+    "litigation_records": 10,
+    "khas_records": 15,
+    "acquisition_zones": 5,
+    "verification_cases": 101,
+    "review_logs": 5
+  },
+  "database_file": {
+    "path": "data/generated/dry_run/landtech_synthetic_dry_run.db",
+    "sha256_checksum": "52017328652fc0d1bac93de46c56a38eb58c78ff863c1c457194a0c84db026b9"
+  },
+  "csv_checksums": {
+    "parcels.csv": "7b2b014514253f1f857881914cd8fa9cba725323c2e0f86d5957400ab166b988",
+    "owners.csv": "d8df89c5953fcc57b19f4c8e9b4e42bcc120c3ff7a4fb5e8520b042f1ad6fcab",
+    "parcel_ownership.csv": "9b7d1d6322c07418ef30c2a5555b487dce674d8474191bb76cfb4d752fd35043",
+    "deeds.csv": "21318126ada96eb3b5e4ff6ae8ca1b1e06420aa13513e843c598dc6e2364f602",
+    "transactions.csv": "510b6832defad567e03e9afb7d1c59f5d695d542d22a883a968dac0d6557f6e6",
+    "ownership_events.csv": "36f481c0412fee4c88580e1d38f08b88ec62f3b92812359d8b4056d2ba89cacc",
+    "mutation_records.csv": "847c012fe4b3f02d08b0dbd8b97b39c02818997c8edb68002b96b88ba2e90cbc",
+    "documents.csv": "e64b4f4df57b4136c0fc2a42bed4c1209fe29549e3b95b07ba01e0a588256034",
+    "tax_records.csv": "cda69a41730f027a9ab2a09a4176f4c668e26e6aae9a0df032c85991a5058c69",
+    "litigation_records.csv": "a7197aa060d620a0afe451ddc251ca1b5893c168924246f78765369d4d5bc07b",
+    "khas_records.csv": "14ad40815ded7d73b9a177c60d787cc4727cde427e3d79cab53dd387155f1895",
+    "acquisition_zones.csv": "5752d79b27798fe88b6e883f4628f1c4f38e0606aa4012af04e2195966ffcc2e",
+    "verification_cases.csv": "df3f545645e678940f0629789171c806961411d0cce94f2eb44d9815442bd2d6",
+    "review_logs.csv": "8e992862c403e5b4c772258b0e0c583a89353d3eb6095575dd4c170cc56c6307"
+  },
+  "provenance_standards": {
+    "all_identities_synthetic": true,
+    "zero_real_nid_pii": true,
+    "statutory_schema_derivation": "SATA 1950, Registration Act 1908, LDTax Guidelines",
+    "compliance_watermark": "SYNTHETIC_DEMO_RECORD"
+  }
+}
