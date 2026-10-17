@@ -76,6 +76,12 @@ def health_check():
 
 # Static Frontend Hosting (if frontend directory exists)
 FRONTEND_DIR = BASE_DIR / "frontend"
+DATA_DIR = BASE_DIR / "data"
+
+if DATA_DIR.exists():
+    app.mount("/data", StaticFiles(directory=str(DATA_DIR)), name="data")
+    app.mount("/static/data", StaticFiles(directory=str(DATA_DIR)), name="static_data")
+
 if FRONTEND_DIR.exists():
     app.mount("/static", StaticFiles(directory=str(FRONTEND_DIR)), name="static")
 

@@ -144,16 +144,30 @@ class LandTechAPI {
     return await res.json();
   }
 
-  static async uploadDocumentOCR(fileBytesOrBlob, filename = 'document.png') {
+  static async computeClientSHA256(arrayBuffer) {
+    const hashBuffer = await crypto.subtle.digest('SHA-256', arrayBuffer);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+
+  static async uploadDocumentOCR(fileBytesOrBlob, filename = 'document.png', preprocessMode = 'enhance_contrast', rotateDeg = 0, langOverride = null) {
     const formData = new FormData();
     formData.append('file', fileBytesOrBlob, filename);
+    formData.append('preprocess_mode', preprocessMode);
+    formData.append('rotate_deg', rotateDeg);
+    if (langOverride) {
+      formData.append('lang_override', langOverride);
+    }
 
     const res = await fetch(`${API_BASE}/documents/upload-ocr`, {
       method: 'POST',
       headers: this.token ? { 'Authorization': `Bearer ${this.token}` } : {},
       body: formData
     });
-    if (!res.ok) throw new Error('OCR upload failed');
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.detail || 'OCR upload failed');
+    }
     return await res.json();
   }
 
