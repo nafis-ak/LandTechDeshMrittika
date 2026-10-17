@@ -21,7 +21,11 @@ from backend.app.api import (
     mutations,
     documents,
     officer,
+    admin_users,
+    citizen,
+    buyer,
 )
+from backend.app.database import get_db, get_db_connection, init_auth_tables
 
 app = FastAPI(
     title="দেশমৃত্তিকা | DeshMrittika / Bhumi-Sync API",
@@ -29,10 +33,20 @@ app = FastAPI(
         "Smart Cadastral Mapping & Fraud-Resilient Land Record Verification Platform for Bangladesh. "
         "Built for the LandTech 2026 Innovation Hackathon (v1.2) addressing tracks P1 through P6."
     ),
-    version="2.0.0",
+    version="2.2.0",
     docs_url="/docs",
     redoc_url="/redoc",
 )
+
+# Initialize Authentication Tables and Seed Accounts on startup
+@app.on_event("startup")
+def startup_event():
+    try:
+        conn = get_db_connection()
+        init_auth_tables(conn)
+        conn.close()
+    except Exception as e:
+        print(f"[Startup Warning - Auth Init]: {e}")
 
 # Enable CORS for local development and browser frontend
 app.add_middleware(
@@ -54,6 +68,9 @@ app.include_router(due_diligence.router, prefix=API_PREFIX)
 app.include_router(mutations.router, prefix=API_PREFIX)
 app.include_router(documents.router, prefix=API_PREFIX)
 app.include_router(officer.router, prefix=API_PREFIX)
+app.include_router(admin_users.router, prefix=API_PREFIX)
+app.include_router(citizen.router, prefix=API_PREFIX)
+app.include_router(buyer.router, prefix=API_PREFIX)
 
 
 @app.get("/api/v1/health", tags=["System"])

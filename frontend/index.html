@@ -41,9 +41,24 @@
           <li><a href="#trust">ফিচারসমূহ</a></li>
         </ul>
 
-        <div class="agro-nav-actions">
+        <div class="agro-nav-actions" style="display:flex; align-items:center; gap:0.6rem;">
+          <div id="landing-auth-guest" style="display:flex; align-items:center; gap:0.5rem;">
+            <button class="btn btn-secondary-stone btn-sm" onclick="openAuthModal('login')" style="background:rgba(255,255,255,0.85); font-weight:600; border-radius:var(--radius-full); padding:6px 14px;">
+              <span>🔑 লগইন</span>
+            </button>
+            <button class="btn btn-primary-forest btn-sm" onclick="openAuthModal('signup')" style="border-radius:var(--radius-full); padding:6px 14px;">
+              <span>নতুন অ্যাকাউন্ট</span>
+            </button>
+          </div>
+          <div id="landing-auth-user" style="display:none; align-items:center; gap:0.5rem;">
+            <button class="btn btn-secondary-stone btn-sm" onclick="openUserProfileModal()" style="border-radius:var(--radius-full); padding:4px 12px; display:flex; align-items:center; gap:6px;">
+              <span id="landing-user-avatar">👤</span>
+              <span id="landing-user-name" style="font-weight:600;">রফিকুল</span>
+              <span id="landing-user-role-badge" class="pill-tag pill-forest" style="font-size:0.7rem; padding:1px 6px;">নাগরিক</span>
+            </button>
+          </div>
           <button id="open-app-btn" class="agro-nav-cta-btn" onclick="navigateToApp('overview')">
-            <span>প্ল্যাটফর্ম এক্সপ্লোর করুন</span>
+            <span>প্ল্যাটফর্ম এক্সপ্লোর</span>
             <span class="agro-arrow-circle">➔</span>
           </button>
         </div>
@@ -54,16 +69,22 @@
         
         <!-- Left Side: Large Bengali Typography & CTA -->
         <div class="agro-hero-left">
+          <div class="pill-tag pill-forest" style="background:rgba(245, 158, 11, 0.18); color:#b45309; border:1px solid rgba(245, 158, 11, 0.4); margin-bottom:0.75rem; font-size:0.8rem;">
+            ⚠️ গবেষণা ও হ্যাকথন প্রোটোটাইপ — ১০০,০০০ সিন্থেটিক পার্সেল (এটি কোনো সরকারি অফিসিয়াল পোর্টাল নয়)
+          </div>
           <h1 class="agro-hero-headline">
             স্মার্ট প্রযুক্তি ও কৃত্রিম বুদ্ধিমত্তায়<br>স্বচ্ছ ও নিরাপদ ভূমি ব্যবস্থাপনা
           </h1>
           <p class="agro-hero-tagline">
             সাব-রেজিস্ট্রি এবং এসি ল্যান্ড অফিসের মধ্যকার তথ্য-ব্যবধান দূর করে দ্বৈত বিক্রয় ও জালিয়াতি রোধে আধুনিক ভূমি সুরক্ষা প্ল্যাটফর্ম।
           </p>
-          <div class="agro-hero-btn-wrap">
-            <button class="agro-cta-pill" onclick="navigateToApp('citizen')">
-              <span>শুরু করুন</span>
+          <div class="agro-hero-btn-wrap" style="display:flex; gap:0.75rem; flex-wrap:wrap;">
+            <button class="agro-cta-pill" onclick="openAuthModal('login')">
+              <span>লগইন করুন</span>
               <span class="agro-cta-arrow">➔</span>
+            </button>
+            <button class="btn btn-secondary-stone" onclick="openAuthModal('signup')" style="border-radius:var(--radius-full); padding:10px 20px; font-weight:600;">
+              নতুন অ্যাকাউন্ট নিবন্ধন
             </button>
           </div>
         </div>
@@ -338,8 +359,8 @@
           <button id="sidebar-collapse-btn" class="sidebar-toggle-btn" title="সাইডবার ছোট/বড় করুন">◀</button>
         </div>
 
-        <!-- Sidebar Navigation Menu -->
-        <nav class="sidebar-nav">
+        <!-- Sidebar Navigation Menu (Dynamically populated by user role) -->
+        <nav class="sidebar-nav" id="sidebar-nav-container">
           <div class="nav-category-title">মূল কার্যক্রম</div>
           <div class="sidebar-nav-item active" data-page="overview">
             <span class="nav-icon">📊</span>
@@ -378,31 +399,40 @@
             <span class="nav-badge">P6</span>
           </div>
 
-          <div class="nav-category-title">সিস্টেম ও প্রশাসন</div>
-          <div class="sidebar-nav-item" data-page="audit">
+          <div class="nav-category-title" id="nav-cat-admin">সিস্টেম ও প্রশাসন</div>
+          <div class="sidebar-nav-item" data-page="audit" id="nav-item-audit">
             <span class="nav-icon">📋</span>
             <span class="nav-label">অফিসার নিরীক্ষা ট্রেইল</span>
           </div>
-          <div class="sidebar-nav-item" data-page="dataset">
+          <div class="sidebar-nav-item" data-page="users" id="nav-item-users">
+            <span class="nav-icon">👥</span>
+            <span class="nav-label">ব্যবহারকারী ও রোল (RBAC)</span>
+            <span class="nav-badge" style="background:#4338ca; color:#ffffff;">Admin</span>
+          </div>
+          <div class="sidebar-nav-item" data-page="security-logs" id="nav-item-security-logs">
+            <span class="nav-icon">🔒</span>
+            <span class="nav-label">প্ল্যাটফর্ম সিকিউরিটি অডিট</span>
+            <span class="nav-badge" style="background:#4338ca; color:#ffffff;">Admin</span>
+          </div>
+          <div class="sidebar-nav-item" data-page="dataset" id="nav-item-dataset">
             <span class="nav-icon">🗄️</span>
             <span class="nav-label">সিন্থেটিক ডেটাসেট পরিসংখ্যান</span>
           </div>
-          <div class="sidebar-nav-item" data-page="settings">
+          <div class="sidebar-nav-item" data-page="settings" id="nav-item-settings">
             <span class="nav-icon">⚙️</span>
             <span class="nav-label">সিস্টেম স্ট্যাটাস ও ডায়াগনস্টিক</span>
           </div>
         </nav>
 
-        <!-- Sidebar Role Switcher Footer -->
+        <!-- Authenticated User Profile Footer (Immutable RBAC Badge) -->
         <div class="sidebar-footer">
-          <div class="role-switch-box">
-            <label for="app-role-select">ব্যবহারকারীর ভূমিকা (RBAC)</label>
-            <select id="app-role-select" class="app-role-select">
-              <option value="CITIZEN">👤 সাধারণ নাগরিক (Citizen)</option>
-              <option value="BUYER">💼 সম্ভাব্য ক্রেতা (Buyer)</option>
-              <option value="OFFICER">🏛️ সহকারী কমিশনার - ভূমি (AC Land)</option>
-              <option value="ADMINISTRATOR">⚙️ সিস্টেম অ্যাডমিন (Admin)</option>
-            </select>
+          <div class="authenticated-user-badge" id="sidebar-user-badge" onclick="openUserProfileModal()" style="cursor:pointer;" title="ব্যবহারকারী অ্যাকাউন্ট ও নিরাপত্তা">
+            <div class="user-avatar-small" id="sidebar-user-avatar">👤</div>
+            <div class="user-details-compact">
+              <div class="user-name-compact" id="sidebar-user-name">অতিথি ব্যবহারকারী</div>
+              <div class="user-role-pill role-pill-citizen" id="sidebar-user-role-badge">সাধারণ নাগরিক</div>
+            </div>
+            <button class="logout-icon-btn" id="sidebar-logout-btn" onclick="event.stopPropagation(); triggerLogout();" title="লগআউট করুন" aria-label="লগআউট" style="display:none;">⎋</button>
           </div>
         </div>
 
@@ -422,11 +452,23 @@
             </div>
           </div>
 
-          <div class="topbar-right">
+          <div class="topbar-right" style="display:flex; align-items:center; gap:0.6rem;">
             <div id="app-health-pill" class="pill-tag pill-forest">
               <span class="status-dot"></span>
               <span id="app-health-text">অনলাইন: ১০০,০০০ প্লট</span>
             </div>
+
+            <!-- Authenticated User Profile Pill -->
+            <button id="topbar-user-btn" class="btn btn-secondary-stone btn-sm" onclick="openUserProfileModal()" style="display:flex; align-items:center; gap:6px; border-radius:var(--radius-full); padding:4px 12px;" title="অ্যাকাউন্ট ও নিরাপত্তা সেটিংস">
+              <span id="topbar-user-avatar">👤</span>
+              <span id="topbar-user-name" style="font-weight:600;">নাগরিক</span>
+              <span id="topbar-user-badge" class="pill-tag pill-forest" style="font-size:0.7rem; padding:1px 6px;">CITIZEN</span>
+            </button>
+
+            <!-- Login button for guest -->
+            <button id="topbar-login-btn" class="btn btn-primary-forest btn-sm" onclick="openAuthModal('login')" style="display:none; border-radius:var(--radius-full); padding:4px 12px;">
+              <span>🔑 লগইন</span>
+            </button>
 
             <button id="lang-toggle-app" class="btn btn-secondary-stone btn-sm">English</button>
 
@@ -808,10 +850,13 @@
               </div>
               <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
                 <button id="ocr-load-sample-btn" class="btn btn-secondary-stone btn-sm">
-                  ✓ নমুনা সাফ-কবালা দলিল (PNG)
+                  📜 নমুনা সাফ-কবালা দলিল (PNG)
+                </button>
+                <button id="ocr-load-sample-porcha-btn" class="btn btn-secondary-stone btn-sm">
+                  📑 নমুনা আর.এস. খতিয়ান (PNG)
                 </button>
                 <button id="ocr-load-sample-pdf-btn" class="btn btn-secondary-stone btn-sm">
-                  📄 নমুনা খতিয়ান পরচা (PDF)
+                  📄 নমুনা দলিল রেকর্ড (PDF)
                 </button>
               </div>
             </div>
@@ -1048,6 +1093,1100 @@
             </div>
           </div>
 
+          <!-- ==========================================
+               WORKSPACE 11: USER & ROLE MANAGEMENT (ADMIN RBAC)
+               ========================================== -->
+          <div id="page-users" class="workspace-page">
+            <div class="page-header-row">
+              <div class="page-title-block">
+                <div class="pill-tag" style="background:#e0e7ff; color:#4338ca; border:1px solid #c7d2fe; font-size:0.75rem; margin-bottom:0.4rem;">সিস্টেম অ্যাডমিন এক্সেস</div>
+                <h3>ব্যবহারকারী ও ভূমিকা ব্যবস্থাপনা (RBAC)</h3>
+                <p>প্ল্যাটফর্মের নিবন্ধিত নাগরিক, ক্রেতা, ভূমি কর্মকর্তা ও অ্যাডমিনদের তালিকা, অনুমোদন ও সাসপেনশন নিয়ন্ত্রণ।</p>
+              </div>
+              <button class="btn btn-primary-forest btn-sm" onclick="loadAdminUsers()">
+                🔄 রিফ্রেশ তালিকা
+              </button>
+            </div>
+
+            <!-- Filters Bar -->
+            <div class="calm-card" style="padding:1rem 1.25rem; margin-bottom:1rem; display:flex; gap:1rem; flex-wrap:wrap; align-items:center;">
+              <div style="flex:1; min-width:200px;">
+                <input type="text" id="admin-user-search-input" class="calm-input" placeholder="🔍 নাম, ইমেইল বা ইউজার আইডি খুঁজুন..." oninput="debounceUserSearch()">
+              </div>
+              <div style="width:170px;">
+                <select id="admin-filter-role" class="calm-input" onchange="loadAdminUsers()">
+                  <option value="">সকল ভূমিকা (All Roles)</option>
+                  <option value="CITIZEN">সাধারণ নাগরিক</option>
+                  <option value="BUYER">সম্ভাব্য ক্রেতা</option>
+                  <option value="OFFICER">সহকারী কমিশনার (AC Land)</option>
+                  <option value="ADMINISTRATOR">সিস্টেম অ্যাডমিন</option>
+                </select>
+              </div>
+              <div style="width:150px;">
+                <select id="admin-filter-status" class="calm-input" onchange="loadAdminUsers()">
+                  <option value="">সকল স্ট্যাটাস</option>
+                  <option value="ACTIVE">সক্রিয় (Active)</option>
+                  <option value="UNVERIFIED">অযাচাইকৃত (Unverified)</option>
+                  <option value="SUSPENDED">স্থগিত (Suspended)</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Users Data Table Container -->
+            <div class="admin-table-container">
+              <table class="admin-data-table">
+                <thead>
+                  <tr>
+                    <th>ব্যবহারকারী</th>
+                    <th>ইমেইল ও ফোন</th>
+                    <th>বর্তমান ভূমিকা (Role)</th>
+                    <th>স্ট্যাটাস</th>
+                    <th>নিবন্ধন তারিখ</th>
+                    <th style="text-align:right;">নিরাপত্তা ব্যবস্থা</th>
+                  </tr>
+                </thead>
+                <tbody id="admin-users-tbody">
+                  <tr>
+                    <td colspan="6" style="text-align:center; padding:2rem; color:var(--c-stone-500);">ডাটা লোড হচ্ছে...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div id="admin-users-count" style="font-size:0.8rem; color:var(--c-stone-500); margin-top:0.75rem;">মোট ০ জন ব্যবহারকারী প্রদর্শিত</div>
+          </div>
+
+          <!-- ==========================================
+               WORKSPACE 12: SECURITY AUDIT LOGS (ADMIN ONLY)
+               ========================================== -->
+          <div id="page-security-logs" class="workspace-page">
+            <div class="page-header-row">
+              <div class="page-title-block">
+                <div class="pill-tag" style="background:#e0e7ff; color:#4338ca; border:1px solid #c7d2fe; font-size:0.75rem; margin-bottom:0.4rem;">সাইবার নিরাপত্তা অডিট</div>
+                <h3>প্ল্যাটফর্ম নিরাপত্তা ও প্রমাণীকরণ অডিট ট্রেইল</h3>
+                <p>লগইন, ব্যর্থ চেষ্টা, ওটিপি ভেরিফিকেশন, পাসওয়ার্ড পরিবর্তন এবং অ্যাডমিন পদোন্নতির রিয়েল-টাইম লগ।</p>
+              </div>
+              <button class="btn btn-secondary-stone btn-sm" onclick="loadAdminSecurityLogs()">
+                🔄 রিফ্রেশ লগ
+              </button>
+            </div>
+
+            <!-- Security Log Filter Bar -->
+            <div class="calm-card" style="padding:1rem 1.25rem; margin-bottom:1rem; display:flex; gap:1rem; flex-wrap:wrap; align-items:center;">
+              <div style="flex:1; min-width:200px;">
+                <input type="text" id="admin-log-search-input" class="calm-input" placeholder="🔍 ইমেইল বা ব্যবহারকারী খুঁজুন..." oninput="debounceLogSearch()">
+              </div>
+              <div style="width:200px;">
+                <select id="admin-log-filter-action" class="calm-input" onchange="loadAdminSecurityLogs()">
+                  <option value="">সকল অ্যাকশন</option>
+                  <option value="LOGIN_SUCCESS">সফল লগইন</option>
+                  <option value="LOGIN_FAILED">ব্যর্থ লগইন চেষ্টা</option>
+                  <option value="SIGNUP_INIT">নতুন সাইন-আপ</option>
+                  <option value="EMAIL_VERIFIED">ইমেইল যাচাই সম্পন্ন</option>
+                  <option value="PASSWORD_RESET">পাসওয়ার্ড রিসেট</option>
+                  <option value="ROLE_CHANGE">ভূমিকা পরিবর্তন</option>
+                  <option value="STATUS_CHANGE">স্ট্যাটাস পরিবর্তন</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Security Log Data Table Container -->
+            <div class="admin-table-container">
+              <table class="admin-data-table">
+                <thead>
+                  <tr>
+                    <th>সময় (UTC)</th>
+                    <th>অ্যাক্টর (ইমেইল)</th>
+                    <th>অ্যাকশন</th>
+                    <th>আইপি অ্যাড্রেস</th>
+                    <th>বিস্তারিত মেটাডাটা</th>
+                  </tr>
+                </thead>
+                <tbody id="admin-security-logs-tbody">
+                  <tr>
+                    <td colspan="5" style="text-align:center; padding:2rem; color:var(--c-stone-500);">লগ লোড হচ্ছে...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div id="admin-logs-count" style="font-size:0.8rem; color:var(--c-stone-500); margin-top:0.75rem;">মোট ০ টি নিরাপত্তা ইভেন্ট প্রদর্শিত</div>
+          </div>
+
+
+          <!-- ==================================================================
+               WORKSPACE: CITIZEN MY LAND (আমার জমি ও খতিয়ান)
+               ================================================================== -->
+          <div id="page-citizen-myland" class="workspace-page">
+            <div class="page-header-row">
+              <div class="page-title-block">
+                <div class="pill-tag pill-forest" style="font-size:0.75rem; margin-bottom:0.4rem;">ব্যক্তিগত খতিয়ান বাতায়ন</div>
+                <h3>আমার মালিকানাধীন জমি ও খতিয়ান রেকর্ড</h3>
+                <p>আপনার জাতীয় পরিচয়পত্র ও উত্তরাধিকার সূত্রে সরকারিভাবে রেকর্ডভুক্ত প্লটের লাইভ তথ্য।</p>
+              </div>
+              <div style="display:flex; gap:0.5rem;">
+                <button class="btn btn-primary-forest btn-sm" onclick="openClaimParcelModal()">
+                  + নতুন জমি লিঙ্ক / দাবি করুন
+                </button>
+                <button class="btn btn-secondary-stone btn-sm" onclick="loadCitizenParcels()">
+                  🔄 রিফ্রেশ
+                </button>
+              </div>
+            </div>
+
+            <!-- Citizen Land Summary Metrics -->
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; margin-bottom:1.5rem;">
+              <div class="calm-card" style="padding:1.25rem;">
+                <div style="font-size:0.8rem; color:var(--c-stone-500);">মালিকানাধীন মোট পার্সেল</div>
+                <div class="num" id="cit-total-parcels-num" style="font-size:1.8rem; font-weight:700; color:var(--c-forest-900); margin-top:0.2rem;">২ টি</div>
+                <div style="font-size:0.75rem; color:var(--c-forest-700); margin-top:0.3rem;">সাভার উপজেলা পাইলট</div>
+              </div>
+              <div class="calm-card" style="padding:1.25rem;">
+                <div style="font-size:0.8rem; color:var(--c-stone-500);">মোট জমির পরিমাণ</div>
+                <div class="num" id="cit-total-area-num" style="font-size:1.8rem; font-weight:700; color:var(--c-forest-900); margin-top:0.2rem;">২৬.৫৭ শতক</div>
+                <div style="font-size:0.75rem; color:var(--c-stone-500); margin-top:0.3rem;">আমিনবাজার মৌজা</div>
+              </div>
+              <div class="calm-card" style="padding:1.25rem;">
+                <div style="font-size:0.8rem; color:var(--c-stone-500);">ভূমি উন্নয়ন কর স্ট্যাটাস</div>
+                <div class="num" style="font-size:1.4rem; font-weight:700; color:var(--c-forest-700); margin-top:0.35rem;">✓ পরিশোধিত</div>
+                <div style="font-size:0.75rem; color:var(--c-stone-500); margin-top:0.3rem;">১৪৩১ বঙ্গাব্দ (হালনাগাদ)</div>
+              </div>
+              <div class="calm-card" style="padding:1.25rem;">
+                <div style="font-size:0.8rem; color:var(--c-stone-500);">বিরোধ ও মামলা স্ট্যাটাস</div>
+                <div class="num" style="font-size:1.4rem; font-weight:700; color:var(--c-forest-700); margin-top:0.35rem;">ঝুঁকিমুক্ত</div>
+                <div style="font-size:0.75rem; color:var(--c-forest-700); margin-top:0.3rem;">কোনো সরকারি আপত্তি নেই</div>
+              </div>
+            </div>
+
+            <!-- Citizen Linked Parcels Grid -->
+            <div id="citizen-parcels-grid" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap:1.25rem;">
+              <!-- Dynamically populated or seeded cards -->
+              <div class="calm-card" style="padding:1.5rem; border-left:4px solid var(--c-forest-600);">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.75rem;">
+                  <div>
+                    <span class="pill-tag pill-forest" style="font-size:0.7rem;">পার্সেল আইডি: BD-PAR-000001</span>
+                    <h4 style="font-size:1.15rem; font-weight:700; margin-top:0.3rem; color:var(--c-forest-950);">আমিনবাজার — দাগ নং ১০১</h4>
+                  </div>
+                  <span class="pill-tag" style="background:#dcfce7; color:#166534; font-size:0.75rem; font-weight:600;">হালনাগাদ রেকর্ড</span>
+                </div>
+                <div style="font-size:0.85rem; color:var(--c-stone-600); line-height:1.6; margin-bottom:1rem;">
+                  <div><strong>খতিয়ান নং:</strong> আরএস-১০৪৮ (সত্বাধিকারী মো: রফিকুল ইসলাম)</div>
+                  <div><strong>জমির পরিমাণ:</strong> ২০.৫১ শতক (নাল জমি)</div>
+                  <div><strong>মালিকানার সূত্র:</strong> উত্তরাধিকার ও নামজারি সূত্রে (১০০% অংশ)</div>
+                  <div><strong>ভূমি কর (খাজনা):</strong> পরিশোধিত (দাখিলা নং DAK-2026-9912)</div>
+                </div>
+                <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+                  <button class="btn btn-secondary-stone btn-sm" onclick="viewCitizenParcelDossier('BD-PAR-000001')">
+                    🔍 বিস্তারিত ডসিয়ার
+                  </button>
+                  <button class="btn btn-secondary-stone btn-sm" onclick="showToast('ই-পর্চা ডাউনলোড শুরু হয়েছে...')">
+                    📄 ই-পর্চা
+                  </button>
+                  <button class="btn btn-primary-forest btn-sm" onclick="startMutationForParcel('BD-PAR-000001')">
+                    🔄 নামজারি আবেদন
+                  </button>
+                </div>
+              </div>
+
+              <div class="calm-card" style="padding:1.5rem; border-left:4px solid var(--c-forest-600);">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.75rem;">
+                  <div>
+                    <span class="pill-tag pill-forest" style="font-size:0.7rem;">পার্সেল আইডি: BD-PAR-000002</span>
+                    <h4 style="font-size:1.15rem; font-weight:700; margin-top:0.3rem; color:var(--c-forest-950);">আমিনবাজার — দাগ নং ১০২</h4>
+                  </div>
+                  <span class="pill-tag" style="background:#dcfce7; color:#166534; font-size:0.75rem; font-weight:600;">হালনাগাদ রেকর্ড</span>
+                </div>
+                <div style="font-size:0.85rem; color:var(--c-stone-600); line-height:1.6; margin-bottom:1rem;">
+                  <div><strong>খতিয়ান নং:</strong> বিএস-৫১২ (নামজারি খতিয়ান)</div>
+                  <div><strong>জমির পরিমাণ:</strong> ৬.০৬ শতক (ভিটি/আবাসিক)</div>
+                  <div><strong>মালিকানার সূত্র:</strong> সাফ-কবালা ক্রয় সূত্রে (দলিল নং ৫৪২১/২০২১)</div>
+                  <div><strong>ভূমি কর (খাজনা):</strong> পরিশোধিত (দাখিলা নং DAK-2026-8841)</div>
+                </div>
+                <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+                  <button class="btn btn-secondary-stone btn-sm" onclick="viewCitizenParcelDossier('BD-PAR-000002')">
+                    🔍 বিস্তারিত ডসিয়ার
+                  </button>
+                  <button class="btn btn-secondary-stone btn-sm" onclick="showToast('ই-পর্চা ডাউনলোড শুরু হয়েছে...')">
+                    📄 ই-পর্চা
+                  </button>
+                  <button class="btn btn-secondary-stone btn-sm" onclick="startCorrectionForParcel('BD-PAR-000002')">
+                    ✏️ করণিক সংশোধন
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+          <!-- ==================================================================
+               WORKSPACE: CITIZEN MY APPLICATIONS (নামজারি ও সেবা আবেদন)
+               ================================================================== -->
+          <div id="page-citizen-applications" class="workspace-page">
+            <div class="page-header-row">
+              <div class="page-title-block">
+                <div class="pill-tag pill-forest" style="font-size:0.75rem; margin-bottom:0.4rem;">ই-মিউটেশন ও সেবা পোর্টাল</div>
+                <h3>আমার দাখিলকৃত নামজারি ও সেবা আবেদনসমূহ</h3>
+                <p>উপজেলা সহকারী কমিশনার (ভূমি) কার্যালয়ে জমাকৃত আবেদনের প্রশাসনিক অগ্রগতি ও শুনানির নোটিশ।</p>
+              </div>
+              <button class="btn btn-primary-forest btn-sm" onclick="openNewApplicationModal()">
+                + নতুন সেবা আবেদন দাখিল করুন
+              </button>
+            </div>
+
+            <!-- Applications Table Container -->
+            <div class="admin-table-container">
+              <table class="admin-data-table">
+                <thead>
+                  <tr>
+                    <th>আবেদন ট্র্যাকিং নং</th>
+                    <th>প্লট ও মৌজা</th>
+                    <th>আবেদনের ধরন</th>
+                    <th>বর্তমান স্ট্যাটাস</th>
+                    <th>শুনানি / পরবর্তী পদক্ষেপ</th>
+                    <th>দাখিলের তারিখ</th>
+                    <th>কার্যক্রম</th>
+                  </tr>
+                </thead>
+                <tbody id="citizen-applications-tbody">
+                  <tr>
+                    <td><strong>APP-MUT-2026-001</strong></td>
+                    <td>আমিনবাজার — দাগ ১০১</td>
+                    <td>ই-নামজারি ও জমাভাগ</td>
+                    <td><span class="pill-tag" style="background:#fef3c7; color:#92400e;">তহশিলদার তদন্তাধীন</span></td>
+                    <td>শুনানির তারিখ: ০৫ নভেম্বর ২০২৬</td>
+                    <td>২০২৬-১০-১৫</td>
+                    <td><button class="btn btn-secondary-stone btn-sm" onclick="viewApplicationTimeline('APP-MUT-2026-001')">ট্র্যাকিং ➔</button></td>
+                  </tr>
+                  <tr>
+                    <td><strong>APP-CORR-2026-002</strong></td>
+                    <td>আমিনবাজার — দাগ ১০২</td>
+                    <td>করণিক ভুল সংশোধন</td>
+                    <td><span class="pill-tag" style="background:#e0e7ff; color:#3730a3;">দাখিলকৃত</span></td>
+                    <td>প্রাথমিক যাচাই চলছে</td>
+                    <td>২০২৬-১০-১৬</td>
+                    <td><button class="btn btn-secondary-stone btn-sm" onclick="viewApplicationTimeline('APP-CORR-2026-002')">ট্র্যাকিং ➔</button></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+
+          <!-- ==================================================================
+               WORKSPACE: CITIZEN NOTIFICATIONS (নোটিফিকেশন ও নোটিশ)
+               ================================================================== -->
+          <div id="page-citizen-notifications" class="workspace-page">
+            <div class="page-header-row">
+              <div class="page-title-block">
+                <div class="pill-tag pill-forest" style="font-size:0.75rem; margin-bottom:0.4rem;">অফিসিয়াল ইনবক্স</div>
+                <h3>সরকারি বার্তা, শুনানির নোটিশ ও অ্যালার্ট</h3>
+                <p>ভূমি মন্ত্রণালয় ও উপজেলা রাজস্ব প্রশাসনের অফিসিয়াল পত্র ও সমন।</p>
+              </div>
+              <button class="btn btn-secondary-stone btn-sm" onclick="loadCitizenNotifications()">
+                🔄 রিফ্রেশ ইনবক্স
+              </button>
+            </div>
+
+            <div id="citizen-notifications-list" style="display:flex; flex-direction:column; gap:1rem; max-width:850px;">
+              <div class="calm-card" style="padding:1.25rem; border-left:4px solid #f59e0b;">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                  <div>
+                    <span class="pill-tag" style="background:#fef3c7; color:#92400e; font-size:0.7rem; font-weight:700;">⚖️ শুনানির নোটিশ</span>
+                    <h4 style="font-size:1.05rem; font-weight:700; margin-top:0.3rem;">ই-নামজারি শুনানির সমন — কেস নং APP-MUT-2026-001</h4>
+                  </div>
+                  <span style="font-size:0.75rem; color:var(--c-stone-400);">আজ সকাল ১০:১৫</span>
+                </div>
+                <p style="font-size:0.88rem; color:var(--c-stone-700); margin-top:0.5rem; line-height:1.5;">
+                  আমিনবাজার মৌজার ১০১ দাগের আবেদন নং APP-MUT-2026-001 এর শুনানি আগামী ০৫ নভেম্বর ২০২৬ তারিখে সহকারী কমিশনার (ভূমি), সাভার এর এজলাসে ধার্য করা হয়েছে। মূল দলিল ও খতিয়ানসহ উপস্থিত থাকার জন্য অনুরোধ করা হচ্ছে।
+                </p>
+              </div>
+
+              <div class="calm-card" style="padding:1.25rem; border-left:4px solid var(--c-forest-600);">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                  <div>
+                    <span class="pill-tag pill-forest" style="font-size:0.7rem; font-weight:700;">💳 ভূমি উন্নয়ন কর</span>
+                    <h4 style="font-size:1.05rem; font-weight:700; margin-top:0.3rem;">ভূমি উন্নয়ন কর (খাজনা) সফলভাবে হালনাগাদ হয়েছে</h4>
+                  </div>
+                  <span style="font-size:0.75rem; color:var(--c-stone-400);">গতকাল</span>
+                </div>
+                <p style="font-size:0.88rem; color:var(--c-stone-700); margin-top:0.5rem; line-height:1.5;">
+                  আমিনবাজার মৌজার ১০১ ও ১০২ দাগের ১৪৩১ বঙ্গাব্দের বার্ষিক ভূমি উন্নয়ন কর অনলাইন পেমেন্টের মাধ্যমে সফলভাবে জমা হয়েছে। ডিজিটাল দাখিলা সংগ্রহ করুন।
+                </p>
+              </div>
+            </div>
+          </div>
+
+
+          <!-- ==================================================================
+               WORKSPACE: CITIZEN ACTIVITY LOG (কার্যক্রম ও অডিট লগ)
+               ================================================================== -->
+          <div id="page-citizen-activity" class="workspace-page">
+            <div class="page-header-row">
+              <div class="page-title-block">
+                <div class="pill-tag pill-forest" style="font-size:0.75rem; margin-bottom:0.4rem;">নিরাপত্তা ও অডিট</div>
+                <h3>নাগরিক কার্যক্রম ও ব্যক্তিগত লগ</h3>
+                <p>আপনার অ্যাকাউন্ট থেকে সম্পাদিত সকল লগইন, অনুসন্ধান ও আবেদন জমার নির্ভরযোগ্য হিস্টোরি।</p>
+              </div>
+              <button class="btn btn-secondary-stone btn-sm" onclick="loadCitizenActivity()">
+                🔄 রিফ্রেশ লগ
+              </button>
+            </div>
+
+            <div class="admin-table-container">
+              <table class="admin-data-table">
+                <thead>
+                  <tr>
+                    <th>তারিখ ও সময়</th>
+                    <th>কার্যক্রমের বিবরণ</th>
+                    <th>আইপি অ্যাড্রেস</th>
+                    <th>ফলাফল</th>
+                  </tr>
+                </thead>
+                <tbody id="citizen-activity-tbody">
+                  <tr>
+                    <td>২০২৬-১০-১৭ ১৩:৪০ UTC</td>
+                    <td>অ্যাকাউন্টে সফল লগইন (Citizen Role)</td>
+                    <td>127.0.0.1</td>
+                    <td><span class="pill-tag pill-forest">সফল</span></td>
+                  </tr>
+                  <tr>
+                    <td>২০২৬-১০-১৬ ১০:১৫ UTC</td>
+                    <td>দাগ নং ১০১ এর ই-নামজারি আবেদন দাখিল (APP-MUT-2026-001)</td>
+                    <td>127.0.0.1</td>
+                    <td><span class="pill-tag pill-forest">গৃহীত</span></td>
+                  </tr>
+                  <tr>
+                    <td>২০২৬-১০-১৫ ০৮:৩০ UTC</td>
+                    <td>দলিল ও পরচা স্ক্যান (OCR বিশ্লেষণ)</td>
+                    <td>127.0.0.1</td>
+                    <td><span class="pill-tag pill-forest">সম্পন্ন</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+
+          <!-- ==================================================================
+               WORKSPACE: BUYER OVERVIEW (সম্ভাব্য ক্রেতা ড্যাশবোর্ড)
+               ================================================================== -->
+          <div id="page-buyer-overview" class="workspace-page">
+            <div class="page-header-row">
+              <div class="page-title-block">
+                <div class="pill-tag" style="background:#ccfbf1; color:#0f766e; border:1px solid #99f6e4; font-size:0.75rem; margin-bottom:0.4rem;">ক্রেতা সুরক্ষা প্ল্যাটফর্ম</div>
+                <h3>জমি ক্রয়ের পূর্ববর্তী ঝুঁকি ও ডিউ ডিলিজেন্স হাব</h3>
+                <p>বায়া দলিল ধারাবাহিকতা, দ্বৈত বিক্রয় অ্যালার্ট, মামলা ও ১-নং খাস খতিয়ান স্বয়ংক্রিয় স্ক্রিনিং।</p>
+              </div>
+              <button class="btn btn-primary-forest btn-sm" onclick="switchAppPage('citizen')">
+                নতুন দাগ যাচাই করুন ➔
+              </button>
+            </div>
+
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap:1rem; margin-bottom:1.5rem;">
+              <div class="calm-card" style="padding:1.25rem;">
+                <div style="font-size:0.8rem; color:var(--c-stone-500);">সাভার পাইলট মোট রেকর্ড</div>
+                <div class="num" style="font-size:1.8rem; font-weight:700; color:var(--c-forest-900); margin-top:0.2rem;">১০০,০০০</div>
+                <div style="font-size:0.75rem; color:var(--c-stone-500); margin-top:0.3rem;">ডিজিটাল ভেরিফায়েড প্লট</div>
+              </div>
+              <div class="calm-card" style="padding:1.25rem;">
+                <div style="font-size:0.8rem; color:var(--c-stone-500);">দ্বৈত বিক্রয় ঝুঁকি অ্যালার্ট (DS-01)</div>
+                <div class="num" style="font-size:1.8rem; font-weight:700; color:#ef4444; margin-top:0.2rem;">৫০০ টি</div>
+                <div style="font-size:0.75rem; color:#ef4444; margin-top:0.3rem;">সতর্কতামূলক ট্রায়াজ তালিকাভুক্ত</div>
+              </div>
+              <div class="calm-card" style="padding:1.25rem;">
+                <div style="font-size:0.8rem; color:var(--c-stone-500);">নির্দোষ ধারাবাহিক বিক্রয় (DS-02)</div>
+                <div class="num" style="font-size:1.8rem; font-weight:700; color:var(--c-forest-700); margin-top:0.2rem;">৫৮,৩৩৩</div>
+                <div style="font-size:0.75rem; color:var(--c-forest-700); margin-top:0.3rem;">বায়া দলিল শৃঙ্খল শতভাগ অটুট</div>
+              </div>
+              <div class="calm-card" style="padding:1.25rem;">
+                <div style="font-size:0.8rem; color:var(--c-stone-500);">আমার দাখিলকৃত পুনঃযাচাই আবেদন</div>
+                <div class="num" id="buyer-total-requests-count" style="font-size:1.8rem; font-weight:700; color:#0f766e; margin-top:0.2rem;">১ টি</div>
+                <div style="font-size:0.75rem; color:var(--c-stone-500); margin-top:0.3rem;">এসি ল্যান্ড ট্রায়াজে প্রেরিত</div>
+              </div>
+            </div>
+
+            <!-- Buyer Quick Launch Actions -->
+            <div class="calm-card" style="margin-bottom:1.5rem;">
+              <h4 style="font-size:1rem; font-weight:700; margin-bottom:0.75rem;">দ্রুত যাচাইকরণ ও ডেমো টেস্ট কেসসমূহ:</h4>
+              <div style="display:flex; flex-wrap:wrap; gap:0.75rem;">
+                <button class="btn btn-secondary-stone btn-sm" onclick="applyPresetAndSearch('ds1')">
+                  🚨 প্রতারণামূলক দ্বৈত বিক্রয় (DS-01) — দাগ ১০১
+                </button>
+                <button class="btn btn-secondary-stone btn-sm" onclick="applyPresetAndSearch('ds2')">
+                  ✓ নির্দোষ ধারাবাহিক বিক্রয় (DS-02) — দাগ ১০০১
+                </button>
+                <button class="btn btn-secondary-stone btn-sm" onclick="applyPresetAndSearch('khas')">
+                  🏛️ ১-নং খাস খতিয়ান জমি — দাগ ২০৫
+                </button>
+                <button class="btn btn-secondary-stone btn-sm" onclick="switchAppPage('verify')">
+                  🔐 দলিল ক্রিপ্টোগ্রাফিক হ্যাশ যাচাই (P2)
+                </button>
+                <button class="btn btn-secondary-stone btn-sm" onclick="switchAppPage('map')">
+                  🗺️ ক্যাডাস্ট্রাল ম্যাপ ও জিআইএস সীমানা
+                </button>
+              </div>
+            </div>
+          </div>
+
+
+          <!-- ==================================================================
+               WORKSPACE: BUYER OWNERSHIP SUMMARY (মালিকানা ইতিহাস সারসংক্ষেপ)
+               ================================================================== -->
+          <div id="page-buyer-ownership-summary" class="workspace-page">
+            <div class="page-header-row">
+              <div class="page-title-block">
+                <div class="pill-tag" style="background:#ccfbf1; color:#0f766e; border:1px solid #99f6e4; font-size:0.75rem; margin-bottom:0.4rem;">বায়া দলিল ধারাবাহিকতা</div>
+                <h3>মালিকানা ইতিহাস ও বায়া দলিল হস্তান্তর শৃঙ্খল</h3>
+                <p>সিএস, এসএ, আরএস থেকে বর্তমান বিএস রেকর্ড পর্যন্ত ধারাবাহিক সাফ-কবালা ও নামজারি যাচাই।</p>
+              </div>
+              <button class="btn btn-secondary-stone btn-sm" onclick="switchAppPage('citizen')">
+                নতুন প্লট খুঁজুন
+              </button>
+            </div>
+
+            <div class="calm-card" style="padding:1.5rem; margin-bottom:1.5rem;">
+              <div style="font-size:0.95rem; font-weight:700; color:var(--c-forest-950); margin-bottom:1rem;">
+                দাগ ১০১ (সাভার, আমিনবাজার) — মালিকানা প্রবাহ চিত্র:
+              </div>
+              <div style="display:flex; flex-direction:column; gap:1rem;">
+                <div style="display:flex; gap:1rem; align-items:flex-start;">
+                  <div style="background:var(--c-forest-900); color:#fff; width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; flex-shrink:0;">১</div>
+                  <div style="flex:1; background:var(--c-stone-50); border:1px solid var(--c-stone-200); padding:0.85rem; border-radius:var(--radius-md);">
+                    <div style="font-weight:700; color:var(--c-forest-950);">সিএস রেকর্ড (১৯৪০): মালিক মৌলভী করিম বখশ</div>
+                    <div style="font-size:0.82rem; color:var(--c-stone-600); margin-top:0.25rem;">সিএস খতিয়ান নং ৪২, দাগ নং ১০১, মোট জমি ৫০ শতক।</div>
+                  </div>
+                </div>
+                <div style="display:flex; gap:1rem; align-items:flex-start;">
+                  <div style="background:var(--c-forest-900); color:#fff; width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; flex-shrink:0;">২</div>
+                  <div style="flex:1; background:var(--c-stone-50); border:1px solid var(--c-stone-200); padding:0.85rem; border-radius:var(--radius-md);">
+                    <div style="font-weight:700; color:var(--c-forest-950);">এসএ রেকর্ড (১৯৬২): ওয়ারিশ সূত্রে রহিম বখশ</div>
+                    <div style="font-size:0.82rem; color:var(--c-stone-600); margin-top:0.25rem;">এসএ খতিয়ান নং ১২৮, বায়া দলিল শৃঙ্খল শতভাগ নিরবচ্ছিন্ন।</div>
+                  </div>
+                </div>
+                <div style="display:flex; gap:1rem; align-items:flex-start;">
+                  <div style="background:var(--c-forest-900); color:#fff; width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; flex-shrink:0;">৩</div>
+                  <div style="flex:1; background:var(--c-stone-50); border:1px solid var(--c-stone-200); padding:0.85rem; border-radius:var(--radius-md);">
+                    <div style="font-weight:700; color:var(--c-forest-950);">আরএস সাফ-কবালা বিক্রয় (২০১৬): দলিল নং ৪২১৫/২০১৬</div>
+                    <div style="font-size:0.82rem; color:var(--c-stone-600); margin-top:0.25rem;">বিক্রেতা: রহিম বখশ | ক্রেতা: মো: রফিকুল ইসলাম (২০.৫১ শতক)। সাব-রেজিস্ট্রি ভলিউমে নিবন্ধিত।</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+          <!-- ==================================================================
+               WORKSPACE: BUYER FRAUD RISK (দ্বৈত বিক্রয় ঝুঁকি যাচাই)
+               ================================================================== -->
+          <div id="page-buyer-fraud-risk" class="workspace-page">
+            <div class="page-header-row">
+              <div class="page-title-block">
+                <div class="pill-tag" style="background:#fee2e2; color:#991b1b; border:1px solid #fecaca; font-size:0.75rem; margin-bottom:0.4rem;">প্রতারণা সনাক্তকরণ ইঞ্জিন</div>
+                <h3>প্রতারণামূলক দ্বৈত বিক্রয় ও ওভারল্যাপিং অ্যালার্ট (P3)</h3>
+                <p>একই দাগে পূর্ববর্তী হস্তান্তর বা বন্ধক গোপন করে পুনরায় বিক্রয় চেষ্টার স্বয়ংক্রিয় এআই ডিটেকশন।</p>
+              </div>
+              <button class="btn btn-secondary-stone btn-sm" onclick="applyPresetAndSearch('ds1')">
+                🚨 ডেমো কেস DS-01 বিশ্লেষণ
+              </button>
+            </div>
+
+            <div class="calm-card" style="padding:1.5rem; border-left:4px solid #ef4444; margin-bottom:1.5rem;">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                  <h4 style="font-size:1.15rem; font-weight:700; color:#991b1b;">🚨 সনাক্তকৃত দ্বৈত বিক্রয় প্যাটার্ন (DS-01) — দাগ ১০১</h4>
+                  <p style="font-size:0.85rem; color:var(--c-stone-600); margin-top:0.2rem;">একই মালিক পূর্ববর্তী সাফ-কবালা বিক্রয় গোপন রেখে দ্বিতীয় ক্রেতার নিকট হস্তান্তরের অপচেষ্টা সনাক্ত।</p>
+                </div>
+                <span class="pill-tag" style="background:#fee2e2; color:#991b1b; font-weight:700; font-size:0.85rem;">ঝুঁকি স্কোর: ৯৫/১০০ (ক্রিটিক্যাল)</span>
+              </div>
+              <div style="margin-top:1.25rem; background:#fff; border:1px solid #fecaca; border-radius:var(--radius-md); padding:1rem; font-size:0.85rem; line-height:1.6;">
+                <div><strong>মূল দলিল (বৈধ):</strong> দলিল নং ৪২১৫/২০১৬ (সাব-রেজিস্ট্রি বই ভলিউম নং ৪২, পৃষ্ঠা ১৪–১৮)</div>
+                <div><strong>পরবর্তী অসঙ্গতিপূর্ণ দলিল:</strong> দলিল নং ৯৮১২/২০২৩ (পূর্ববর্তী হস্তান্তর গোপন)</div>
+                <div><strong>প্রতারণার সূত্র:</strong> বিক্রেতা ২০১৬ সালে পূর্ণ জমি হস্তান্তর করার পর ২০২৩ সালে পুনরায় সম্পূর্ণ জমির বায়া দলিল সৃজনপূর্বক হস্তান্তরের চেষ্টা করে।</div>
+                <div><strong>স্বয়ংক্রিয় সুপারিশ:</strong> অবিলম্বে সাব-রেজিস্ট্রার ও সহকারী কমিশনার (ভূমি) ট্রায়াজে স্থগিতাদেশ প্রেরণ।</div>
+              </div>
+            </div>
+          </div>
+
+
+          <!-- ==================================================================
+               WORKSPACE: BUYER COMPARE & REPORTS (প্লট তুলনা ও ডিউ ডিলিজেন্স রিপোর্ট)
+               ================================================================== -->
+          <div id="page-buyer-compare-reports" class="workspace-page">
+            <div class="page-header-row">
+              <div class="page-title-block">
+                <div class="pill-tag" style="background:#ccfbf1; color:#0f766e; border:1px solid #99f6e4; font-size:0.75rem; margin-bottom:0.4rem;">সমন্বিত ডিউ ডিলিজেন্স</div>
+                <h3>প্লট তুলনা ও সমন্বিত ভেরিফিকেশন রিপোর্ট</h3>
+                <p>একাধিক প্লটের বায়া দলিল, খাজনা, মামলা ও খাস ছাড়পত্র পাশাপাশি তুলনা করুন ও পিডিএফ রিপোর্ট সংগ্রহ করুন।</p>
+              </div>
+              <button class="btn btn-primary-forest btn-sm" onclick="window.print()">
+                📥 সম্পূর্ণ ভেরিফিকেশন রিপোর্ট (PDF / প্রিন্ট)
+              </button>
+            </div>
+
+            <!-- Side-by-side comparison table -->
+            <div class="admin-table-container">
+              <table class="admin-data-table">
+                <thead>
+                  <tr>
+                    <th>যাচাইয়ের প্যারামিটার</th>
+                    <th>প্লট ১ (দাগ ১০১ — আমিনবাজার)</th>
+                    <th>প্লট ২ (দাগ ১০০১ — বিরুলিয়া)</th>
+                    <th>প্লট ৩ (দাগ ২০৫ — সাভার)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>মালিকানা বৈধতা</strong></td>
+                    <td><span class="pill-tag" style="background:#fee2e2; color:#991b1b;">দ্বৈত বিক্রয় ঝুঁকি (DS-01)</span></td>
+                    <td><span class="pill-tag" style="background:#dcfce7; color:#166534;">নির্দোষ ধারাবাহিক (DS-02)</span></td>
+                    <td><span class="pill-tag" style="background:#fee2e2; color:#991b1b;">১-নং খাস খতিয়ান জমি</span></td>
+                  </tr>
+                  <tr>
+                    <td><strong>জমির পরিমাণ</strong></td>
+                    <td>২০.৫১ শতক</td>
+                    <td>১৪.০০ শতক</td>
+                    <td>১২.৩০ শতক</td>
+                  </tr>
+                  <tr>
+                    <td><strong>ভূমি উন্নয়ন কর</strong></td>
+                    <td>পরিশোধিত (১৪৩১)</td>
+                    <td>পরিশোধিত (১৪৩১)</td>
+                    <td>সরকারি সম্পদ (কর প্রযোজ্য নয়)</td>
+                  </tr>
+                  <tr>
+                    <td><strong>মামলা ও অধিগ্রহণ</strong></td>
+                    <td>মামলামুক্ত</td>
+                    <td>মামলামুক্ত</td>
+                    <td>সড়ক ও জনপথ অধিগ্রহণ জোনভুক্ত</td>
+                  </tr>
+                  <tr>
+                    <td><strong>ক্রয়যোগ্যতার ছাড়পত্র</strong></td>
+                    <td><strong style="color:#ef4444;">❌ ঝুঁকিপূর্ণ — ক্রয় নিষিদ্ধ</strong></td>
+                    <td><strong style="color:#166534;">✓ শতভাগ নিরাপদ — ছাড়পত্র দেওয়া যায়</strong></td>
+                    <td><strong style="color:#ef4444;">❌ সরকারি জমি — ক্রয় দণ্ডনীয় অপরাধ</strong></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+
+          <!-- ==================================================================
+               WORKSPACE: BUYER REVIEW REQUESTS (পুনঃযাচাই আবেদন)
+               ================================================================== -->
+          <div id="page-buyer-review-requests" class="workspace-page">
+            <div class="page-header-row">
+              <div class="page-title-block">
+                <div class="pill-tag" style="background:#ccfbf1; color:#0f766e; border:1px solid #99f6e4; font-size:0.75rem; margin-bottom:0.4rem;">সহকারী কমিশনারের ট্রায়াজ</div>
+                <h3>সহকারী কমিশনার (ভূমি) বরাবর পুনঃযাচাই আবেদন</h3>
+                <p>সন্দেহজনক দলিল বা বিরোধপূর্ণ দাগের ক্ষেত্রে সরকারি তদন্ত ও পুনঃযাচাইয়ের জন্য দাখিলকৃত আবেদন।</p>
+              </div>
+              <button class="btn btn-primary-forest btn-sm" onclick="openBuyerReviewModal()">
+                + নতুন পুনঃযাচাই আবেদন দাখিল করুন
+              </button>
+            </div>
+
+            <div class="admin-table-container">
+              <table class="admin-data-table">
+                <thead>
+                  <tr>
+                    <th>আবেদন ট্র্যাকিং নং</th>
+                    <th>পার্সেল আইডি ও দাগ</th>
+                    <th>আবেদনের কারণ</th>
+                    <th>জরুরিতা</th>
+                    <th>স্ট্যাটাস</th>
+                    <th>দাখিলের তারিখ</th>
+                  </tr>
+                </thead>
+                <tbody id="buyer-review-requests-tbody">
+                  <tr>
+                    <td><strong>BRR-2026-0001</strong></td>
+                    <td>BD-PAR-000101 (দাগ ১০১)</td>
+                    <td>দ্বৈত বিক্রয় ও বায়া দলিলের গরমিল সন্দেহ</td>
+                    <td><span class="pill-tag" style="background:#fee2e2; color:#991b1b;">জরুরি</span></td>
+                    <td><span class="pill-tag" style="background:#fef3c7; color:#92400e;">এসি ল্যান্ড ট্রায়াজে সংরক্ষিত</span></td>
+                    <td>২০২৬-১০-১৭</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+
+          <!-- ==================================================================
+               WORKSPACE: OFFICER OVERVIEW (সহকারী কমিশনার - ভূমি ওভারভিউ)
+               ================================================================== -->
+          <div id="page-officer-overview" class="workspace-page">
+            <div class="page-header-row">
+              <div class="page-title-block">
+                <div class="pill-tag" style="background:#fef3c7; color:#92400e; border:1px solid #fde68a; font-size:0.75rem; margin-bottom:0.4rem;">প্রশাসনিক ট্রায়াজ হাব</div>
+                <h3>উপজেলা ভূমি প্রশাসন ড্যাশবোর্ড — সহকারী কমিশনার (ভূমি), সাভার</h3>
+                <p>সাভার পাইলটের ই-নামজারি ট্রায়াজ, দ্বৈত বিক্রয় প্রতারণা অনুসন্ধান ও শুনানি ব্যবস্থাপনা।</p>
+              </div>
+              <div style="display:flex; gap:0.5rem;">
+                <button class="btn btn-primary-forest btn-sm" onclick="switchAppPage('officer')">
+                  প্রতারণা ট্রায়াজ কিউ (P3) ➔
+                </button>
+                <button class="btn btn-secondary-stone btn-sm" onclick="switchAppPage('officer-cases')">
+                  অ্যাসাইনকৃত আবেদনসমূহ ➔
+                </button>
+              </div>
+            </div>
+
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap:1rem; margin-bottom:1.5rem;">
+              <div class="calm-card" style="padding:1.25rem;">
+                <div style="font-size:0.8rem; color:var(--c-stone-500);">অনিষ্পন্ন জালিয়াতি ট্রায়াজ কিউ</div>
+                <div class="num" style="font-size:1.8rem; font-weight:700; color:#ef4444; margin-top:0.2rem;">৫০ টি</div>
+                <div style="font-size:0.75rem; color:#ef4444; margin-top:0.3rem;">DS-01 ক্রিটিক্যাল অ্যালার্ট</div>
+              </div>
+              <div class="calm-card" style="padding:1.25rem;">
+                <div style="font-size:0.8rem; color:var(--c-stone-500);">অ্যাসাইনকৃত নাগরিক নামজারি</div>
+                <div class="num" style="font-size:1.8rem; font-weight:700; color:var(--c-forest-900); margin-top:0.2rem;">২ টি</div>
+                <div style="font-size:0.75rem; color:var(--c-forest-700); margin-top:0.3rem;">সাভার উপজেলা রাজস্ব সার্কেল</div>
+              </div>
+              <div class="calm-card" style="padding:1.25rem;">
+                <div style="font-size:0.8rem; color:var(--c-stone-500);">ধার্যকৃত শুনানির সংখ্যা</div>
+                <div class="num" style="font-size:1.8rem; font-weight:700; color:#f59e0b; margin-top:0.2rem;">১ টি</div>
+                <div style="font-size:0.75rem; color:#f59e0b; margin-top:0.3rem;">০৫ নভেম্বর ২০২৬ ধার্য</div>
+              </div>
+              <div class="calm-card" style="padding:1.25rem;">
+                <div style="font-size:0.8rem; color:var(--c-stone-500);">তদন্ত ও সিদ্ধান্ত অডিট হিস্টোরি</div>
+                <div class="num" style="font-size:1.8rem; font-weight:700; color:var(--c-forest-700); margin-top:0.2rem;">১,২০৫ টি</div>
+                <div style="font-size:0.75rem; color:var(--c-stone-500); margin-top:0.3rem;">ডিজিটাল সাক্ষ্য সংরক্ষিত</div>
+              </div>
+            </div>
+          </div>
+
+
+          <!-- ==================================================================
+               WORKSPACE: OFFICER ASSIGNED APPLICATIONS (অ্যাসাইনকৃত আবেদন ও ফাইল)
+               ================================================================== -->
+          <div id="page-officer-cases" class="workspace-page">
+            <div class="page-header-row">
+              <div class="page-title-block">
+                <div class="pill-tag" style="background:#fef3c7; color:#92400e; border:1px solid #fde68a; font-size:0.75rem; margin-bottom:0.4rem;">কেস ম্যানেজমেন্ট</div>
+                <h3>অ্যাসাইনকৃত নামজারি ও সেবা আবেদন কিউ</h3>
+                <p>সাভার উপজেলা সহকারী কমিশনারের বিচারিক এখতিয়ারভুক্ত নাগরিক আবেদন পর্যালোচনা ও আদেশ প্রদান।</p>
+              </div>
+              <button class="btn btn-secondary-stone btn-sm" onclick="loadOfficerAssignedApps()">
+                🔄 রিফ্রেশ তালিকা
+              </button>
+            </div>
+
+            <div class="admin-table-container">
+              <table class="admin-data-table">
+                <thead>
+                  <tr>
+                    <th>আবেদন ট্র্যাকিং নং</th>
+                    <th>আবেদনকারী</th>
+                    <th>প্লট ও মৌজা</th>
+                    <th>আবেদনের ধরন</th>
+                    <th>তহশিলদার তদন্ত নোট</th>
+                    <th>শুনানির তারিখ</th>
+                    <th>অফিসার অ্যাকশন</th>
+                  </tr>
+                </thead>
+                <tbody id="officer-assigned-apps-tbody">
+                  <tr>
+                    <td><strong>APP-MUT-2026-001</strong></td>
+                    <td>মো: রফিকুল ইসলাম</td>
+                    <td>আমিনবাজার — দাগ ১০১ (২০.৫১ শতক)</td>
+                    <td>ই-নামজারি ও জমাভাগ</td>
+                    <td>বায়া দলিল যাচাই সম্পন্ন, সরেজমিন তদন্ত রিপোর্ট ইতিবাচক</td>
+                    <td>২০২৬-১১-০৫</td>
+                    <td>
+                      <button class="btn btn-primary-forest btn-sm" onclick="openOfficerHearingModal('APP-MUT-2026-001')">
+                        📅 শুনানির আদেশ
+                      </button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><strong>APP-CORR-2026-002</strong></td>
+                    <td>মো: রফিকুল ইসলাম</td>
+                    <td>আমিনবাজার — দাগ ১০২ (৬.০৬ শতক)</td>
+                    <td>করণিক ভুল সংশোধন</td>
+                    <td>পিতার নাম ভুল সংক্রান্ত এফিডেভিট সংযুক্ত</td>
+                    <td>নির্ধারিত হয়নি</td>
+                    <td>
+                      <button class="btn btn-primary-forest btn-sm" onclick="openOfficerHearingModal('APP-CORR-2026-002')">
+                        📅 শুনানির আদেশ
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+
+          <!-- ==================================================================
+               WORKSPACE: OFFICER DEED COMPARISON (দলিল ও রেকর্ড ক্রস-চেক)
+               ================================================================== -->
+          <div id="page-officer-deed-compare" class="workspace-page">
+            <div class="page-header-row">
+              <div class="page-title-block">
+                <div class="pill-tag" style="background:#fef3c7; color:#92400e; border:1px solid #fde68a; font-size:0.75rem; margin-bottom:0.4rem;">ক্রস-ভেরিফিকেশন ইঞ্জিন</div>
+                <h3>ওসিআর এক্সট্রাক্টেড দলিল বনাম মূল বালাম বই ক্রস-চেক</h3>
+                <p>স্ক্যানকৃত প্রাচীন দলিলের এআই ওসিআর এক্সট্রাকশনের সাথে সাব-রেজিস্ট্রির ডিজিটাল লেজারের তুলনা।</p>
+              </div>
+              <button class="btn btn-primary-forest btn-sm" onclick="switchAppPage('ocr')">
+                নতুন দলিল স্ক্যান করুন ➔
+              </button>
+            </div>
+
+            <div class="calm-card" style="padding:1.5rem; margin-bottom:1.5rem;">
+              <div style="font-size:0.95rem; font-weight:700; color:var(--c-forest-950); margin-bottom:1rem;">
+                দলিল নং ৪২১৫/২০১৬ — ফিল্ড বাই ফিল্ড ক্রস-ভেরিফিকেশন ম্যাট্রিক্স:
+              </div>
+              <table class="admin-data-table">
+                <thead>
+                  <tr>
+                    <th>ফিল্ডের নাম</th>
+                    <th>দলিল থেকে ওসিআর প্রাপ্ত তথ্য</th>
+                    <th>সাব-রেজিস্ট্রি বালাম লেজার রেকর্ড</th>
+                    <th>মিলকরণ ফলাফল</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>দাতার নাম (Seller)</strong></td>
+                    <td>রহিম বখশ</td>
+                    <td>রহিম বখশ</td>
+                    <td><span class="pill-tag pill-forest">১০০% মিল</span></td>
+                  </tr>
+                  <tr>
+                    <td><strong>গ্রহীতার নাম (Buyer)</strong></td>
+                    <td>মো: রফিকুল ইসলাম</td>
+                    <td>মো: রফিকুল ইসলাম</td>
+                    <td><span class="pill-tag pill-forest">১০০% মিল</span></td>
+                  </tr>
+                  <tr>
+                    <td><strong>মৌজা ও দাগ নং</strong></td>
+                    <td>আমিনবাজার, দাগ ১০১</td>
+                    <td>আমিনবাজার, দাগ ১০১</td>
+                    <td><span class="pill-tag pill-forest">১০০% মিল</span></td>
+                  </tr>
+                  <tr>
+                    <td><strong>হস্তান্তরিত জমির পরিমাণ</strong></td>
+                    <td>২০.৫১ শতক</td>
+                    <td>২০.৫১ শতক</td>
+                    <td><span class="pill-tag pill-forest">১০০% মিল</span></td>
+                  </tr>
+                  <tr>
+                    <td><strong>রেজিস্ট্রেশন তারিখ</strong></td>
+                    <td>১২ জানুয়ারি ২০১৬</td>
+                    <td>১২ জানুয়ারি ২০১৬</td>
+                    <td><span class="pill-tag pill-forest">১০০% মিল</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+
+          <!-- ==================================================================
+               WORKSPACE: OFFICER DOCUMENT REVIEW (নথি ও ওটিপি/স্বাক্ষর যাচাই)
+               ================================================================== -->
+          <div id="page-officer-doc-review" class="workspace-page">
+            <div class="page-header-row">
+              <div class="page-title-block">
+                <div class="pill-tag" style="background:#fef3c7; color:#92400e; border:1px solid #fde68a; font-size:0.75rem; margin-bottom:0.4rem;">ডিজিটাল প্রামাণ্যতা</div>
+                <h3>দলিলের ডিজিটাল সত্যতা ও ক্রিপ্টোগ্রাফিক হ্যাশ যাচাই</h3>
+                <p>সাবমিটকৃত দলিলের ডিজিটাল কপি বনাম মূল সরকারি রেজিস্ট্রি লেজারের SHA-256 প্রামাণ্যতা অডিট।</p>
+              </div>
+              <button class="btn btn-secondary-stone btn-sm" onclick="switchAppPage('verify')">
+                হ্যাশ ভেরিফায়ার টুল ➔
+              </button>
+            </div>
+
+            <div class="calm-card" style="padding:1.5rem;">
+              <h4 style="font-size:1.05rem; font-weight:700; color:var(--c-forest-950); margin-bottom:0.5rem;">ক্রিপ্টোগ্রাফিক প্রামাণ্যতার সারাংশ</h4>
+              <p style="font-size:0.85rem; color:var(--c-stone-600); line-height:1.6;">
+                দেশমৃত্তিকা প্ল্যাটফর্মে সংরক্ষিত ৫৮,৩৩৩ টি দলিলের প্রতিটির বিপরীতে একটি অপরিবর্তনশীল SHA-256 হ্যাশ সংরক্ষিত রয়েছে। কোনো দলিল স্ক্যানে সামান্য একটি পিক্সেল বা অক্ষরের পরিবর্তন ঘটলেও হ্যাশ অসঙ্গতি হিসেবে ফ্ল্যাগ হবে।
+              </p>
+            </div>
+          </div>
+
+
+          <!-- ==================================================================
+               WORKSPACE: OFFICER HEARINGS & FIELD VERIFICATION (শুনানি ও সরেজমিন তদন্ত)
+               ================================================================== -->
+          <div id="page-officer-hearings" class="workspace-page">
+            <div class="page-header-row">
+              <div class="page-title-block">
+                <div class="pill-tag" style="background:#fef3c7; color:#92400e; border:1px solid #fde68a; font-size:0.75rem; margin-bottom:0.4rem;">সরেজমিন ট্র্যাকিং</div>
+                <h3>শুনানি ক্যালেন্ডার ও সরেজমিন তদন্ত তদারকি</h3>
+                <p>ইউনিয়ন ভূমি সহকারী কর্মকর্তা (ULAO) কর্তৃক সরেজমিন সীমানা জরিপ ও শুনানির কার্যবিবরণী।</p>
+              </div>
+            </div>
+
+            <div class="admin-table-container">
+              <table class="admin-data-table">
+                <thead>
+                  <tr>
+                    <th>শুনানির তারিখ</th>
+                    <th>কেস ট্র্যাকিং নং</th>
+                    <th>পক্ষসমূহ</th>
+                    <th>তদন্ত কর্মকর্তা (ULAO)</th>
+                    <th>সরেজমিন অবস্থান</th>
+                    <th>স্ট্যাটাস</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>২০২৬-১১-০৫</strong></td>
+                    <td>APP-MUT-2026-001</td>
+                    <td>মো: রফিকুল ইসলাম (আবেদনকারী)</td>
+                    <td>ইউনিয়ন ভূমি সহকারী কর্মকর্তা, আমিনবাজার</td>
+                    <td>আমিনবাজার মৌজা, দাগ ১০১</td>
+                    <td><span class="pill-tag pill-forest">নোটিশ জারিকৃত</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+
+          <!-- ==================================================================
+               WORKSPACE: OFFICER DECISIONS SIMULATION (সিমুলেটেড সিদ্ধান্ত ও আদেশ)
+               ================================================================== -->
+          <div id="page-officer-decisions" class="workspace-page">
+            <div class="page-header-row">
+              <div class="page-title-block">
+                <div class="pill-tag" style="background:#fef3c7; color:#92400e; border:1px solid #fde68a; font-size:0.75rem; margin-bottom:0.4rem;">বিচারিক এখতিয়ার</div>
+                <h3>সহকারী কমিশনার (ভূমি) এর সিমুলেটেড সিদ্ধান্ত ও আদেশ</h3>
+                <p>আইনি যুক্তি ও অডিট ট্রেইল সংরক্ষণপূর্বক নামজারি অনুমোদন, বাতিল বা পুনঃতদন্তের চূড়ান্ত আদেশ।</p>
+              </div>
+              <button class="btn btn-primary-forest btn-sm" onclick="switchAppPage('officer')">
+                ট্রায়াজ কিউ থেকে কেস নিন ➔
+              </button>
+            </div>
+
+            <div class="calm-card" style="padding:1.5rem; max-width:750px;">
+              <h4 style="font-size:1.05rem; font-weight:700; color:var(--c-forest-950); margin-bottom:0.5rem;">আদেশ লিপিবদ্ধকরণ নির্দেশিকা</h4>
+              <p style="font-size:0.85rem; color:var(--c-stone-600); line-height:1.6; margin-bottom:1rem;">
+                প্রতিটি সিদ্ধান্তের ক্ষেত্রে আইনগত ধারা (যেমন: The State Acquisition and Tenancy Act, 1950 এর 143 ধারা) ও তদন্ত কর্মকর্তার রিপোর্টের রেফারেন্স প্রদান বাধ্যতামূলক। গৃহীত সকল আদেশ তাৎক্ষণিকভাবে অপরিবর্তনশীল অডিট ট্রেইলে সংরক্ষিত হয়।
+              </p>
+            </div>
+          </div>
+
+
+          <!-- ==================================================================
+               WORKSPACE: ADMIN OVERVIEW (সিস্টেম অ্যাডমিন সার্বিক অবস্থা)
+               ================================================================== -->
+          <div id="page-admin-overview" class="workspace-page">
+            <div class="page-header-row">
+              <div class="page-title-block">
+                <div class="pill-tag" style="background:#e0e7ff; color:#3730a3; border:1px solid #c7d2fe; font-size:0.75rem; margin-bottom:0.4rem;">সিস্টেম কন্ট্রোল সেন্টার</div>
+                <h3>প্ল্যাটফর্ম সার্বিক অবস্থা ও অপারেশনাল কন্ট্রোল</h3>
+                <p>ব্যবহারকারী আরবিক রোল, ডাটাবেস স্বাস্থ্য, সক্রিয় সেশন ও সাইবার নিরাপত্তা নজরদারি।</p>
+              </div>
+              <button class="btn btn-primary-forest btn-sm" onclick="switchAppPage('users')">
+                ব্যবহারকারী ও রোল পরিচালনা ➔
+              </button>
+            </div>
+
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap:1rem; margin-bottom:1.5rem;">
+              <div class="calm-card" style="padding:1.25rem;">
+                <div style="font-size:0.8rem; color:var(--c-stone-500);">নিবন্ধিত ব্যবহারকারী (RBAC)</div>
+                <div class="num" id="admin-ov-total-users" style="font-size:1.8rem; font-weight:700; color:#3730a3; margin-top:0.2rem;">৪ জন</div>
+                <div style="font-size:0.75rem; color:var(--c-stone-500); margin-top:0.3rem;">৪টি স্বতন্ত্র ভূমিকায় বিন্যস্ত</div>
+              </div>
+              <div class="calm-card" style="padding:1.25rem;">
+                <div style="font-size:0.8rem; color:var(--c-stone-500);">সক্রিয় সুরক্ষিত সেশন</div>
+                <div class="num" id="admin-ov-active-sessions" style="font-size:1.8rem; font-weight:700; color:var(--c-forest-700); margin-top:0.2rem;">১ টি</div>
+                <div style="font-size:0.75rem; color:var(--c-forest-700); margin-top:0.3rem;">HMAC SHA-256 সাইনযুক্ত</div>
+              </div>
+              <div class="calm-card" style="padding:1.25rem;">
+                <div style="font-size:0.8rem; color:var(--c-stone-500);">ডাটাবেস জার্নাল মোড</div>
+                <div class="num" style="font-size:1.5rem; font-weight:700; color:var(--c-forest-900); margin-top:0.3rem;">WAL Mode</div>
+                <div style="font-size:0.75rem; color:var(--c-stone-500); margin-top:0.3rem;">১০৯.৬ এমবি (১০,০০০ পার্সেল)</div>
+              </div>
+              <div class="calm-card" style="padding:1.25rem;">
+                <div style="font-size:0.8rem; color:var(--c-stone-500);">সার্ভার এপিআই হেলথ</div>
+                <div class="num" style="font-size:1.5rem; font-weight:700; color:var(--c-forest-700); margin-top:0.3rem;">HEALTHY</div>
+                <div style="font-size:0.75rem; color:var(--c-forest-700); margin-top:0.3rem;">HTTP 200 OK (Latency: <5ms)</div>
+              </div>
+            </div>
+
+            <!-- Quick Admin Jumps -->
+            <div class="calm-card">
+              <h4 style="font-size:1rem; font-weight:700; margin-bottom:0.75rem;">দ্রুত অ্যাডমিন ম্যানেজমেন্ট নেভিগেশন:</h4>
+              <div style="display:flex; flex-wrap:wrap; gap:0.75rem;">
+                <button class="btn btn-secondary-stone btn-sm" onclick="switchAppPage('users')">
+                  👥 ব্যবহারকারী ও রোল ব্যবস্থাপনা
+                </button>
+                <button class="btn btn-secondary-stone btn-sm" onclick="switchAppPage('security-logs')">
+                  🔒 সাইবার নিরাপত্তা অডিট লগ
+                </button>
+                <button class="btn btn-secondary-stone btn-sm" onclick="switchAppPage('admin-ocr-diagnostics')">
+                  👁️ ওসিআর ইঞ্জিন ও ল্যাঙ্গুয়েজ প্যাক
+                </button>
+                <button class="btn btn-secondary-stone btn-sm" onclick="switchAppPage('admin-rules-config')">
+                  📏 জালিয়াতি সনাক্তকরণ রুলবুক
+                </button>
+                <button class="btn btn-secondary-stone btn-sm" onclick="switchAppPage('admin-backups')">
+                  💾 ডাটাবেস ব্যাকআপ ও চেকপয়েন্ট
+                </button>
+              </div>
+            </div>
+          </div>
+
+
+          <!-- ==================================================================
+               WORKSPACE: ADMIN OCR DIAGNOSTICS (ওসিআর ইঞ্জিন ও ভাষা প্যাক হেলথ)
+               ================================================================== -->
+          <div id="page-admin-ocr-diagnostics" class="workspace-page">
+            <div class="page-header-row">
+              <div class="page-title-block">
+                <div class="pill-tag" style="background:#e0e7ff; color:#3730a3; border:1px solid #c7d2fe; font-size:0.75rem; margin-bottom:0.4rem;">এআই পাইপলাইন</div>
+                <h3>বাংলা ওসিআর ইঞ্জিন ও প্রসেসিং পাইপলাইন স্বাস্থ্য</h3>
+                <p>Tesseract OCR v5.5, বাংলা ল্যাঙ্গুয়েজ প্যাক (`ben`) ও ফাস্ট কনট্রাস্ট এনহ্যান্সমেন্ট মডিউল।</p>
+              </div>
+            </div>
+
+            <div class="calm-card" style="padding:1.5rem; max-width:750px;">
+              <table class="admin-data-table">
+                <tbody>
+                  <tr>
+                    <td><strong>OCR Engine Core:</strong></td>
+                    <td>Tesseract OCR (ben + eng packs active)</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Preprocessing Pipeline:</strong></td>
+                    <td>Adaptive Thresholding, Deskewing, Grayscale Contrast</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Bengali Language Pack:</strong></td>
+                    <td><span class="pill-tag pill-forest">ইনস্টলকৃত ও কার্যকর (`ben`)</span></td>
+                  </tr>
+                  <tr>
+                    <td><strong>Fallback Mechanism:</strong></td>
+                    <td>Heuristic Entity Extractor & Syntactic Normalizer Active</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+
+          <!-- ==================================================================
+               WORKSPACE: ADMIN FRAUD RULES (প্রতারণা সনাক্তকরণ রুলবুক কনফিগ)
+               ================================================================== -->
+          <div id="page-admin-rules-config" class="workspace-page">
+            <div class="page-header-row">
+              <div class="page-title-block">
+                <div class="pill-tag" style="background:#e0e7ff; color:#3730a3; border:1px solid #c7d2fe; font-size:0.75rem; margin-bottom:0.4rem;">অডিট-ভার্সন রুলবুক</div>
+                <h3>জালিয়াতি ও দ্বৈত বিক্রয় সনাক্তকরণ রুলবুক</h3>
+                <p>ভার্সন v2.2-RBAC এর স্বয়ংক্রিয় থ্রেশহোল্ড ও ক্রিটিক্যালিটি পলিসি।</p>
+              </div>
+            </div>
+
+            <div class="admin-table-container">
+              <table class="admin-data-table">
+                <thead>
+                  <tr>
+                    <th>রুল কোড</th>
+                    <th>রুলের নাম</th>
+                    <th>তীব্রতা</th>
+                    <th>থ্রেশহোল্ড স্কোর</th>
+                    <th>স্ট্যাটাস</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>DS-01</strong></td>
+                    <td>Conflicting Subsequent Transfer (দ্বৈত বিক্রয়)</td>
+                    <td><span class="pill-tag" style="background:#fee2e2; color:#991b1b;">CRITICAL</span></td>
+                    <td>৯৫/১০০</td>
+                    <td><span class="pill-tag pill-forest">সক্রিয়</span></td>
+                  </tr>
+                  <tr>
+                    <td><strong>DS-02</strong></td>
+                    <td>Sequential Legitimate Transfer (ধারাবাহিক বিক্রয়)</td>
+                    <td><span class="pill-tag" style="background:#dcfce7; color:#166534;">LOW</span></td>
+                    <td>১০/১০০</td>
+                    <td><span class="pill-tag pill-forest">সক্রিয়</span></td>
+                  </tr>
+                  <tr>
+                    <td><strong>KHAS-01</strong></td>
+                    <td>১-নং সরকারি খাস খতিয়ান বেদখল অ্যালার্ট</td>
+                    <td><span class="pill-tag" style="background:#fee2e2; color:#991b1b;">CRITICAL</span></td>
+                    <td>১০০/১০০</td>
+                    <td><span class="pill-tag pill-forest">সক্রিয়</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+
+          <!-- ==================================================================
+               WORKSPACE: ADMIN BACKUPS (ব্যাকআপ ও অপারেশনাল জব)
+               ================================================================== -->
+          <div id="page-admin-backups" class="workspace-page">
+            <div class="page-header-row">
+              <div class="page-title-block">
+                <div class="pill-tag" style="background:#e0e7ff; color:#3730a3; border:1px solid #c7d2fe; font-size:0.75rem; margin-bottom:0.4rem;">সিস্টেম রিলায়েবিলিটি</div>
+                <h3>ডাটাবেস ব্যাকআপ ও SQLite WAL চেকপয়েন্ট</h3>
+                <p>১০৯.৬ এমবি সিন্থেটিক ডাটাবেস ও অডিট লেজারের নির্ভরযোগ্য ব্যাকআপ পরিচালনা।</p>
+              </div>
+              <button class="btn btn-primary-forest btn-sm" onclick="triggerDbCheckpoint()">
+                ⚡ তাৎক্ষণিক WAL চেকপয়েন্ট রান করুন
+              </button>
+            </div>
+
+            <div class="calm-card" style="padding:1.5rem; max-width:750px;">
+              <h4 style="font-size:1.05rem; font-weight:700; color:var(--c-forest-950); margin-bottom:0.75rem;">ডাটাবেস ব্যাকআপ পলিসি</h4>
+              <p style="font-size:0.85rem; color:var(--c-stone-600); line-height:1.6; margin-bottom:1rem;">
+                প্রতি ২৪ ঘণ্টায় সম্পূর্ণ ডাটাবেসের একটি স্বয়ংক্রিয় কোল্ড ব্যাকআপ এবং প্রতি ১ ঘণ্টায় WAL চেকপয়েন্ট অনুষ্ঠিত হয়। ব্যাকআপের SHA-256 ইন্টিগ্রিটি চেক সফলভাবে পাস হয়েছে।
+              </p>
+              <div id="backup-checkpoint-status" style="display:none; padding:0.75rem; background:#dcfce7; border:1px solid #bbf7d0; border-radius:var(--radius-sm); font-size:0.85rem; color:#166534;"></div>
+            </div>
+          </div>
+
+
+          <!-- ==================================================================
+               WORKSPACE: ADMIN SYSTEM SETTINGS (সিস্টেম কনফিগারেশন)
+               ================================================================== -->
+          <div id="page-admin-settings" class="workspace-page">
+            <div class="page-header-row">
+              <div class="page-title-block">
+                <div class="pill-tag" style="background:#e0e7ff; color:#3730a3; border:1px solid #c7d2fe; font-size:0.75rem; margin-bottom:0.4rem;">কনফিগারেশন</div>
+                <h3>প্ল্যাটফর্ম নিরাপত্তা নীতি ও সিস্টেম সেটিংস</h3>
+                <p>ওটিপি মেয়াদ, সেশন লাইফটাইম ও রেট-লিমিট প্যারামিটার।</p>
+              </div>
+            </div>
+
+            <div class="calm-card" style="padding:1.5rem; max-width:750px;">
+              <div style="font-size:0.9rem; line-height:1.8; color:var(--c-stone-700);">
+                <div><strong>ইমেইল ওটিপি মেয়াদ:</strong> ১০ মিনিট (৬০০ সেকেন্ড)</div>
+                <div><strong>সর্বোচ্চ ওটিপি চেষ্টা:</strong> ৫ বার (এরপর স্বয়ংক্রিয়ভাবে ইনভ্যালিডেট)</div>
+                <div><strong>ওটিপি রিসেন্ড কুলডাউন:</strong> ৬০ সেকেন্ড</div>
+                <div><strong>সেশন টোকেন মেয়াদ:</strong> ২৪ ঘণ্টা (HMAC SHA-256)</div>
+                <div><strong>রেট লিমিটিং:</strong> ৫ চেষ্টা / মিনিট (আইপি ও ইমেইল ভিত্তিক)</div>
+              </div>
+            </div>
+          </div>
+
+
+          <!-- ==================================================================
+               WORKSPACE: 403 UNAUTHORIZED / ACCESS DENIED SCREEN
+               ================================================================== -->
+          <div id="page-unauthorized" class="workspace-page">
+            <div class="unauthorized-card">
+              <div class="unauthorized-icon">🛡️</div>
+              <div class="unauthorized-title">অননুমোদিত প্রবেশাধিকার (403 Forbidden)</div>
+              <div class="unauthorized-role-banner" id="unauthorized-role-banner">
+                আপনার বর্তমান ভূমিকা: সাধারণ নাগরিক (CITIZEN)
+              </div>
+              <p style="font-size:0.95rem; color:var(--c-stone-600); line-height:1.6; margin-bottom:2rem;">
+                নিরাপত্তা নীতি ও ভূমিকা-ভিত্তিক প্রবেশাধিকার নিয়ন্ত্রণ (RBAC) অনুযায়ী আপনার বর্তমান ভূমিকার জন্য এই মডিউল বা পৃষ্ঠায় প্রবেশাধিকার সংরক্ষিত। শুধুমাত্র অনুমোদিত প্রশাসনিক বা বিচারিক অ্যাকাউন্টের মাধ্যমে এই কার্যক্রম পরিচালনা সম্ভব।
+              </p>
+              <button class="btn btn-primary-forest" onclick="returnToAuthorizedHome()">
+                🏠 আপনার অনুমোদিত ড্যাশবোর্ডে ফিরে যান
+              </button>
+            </div>
+          </div>
+
         </main>
       </div>
 
@@ -1090,6 +2229,450 @@
           <div class="modal-foot" style="padding:0;">
             <button type="button" class="btn btn-secondary-stone btn-sm" onclick="closeReviewModal()">বাতিল</button>
             <button type="submit" class="btn btn-primary-forest btn-sm">💾 সিদ্ধান্ত সংরক্ষণ করুন</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       AUTHENTICATION SYSTEM: SPLIT-SCREEN AUTH MODAL (APPLE / FOREST GREEN)
+       ========================================================================== -->
+  <div id="auth-modal" class="auth-modal-overlay">
+    <div class="auth-split-card">
+      <button type="button" class="auth-close-btn" onclick="closeAuthModal()" title="বন্ধ করুন">&times;</button>
+
+      <!-- LEFT SIDE: FORM PANE (DEEP FOREST GREEN / BENGALI COPY) -->
+      <div class="auth-form-side">
+        
+        <!-- ==================== VIEW 1: LOGIN ==================== -->
+        <div id="auth-view-login">
+          <div class="auth-brand-badge">
+            <span>🌿 দেশমৃত্তিকা</span>
+            <span>•</span>
+            <span>BHUMI-SYNC v2.1</span>
+          </div>
+
+          <h2 class="auth-title">স্বাগতম</h2>
+          <p class="auth-subtitle">স্মার্ট ক্যাডাস্ট্রাল ও দ্বৈত বিক্রয় সুরক্ষা প্ল্যাটফর্মে প্রবেশ করুন</p>
+
+          <form id="auth-login-form" onsubmit="handleLoginSubmit(event)">
+            <div class="auth-form-group">
+              <label class="auth-label" for="login-email">ইমেইল ঠিকানা বা ইউজারনেম *</label>
+              <div class="auth-input-wrap">
+                <input type="email" id="login-email" class="auth-input" placeholder="example@email.com" required autocomplete="email">
+              </div>
+            </div>
+
+            <div class="auth-form-group">
+              <label class="auth-label" for="login-password">পাসওয়ার্ড *</label>
+              <div class="auth-input-wrap">
+                <input type="password" id="login-password" class="auth-input" placeholder="আপনার গোপন পাসওয়ার্ড লিখুন" required autocomplete="current-password">
+                <button type="button" class="auth-input-toggle" onclick="togglePasswordVisibility('login-password')">👁️</button>
+              </div>
+            </div>
+
+            <div class="auth-row-actions">
+              <label class="auth-checkbox-label">
+                <input type="checkbox" id="login-remember-me" checked>
+                <span>আমাকে মনে রাখুন</span>
+              </label>
+              <a href="javascript:void(0)" class="auth-link" onclick="switchAuthView('reset')">পাসওয়ার্ড ভুলে গেছেন?</a>
+            </div>
+
+            <button type="submit" id="login-submit-btn" class="auth-primary-btn">
+              <span>প্রবেশ করুন</span>
+              <span>➔</span>
+            </button>
+          </form>
+
+          <div class="auth-footer-nav">
+            <span>অ্যাকাউন্ট নেই? </span>
+            <a href="javascript:void(0)" id="auth-switch-to-signup" class="auth-link" onclick="switchAuthView('signup')" style="font-weight:700;">নতুন অ্যাকাউন্ট নিবন্ধন করুন</a>
+          </div>
+
+          <!-- Hackathon 1-Click Role Switcher Strip -->
+          <div class="demo-role-strip">
+            <div class="demo-role-strip-title">
+              <span>⚡ হ্যাকথন ডেমো অ্যাকাউন্ট — ১ ক্লিকে পরীক্ষা</span>
+              <span>DEMO</span>
+            </div>
+            <div class="demo-role-buttons">
+              <button type="button" id="demo-login-citizen" class="demo-role-btn" onclick="demoLogin('CITIZEN')">👤 নাগরিক</button>
+              <button type="button" id="demo-login-buyer" class="demo-role-btn" onclick="demoLogin('BUYER')">💼 ক্রেতা</button>
+              <button type="button" id="demo-login-officer" class="demo-role-btn" onclick="demoLogin('OFFICER')">🏛️ এসি ল্যান্ড</button>
+              <button type="button" id="demo-login-admin" class="demo-role-btn" onclick="demoLogin('ADMINISTRATOR')">⚙️ অ্যাডমিন</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================== VIEW 2: SIGNUP ==================== -->
+        <div id="auth-view-signup" style="display:none;">
+          <div class="auth-brand-badge">
+            <span>🌿 দেশমৃত্তিকা</span>
+            <span>•</span>
+            <span>নিরাপদ ভূমি নিবন্ধন</span>
+          </div>
+
+          <h2 class="auth-title">নতুন যাত্রা শুরু করুন</h2>
+          <p class="auth-subtitle">সমন্বিত ডিজিটাল ভূমি যাচাইকরণ প্ল্যাটফর্মে আপনার অ্যাকাউন্ট তৈরি করুন</p>
+
+          <form id="auth-signup-form" onsubmit="handleSignupSubmit(event)">
+            <div class="auth-form-group">
+              <label class="auth-label" for="signup-name">পূর্ণ নাম *</label>
+              <input type="text" id="signup-name" class="auth-input" placeholder="উদা: মো: রফিকুল ইসলাম" required>
+            </div>
+
+            <div class="auth-form-group">
+              <label class="auth-label" for="signup-email">ইমেইল ঠিকানা *</label>
+              <input type="email" id="signup-email" class="auth-input" placeholder="example@email.com" required autocomplete="email">
+            </div>
+
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.75rem;">
+              <div class="auth-form-group">
+                <label class="auth-label" for="signup-password">পাসওয়ার্ড (৮+ অক্ষর) *</label>
+                <div class="auth-input-wrap">
+                  <input type="password" id="signup-password" class="auth-input" placeholder="••••••••" required autocomplete="new-password">
+                  <button type="button" class="auth-input-toggle" onclick="togglePasswordVisibility('signup-password')">👁️</button>
+                </div>
+              </div>
+              <div class="auth-form-group">
+                <label class="auth-label" for="signup-confirm-password">পাসওয়ার্ড নিশ্চিত *</label>
+                <div class="auth-input-wrap">
+                  <input type="password" id="signup-confirm-password" class="auth-input" placeholder="••••••••" required autocomplete="new-password">
+                  <button type="button" class="auth-input-toggle" onclick="togglePasswordVisibility('signup-confirm-password')">👁️</button>
+                </div>
+              </div>
+            </div>
+
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.75rem;">
+              <div class="auth-form-group">
+                <label class="auth-label" for="signup-phone">মোবাইল নম্বর (ঐচ্ছিক)</label>
+                <input type="tel" id="signup-phone" class="auth-input" placeholder="০১XXXXXXXXX">
+              </div>
+              <div class="auth-form-group">
+                <label class="auth-label" for="signup-role">অ্যাকাউন্টের ধরন</label>
+                <select id="signup-role" class="auth-input" style="background:#133334; color:#ffffff;">
+                  <option value="CITIZEN">👤 সাধারণ নাগরিক</option>
+                  <option value="BUYER">💼 সম্ভাব্য ক্রেতা</option>
+                </select>
+              </div>
+            </div>
+
+            <div style="font-size:0.73rem; color:#fde68a; background:rgba(245, 158, 11, 0.15); border:1px solid rgba(245, 158, 11, 0.3); border-radius:8px; padding:6px 10px; margin-bottom:1rem; line-height:1.4;">
+              🛡️ এসি ল্যান্ড (ভূমি কর্মকর্তা) ও সিস্টেম অ্যাডমিন অ্যাকাউন্ট শুধুমাত্র অনুমোদিত প্রশাসনিক প্রক্রিয়ায় বরাদ্দ করা হয়।
+            </div>
+
+            <div class="auth-form-group" style="margin-bottom:1.25rem;">
+              <label class="auth-checkbox-label" style="font-size:0.8rem;">
+                <input type="checkbox" id="signup-terms" required>
+                <span>আমি প্ল্যাটফর্মের <a href="javascript:void(0)" class="auth-link">ব্যবহারবিধি ও গোপনীয়তা নীতিমালায়</a> সম্মত</span>
+              </label>
+            </div>
+
+            <button type="submit" id="signup-submit-btn" class="auth-primary-btn">
+              <span>অ্যাকাউন্ট তৈরি করুন</span>
+              <span>➔</span>
+            </button>
+          </form>
+
+          <div class="auth-footer-nav">
+            <span>ইতোমধ্যে অ্যাকাউন্ট আছে? </span>
+            <a href="javascript:void(0)" id="auth-switch-to-login" class="auth-link" onclick="switchAuthView('login')" style="font-weight:700;">প্রবেশ করুন (লগইন)</a>
+          </div>
+        </div>
+
+        <!-- ==================== VIEW 3: OTP EMAIL VERIFICATION ==================== -->
+        <div id="auth-view-otp" style="display:none;">
+          <div class="auth-brand-badge">
+            <span>📧 ইমেইল সুরক্ষা যাচাইকরণ</span>
+          </div>
+
+          <h2 class="auth-title">যাচাইকরণ কোড</h2>
+          <p class="auth-subtitle">আপনার ইমেইল ঠিকানায় ৬-সংখ্যার কোড পাঠানো হয়েছে:</p>
+
+          <div style="text-align:center; margin-bottom:1.25rem;">
+            <span id="otp-target-email-badge" class="otp-email-pill">user@example.com</span>
+            <div style="margin-top:6px;">
+              <a href="javascript:void(0)" class="auth-link" style="font-size:0.75rem;" onclick="switchAuthView('signup')">ইমেইল পরিবর্তন করতে চান?</a>
+            </div>
+          </div>
+
+          <form id="auth-otp-form" onsubmit="handleOtpSubmit(event)">
+            <!-- 6 Individual Digit Inputs with Auto-Advance -->
+            <div class="otp-inputs-grid">
+              <input type="text" inputmode="numeric" maxlength="1" class="otp-digit" id="otp-digit-1" autofocus>
+              <input type="text" inputmode="numeric" maxlength="1" class="otp-digit" id="otp-digit-2">
+              <input type="text" inputmode="numeric" maxlength="1" class="otp-digit" id="otp-digit-3">
+              <input type="text" inputmode="numeric" maxlength="1" class="otp-digit" id="otp-digit-4">
+              <input type="text" inputmode="numeric" maxlength="1" class="otp-digit" id="otp-digit-5">
+              <input type="text" inputmode="numeric" maxlength="1" class="otp-digit" id="otp-digit-6">
+            </div>
+
+            <div class="otp-status-row">
+              <div>
+                <span>⏱️ মেয়াদ: </span>
+                <strong id="otp-timer-text" style="color:#6ee7b7;">১০:০০ মিনিট</strong>
+              </div>
+              <div>
+                <span>বাকি সুযোগ: </span>
+                <strong id="otp-attempts-left" style="color:#fde68a;">৫ বার</strong>
+              </div>
+            </div>
+
+            <button type="submit" id="otp-verify-btn" class="auth-primary-btn">
+              <span>যাচাই সম্পন্ন করুন</span>
+              <span>✓</span>
+            </button>
+          </form>
+
+          <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.82rem; margin-top:0.5rem;">
+            <a href="javascript:void(0)" class="auth-link" onclick="switchAuthView('login')">← লগইনে ফিরে যান</a>
+            <button type="button" id="otp-resend-btn" class="btn btn-secondary-stone btn-sm" onclick="handleResendCode()" style="background:rgba(255,255,255,0.1); color:#ffffff; border:1px solid rgba(255,255,255,0.25);">
+              <span>পুনরায় কোড পাঠান</span>
+              <span id="otp-cooldown-timer"></span>
+            </button>
+          </div>
+
+          <!-- Hackathon Dev Mailbox Helper -->
+          <div class="dev-mailbox-helper">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span>💡 হ্যাকথন লোকাল মেইলবক্স (SMTP ছাড়া ওটিপি দেখতে)</span>
+              <button type="button" onclick="fetchDevOtp()" style="background:rgba(245,158,11,0.3); border:1px solid #f59e0b; color:#fff; border-radius:6px; font-size:0.7rem; padding:2px 8px; cursor:pointer;">
+                কোড আনুন
+              </button>
+            </div>
+            <div id="dev-otp-code-box" class="dev-otp-display" style="display:none;"></div>
+          </div>
+        </div>
+
+        <!-- ==================== VIEW 4: FORGOT & RESET PASSWORD ==================== -->
+        <div id="auth-view-reset" style="display:none;">
+          <div class="auth-brand-badge">
+            <span>🔑 নিরাপদ পাসওয়ার্ড পুনরুদ্ধার</span>
+          </div>
+
+          <h2 class="auth-title">পাসওয়ার্ড রিসেট</h2>
+          <p class="auth-subtitle">আপনার অ্যাকাউন্টের ইমেইল ও প্রাপ্ত ৬-সংখ্যার কোড দিয়ে নতুন পাসওয়ার্ড দিন</p>
+
+          <!-- Step 1: Request Code -->
+          <div id="reset-step-request">
+            <div class="auth-form-group">
+              <label class="auth-label" for="reset-email">নিবন্ধিত ইমেইল ঠিকানা *</label>
+              <input type="email" id="reset-email" class="auth-input" placeholder="example@email.com" required>
+            </div>
+            <button type="button" class="auth-primary-btn" onclick="handleForgotPasswordRequest()">
+              <span>রিসেট কোড পাঠান</span>
+              <span>➔</span>
+            </button>
+          </div>
+
+          <!-- Step 2: Enter Code and New Password -->
+          <div id="reset-step-confirm" style="display:none;">
+            <div class="auth-form-group">
+              <label class="auth-label" for="reset-otp-code">৬-সংখ্যার রিসেট কোড *</label>
+              <input type="text" id="reset-otp-code" class="auth-input" placeholder="123456" maxlength="6" style="letter-spacing:0.25em; font-family:monospace; font-size:1.2rem; text-align:center;">
+            </div>
+
+            <div class="auth-form-group">
+              <label class="auth-label" for="reset-new-password">নতুন পাসওয়ার্ড (কমপক্ষে ৮ অক্ষর) *</label>
+              <div class="auth-input-wrap">
+                <input type="password" id="reset-new-password" class="auth-input" placeholder="••••••••">
+                <button type="button" class="auth-input-toggle" onclick="togglePasswordVisibility('reset-new-password')">👁️</button>
+              </div>
+            </div>
+
+            <div class="auth-form-group">
+              <label class="auth-label" for="reset-confirm-password">নতুন পাসওয়ার্ড নিশ্চিত করুন *</label>
+              <div class="auth-input-wrap">
+                <input type="password" id="reset-confirm-password" class="auth-input" placeholder="••••••••">
+                <button type="button" class="auth-input-toggle" onclick="togglePasswordVisibility('reset-confirm-password')">👁️</button>
+              </div>
+            </div>
+
+            <button type="button" class="auth-primary-btn" onclick="handleResetPasswordSubmit()">
+              <span>পাসওয়ার্ড আপডেট করুন</span>
+              <span>✓</span>
+            </button>
+          </div>
+
+          <div class="auth-footer-nav">
+            <a href="javascript:void(0)" class="auth-link" onclick="switchAuthView('login')">← লগইন পেজে ফিরে যান</a>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT SIDE: SCENIC LANDSCAPE DISPLAY PANE (BANGLADESH GREENERY & SMART TECH) -->
+      <div class="auth-image-side">
+        <div class="auth-image-overlay"></div>
+        <div class="auth-image-cards-wrap">
+          <div class="auth-feature-pill">
+            <span class="icon">🌿</span>
+            <div>
+              <strong>১০০,০০০ ক্যাডাস্ট্রাল পার্সেল</strong>
+              <div style="font-size:0.75rem; opacity:0.85;">সাভার উপজেলা পাইলট মডেলে স্বচ্ছ ও নির্ভুল ভূমি তথ্য</div>
+            </div>
+          </div>
+          <div class="auth-feature-pill">
+            <span class="icon">🛡️</span>
+            <div>
+              <strong>দ্বৈত বিক্রয় জালিয়াতি প্রতিরোধ</strong>
+              <div style="font-size:0.75rem; opacity:0.85;">সাব-রেজিস্ট্রি ও এসি ল্যান্ড অফিসের তথ্যের শতভাগ সমন্বয়</div>
+            </div>
+          </div>
+          <div class="auth-feature-pill">
+            <span class="icon">🔒</span>
+            <div>
+              <strong>৪-ভূমিকাভিত্তিক নিরাপত্তা (RBAC)</strong>
+              <div style="font-size:0.75rem; opacity:0.85;">নাগরিক, ক্রেতা, কর্মকর্তা ও সিস্টেম অ্যাডমিনের সুরক্ষিত অধিকার</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ==========================================================================
+       USER PROFILE & ACCOUNT SECURITY SHEET MODAL
+       ========================================================================== -->
+  <div id="user-profile-modal" class="calm-modal-backdrop">
+    <div class="user-profile-sheet">
+      <div class="user-profile-header">
+        <div class="user-avatar-circle" id="profile-sheet-avatar">👤</div>
+        <div style="flex:1;">
+          <h3 id="profile-sheet-name" style="font-size:1.25rem; font-weight:700; margin:0 0 4px 0;">রফিকুল ইসলাম</h3>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span id="profile-sheet-role-pill" class="pill-tag pill-forest" style="font-size:0.75rem;">নাগরিক (CITIZEN)</span>
+            <span id="profile-sheet-status-pill" class="status-badge-active">✓ সক্রিয় ও যাচাইকৃত</span>
+          </div>
+        </div>
+        <button onclick="closeUserProfileModal()" style="background:none; border:none; color:#ffffff; font-size:1.5rem; cursor:pointer;">&times;</button>
+      </div>
+
+      <div class="user-profile-body">
+        <div class="user-info-row">
+          <span style="color:var(--c-stone-500);">ইমেইল ঠিকানা:</span>
+          <strong id="profile-sheet-email">citizen@example.com</strong>
+        </div>
+        <div class="user-info-row">
+          <span style="color:var(--c-stone-500);">ব্যবহারকারী আইডি:</span>
+          <code id="profile-sheet-userid" style="font-size:0.8rem;">USR-CITIZEN-01</code>
+        </div>
+        <div class="user-info-row">
+          <span style="color:var(--c-stone-500);">নিবন্ধন সময়:</span>
+          <span id="profile-sheet-created">২০২৬-১০-১৭</span>
+        </div>
+
+        <!-- Change Password Accordion -->
+        <div style="margin-top:1.25rem; padding-top:1rem; border-top:1px solid var(--c-stone-200);">
+          <details>
+            <summary style="font-weight:600; cursor:pointer; color:var(--c-forest-900); font-size:0.9rem;">
+              🔑 পাসওয়ার্ড পরিবর্তন করুন
+            </summary>
+            <form id="profile-change-pwd-form" onsubmit="handleChangePasswordSubmit(event)" style="margin-top:0.75rem;">
+              <div class="calm-form-field" style="margin-bottom:0.5rem;">
+                <label style="font-size:0.75rem;">বর্তমান পাসওয়ার্ড *</label>
+                <input type="password" id="change-old-password" class="calm-input" required placeholder="বর্তমান পাসওয়ার্ড">
+              </div>
+              <div class="calm-form-field" style="margin-bottom:0.5rem;">
+                <label style="font-size:0.75rem;">নতুন পাসওয়ার্ড (৮+ অক্ষর) *</label>
+                <input type="password" id="change-new-password" class="calm-input" required placeholder="নতুন পাসওয়ার্ড">
+              </div>
+              <div class="calm-form-field" style="margin-bottom:0.75rem;">
+                <label style="font-size:0.75rem;">নতুন পাসওয়ার্ড নিশ্চিত করুন *</label>
+                <input type="password" id="change-confirm-password" class="calm-input" required placeholder="নতুন পাসওয়ার্ড নিশ্চিত">
+              </div>
+              <button type="submit" class="btn btn-secondary-stone btn-sm" style="width:100%;">
+                পাসওয়ার্ড আপডেট করুন
+              </button>
+            </form>
+          </details>
+        </div>
+
+        <!-- Session & Logout Controls -->
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-top:1.5rem; padding-top:1rem; border-top:1px solid var(--c-stone-200);">
+          <button type="button" id="profile-logout-btn" class="btn btn-secondary-stone btn-sm" onclick="handleLogoutCurrentSession()" style="color:#b91c1c; border-color:#fecaca;">
+            🚪 লগআউট
+          </button>
+          <button type="button" id="profile-logout-all-btn" class="btn btn-secondary-stone btn-sm" onclick="handleLogoutAllSessions()" style="color:#b91c1c; border-color:#fecaca;">
+            ⚠️ সকল সেশন সমাপ্ত
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ==========================================================================
+       ADMIN ACTION MODAL: PROMOTE / DEMOTE ROLE
+       ========================================================================== -->
+  <div id="admin-role-modal" class="calm-modal-backdrop">
+    <div class="calm-modal-card" style="max-width:480px;">
+      <div class="modal-head">
+        <h4 style="font-size:1.05rem; font-weight:700;">⚙️ ব্যবহারকারীর ভূমিকা পরিবর্তন</h4>
+        <button onclick="closeAdminRoleModal()" style="background:none; border:none; font-size:1.3rem; cursor:pointer;">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size:0.85rem; color:var(--c-stone-600); margin-bottom:1rem;">
+          ব্যবহারকারী: <strong id="admin-role-target-name">...</strong> (<span id="admin-role-target-email">...</span>)
+        </p>
+        <form id="admin-role-form" onsubmit="handleAdminRoleSubmit(event)">
+          <input type="hidden" id="admin-role-target-id">
+          <div class="calm-form-field" style="margin-bottom:0.75rem;">
+            <label for="admin-role-select">নতুন ভূমিকা নির্বাচন করুন *</label>
+            <select id="admin-role-select" class="calm-input">
+              <option value="CITIZEN">সাধারণ নাগরিক (Citizen)</option>
+              <option value="BUYER">সম্ভাব্য ক্রেতা (Buyer)</option>
+              <option value="OFFICER">সহকারী কমিশনার - ভূমি (AC Land)</option>
+              <option value="ADMINISTRATOR">সিস্টেম অ্যাডমিন (Admin)</option>
+            </select>
+          </div>
+          <div class="calm-form-field" style="margin-bottom:1rem;">
+            <label for="admin-role-reason">পদোন্নতি / পরিবর্তনের প্রাতিষ্ঠানিক কারণ *</label>
+            <textarea id="admin-role-reason" class="calm-input" rows="2" placeholder="উদা: অফিসিয়াল নিয়োগপত্র ও প্রশাসনিক অনুমোদন নম্বর..." required></textarea>
+          </div>
+          <div class="modal-foot" style="padding:0;">
+            <button type="button" class="btn btn-secondary-stone btn-sm" onclick="closeAdminRoleModal()">বাতিল</button>
+            <button type="submit" class="btn btn-primary-forest btn-sm">ভূমিকা হালনাগাদ করুন</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ==========================================================================
+       ADMIN ACTION MODAL: SUSPEND / ACTIVATE ACCOUNT
+       ========================================================================== -->
+  <div id="admin-status-modal" class="calm-modal-backdrop">
+    <div class="calm-modal-card" style="max-width:480px;">
+      <div class="modal-head">
+        <h4 style="font-size:1.05rem; font-weight:700;">🛡️ অ্যাকাউন্ট স্ট্যাটাস পরিবর্তন</h4>
+        <button onclick="closeAdminStatusModal()" style="background:none; border:none; font-size:1.3rem; cursor:pointer;">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size:0.85rem; color:var(--c-stone-600); margin-bottom:1rem;">
+          ব্যবহারকারী: <strong id="admin-status-target-name">...</strong> (<span id="admin-status-target-email">...</span>)
+        </p>
+        <form id="admin-status-form" onsubmit="handleAdminStatusSubmit(event)">
+          <input type="hidden" id="admin-status-target-id">
+          <div class="calm-form-field" style="margin-bottom:0.75rem;">
+            <label for="admin-status-select">নতুন স্ট্যাটাস *</label>
+            <select id="admin-status-select" class="calm-input">
+              <option value="ACTIVE">✓ সক্রিয় (ACTIVE)</option>
+              <option value="SUSPENDED">🛑 স্থগিত (SUSPENDED)</option>
+            </select>
+          </div>
+          <div class="calm-form-field" style="margin-bottom:1rem;">
+            <label for="admin-status-reason">স্থগিতকরণ বা সক্রিয়করণের কারণ *</label>
+            <textarea id="admin-status-reason" class="calm-input" rows="2" placeholder="উদা: সন্দেহজনক জালিয়াতি কার্যকলাপ বা তদন্ত সাপেক্ষে..." required></textarea>
+          </div>
+          <div class="modal-foot" style="padding:0;">
+            <button type="button" class="btn btn-secondary-stone btn-sm" onclick="closeAdminStatusModal()">বাতিল</button>
+            <button type="submit" class="btn btn-primary-forest btn-sm">স্ট্যাটাস সংরক্ষণ করুন</button>
           </div>
         </form>
       </div>

@@ -32,6 +32,26 @@ class LandTechAPI {
     return headers;
   }
 
+  static initStoredAuth() {
+    const savedToken = localStorage.getItem('deshmrittika_token');
+    const savedUser = localStorage.getItem('deshmrittika_user');
+    if (savedToken && savedUser) {
+      try {
+        this.token = savedToken;
+        this.currentUser = JSON.parse(savedUser);
+      } catch (e) {
+        this.clearAuthToken();
+      }
+    }
+  }
+
+  static clearAuthToken() {
+    this.token = null;
+    this.currentUser = null;
+    localStorage.removeItem('deshmrittika_token');
+    localStorage.removeItem('deshmrittika_user');
+  }
+
   static async getHealth() {
     try {
       const res = await fetch(`${API_BASE}/health`);
@@ -42,23 +62,267 @@ class LandTechAPI {
     }
   }
 
-  static async login(email) {
-    const res = await fetch(`${API_BASE}/auth/login`, {
+  // === AUTHENTICATION & SECURITY ENDPOINTS ===
+
+  static async signup({ full_name, email, password, confirm_password, phone = '', role = 'CITIZEN' }) {
+    const res = await fetch(`${API_BASE}/auth/signup`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: email, password: 'any' })
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({
+        full_name,
+        email,
+        password,
+        confirm_password,
+        phone,
+        role
+      })
     });
-    if (!res.ok) {
-      const err = await res.json();
-      throw new Error(err.detail || 'Login failed');
-    }
     const data = await res.json();
+    if (!res.ok) {
+      const msg = typeof data.detail === 'string' ? data.detail : (data.detail?.[0]?.msg || 'নিবন্ধন ব্যর্থ হয়েছে');
+      throw new Error(msg);
+    }
+    return data;
+  }
+
+  static async verifyEmail(email, code) {
+    const res = await fetch(`${API_BASE}/auth/verify-email`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({ email, code })
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      const msg = typeof data.detail === 'string' ? data.detail : (data.detail?.[0]?.msg || 'যাচাইকরণ ব্যর্থ হয়েছে');
+      throw new Error(msg);
+    }
     this.setAuthToken(data.access_token, {
       user_id: data.user_id,
       name: data.name,
-      role: data.role
+      role: data.role,
+      email: data.email,
+      status: data.status
     });
     return data;
+  }
+
+  static async resendCode(email, purpose = 'EMAIL_VERIFY') {
+    const res = await fetch(`${API_BASE}/auth/resend-code`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({ email, purpose })
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      const msg = typeof data.detail === 'string' ? data.detail : (data.detail?.[0]?.msg || 'কোড পাঠানো যায়নি');
+      throw new Error(msg);
+    }
+    return data;
+  }
+
+  static async login(email, password = 'Password123!', rememberMe = false) {
+    const res = await fetch(`${API_BASE}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({ email: email, password: password, remember_me: rememberMe })
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      // Check for unverified error object
+      if (res.status === 403 && data.detail && data.detail.code === 'ACCOUNT_UNVERIFIED') {
+        const err = new Error(data.detail.message || 'অ্যাকাউন্ট যাচাই করা হয়নি');
+        err.code = 'ACCOUNT_UNVERIFIED';
+        err.email = data.detail.email;
+        throw err;
+      }
+      const msg = typeof data.detail === 'string' ? data.detail : (data.detail?.[0]?.msg || 'লগইন ব্যর্থ হয়েছে');
+      throw new Error(msg);
+    }
+    this.setAuthToken(data.access_token, {
+      user_id: data.user_id,
+      name: data.name,
+      role: data.role,
+      email: data.email,
+      status: data.status
+    });
+    return data;
+  }
+
+  static async forgotPassword(email) {
+    const res = await fetch(`${API_BASE}/auth/forgot-password`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({ email })
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      const msg = typeof data.detail === 'string' ? data.detail : 'পাসওয়ার্ড পুনরুদ্ধারে সমস্যা হয়েছে';
+      throw new Error(msg);
+    }
+    return data;
+  }
+
+  static async resetPassword(email, code, new_password, confirm_password) {
+    const res = await fetch(`${API_BASE}/auth/reset-password`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({ email, code, new_password, confirm_password })
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      const msg = typeof data.detail === 'string' ? data.detail : 'পাসওয়ার্ড রিসেট ব্যর্থ হয়েছে';
+      throw new Error(msg);
+    }
+    return data;
+  }
+
+  static async changePassword(old_password, new_password, confirm_password) {
+    const res = await fetch(`${API_BASE}/auth/change-password`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        ...this.getHeaders()
+      },
+      body: JSON.stringify({ old_password, new_password, confirm_password })
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      const msg = typeof data.detail === 'string' ? data.detail : 'পাসওয়ার্ড পরিবর্তন ব্যর্থ হয়েছে';
+      throw new Error(msg);
+    }
+    return data;
+  }
+
+  static async getMe() {
+    const res = await fetch(`${API_BASE}/auth/me`, {
+      headers: this.getHeaders()
+    });
+    if (!res.ok) {
+      throw new Error('অধিবেশন মেয়াদোত্তীর্ণ হয়েছে');
+    }
+    const data = await res.json();
+    this.currentUser = {
+      user_id: data.user_id,
+      name: data.full_name,
+      role: data.role,
+      email: data.email,
+      status: data.status,
+      created_at: data.created_at,
+      last_login_at: data.last_login_at
+    };
+    localStorage.setItem('deshmrittika_user', JSON.stringify(this.currentUser));
+    return data;
+  }
+
+  static async logout() {
+    try {
+      await fetch(`${API_BASE}/auth/logout`, {
+        method: 'POST',
+        headers: this.getHeaders()
+      });
+    } catch (e) {
+      console.warn('Logout API error:', e);
+    } finally {
+      this.clearAuthToken();
+    }
+  }
+
+  static async logoutAll() {
+    try {
+      await fetch(`${API_BASE}/auth/logout-all`, {
+        method: 'POST',
+        headers: this.getHeaders()
+      });
+    } catch (e) {
+      console.warn('Logout all API error:', e);
+    } finally {
+      this.clearAuthToken();
+    }
+  }
+
+  static async getDevMailbox() {
+    const res = await fetch(`${API_BASE}/auth/dev-mailbox`);
+    if (!res.ok) return [];
+    return await res.json();
+  }
+
+  // === ADMIN ENDPOINTS (RBAC PROTECTED) ===
+
+  static async getAdminUsers({ role = null, status = null, search = null, limit = 50, offset = 0 } = {}) {
+    const params = new URLSearchParams();
+    if (role) params.append('role', role);
+    if (status) params.append('status', status);
+    if (search) params.append('search', search);
+    params.append('limit', limit);
+    params.append('offset', offset);
+
+    const res = await fetch(`${API_BASE}/admin/users?${params.toString()}`, {
+      headers: this.getHeaders()
+    });
+    if (!res.ok) {
+      const data = await res.json();
+      throw new Error(data.detail || 'ব্যবহারকারী তালিকা লোড করা যায়নি (অ্যাডমিন অনুমতি প্রয়োজন)');
+    }
+    return await res.json();
+  }
+
+  static async updateAdminUserRole(targetUserId, newRole, reason) {
+    const res = await fetch(`${API_BASE}/admin/users/role`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        ...this.getHeaders()
+      },
+      body: JSON.stringify({
+        target_user_id: targetUserId,
+        new_role: newRole,
+        reason: reason
+      })
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.detail || 'ভূমিকা পরিবর্তন ব্যর্থ হয়েছে');
+    }
+    return data;
+  }
+
+  static async updateAdminUserStatus(targetUserId, status, reason) {
+    const res = await fetch(`${API_BASE}/admin/users/status`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        ...this.getHeaders()
+      },
+      body: JSON.stringify({
+        target_user_id: targetUserId,
+        status: status,
+        reason: reason
+      })
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.detail || 'অ্যাকাউন্ট স্ট্যাটাস পরিবর্তন ব্যর্থ হয়েছে');
+    }
+    return data;
+  }
+
+  static async getAdminSecurityLogs({ limit = 50, action = null, search = null } = {}) {
+    const params = new URLSearchParams();
+    params.append('limit', limit);
+    if (action) params.append('action', action);
+    if (search) params.append('search', search);
+
+    const res = await fetch(`${API_BASE}/admin/security-logs?${params.toString()}`, {
+      headers: this.getHeaders()
+    });
+    if (!res.ok) {
+      const data = await res.json();
+      throw new Error(data.detail || 'সিকিউরিটি লগ লোড করা সম্ভব হয়নি');
+    }
+    return await res.json();
   }
 
   static async searchParcels({ mouza, dag, khatian, parcel_id, deed_number, owner_name, limit = 20, offset = 0 }) {

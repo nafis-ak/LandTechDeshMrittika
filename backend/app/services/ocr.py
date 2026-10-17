@@ -162,41 +162,132 @@ class DocumentOCRService:
                 "error": f"OCR প্রক্রিয়াকরণে ত্রুটি ঘটেছে: {str(e)}"
             }
 
-    @staticmethod
-    def extract_structured_fields(text: str) -> Dict[str, Any]:
-        """Extracts recognizable land record tokens using regex patterns."""
+    @classmethod
+    def extract_structured_fields(cls, text: str) -> Dict[str, Any]:
+        """Extracts recognizable land record tokens using enhanced regex patterns for official Bangladesh deeds and khatians."""
         fields: Dict[str, Any] = {
             "detected_deed_numbers": [],
+            "detected_deed_type": None,
             "detected_dag_numbers": [],
+            "detected_dag_numbers_ar": [],
             "detected_khatian_numbers": [],
+            "detected_khatian_numbers_ar": [],
             "detected_mouza": None,
-            "detected_area": None
+            "detected_jl_number": None,
+            "detected_area": None,
+            "detected_land_class": None,
+            "detected_seller": None,
+            "detected_buyer": None
         }
 
-        # Match deed numbers (e.g., SAVAR-20261018-00003 or 4-6 digit Bengali/English numbers)
-        deed_matches = re.findall(r'(?:SAVAR|DEED|দলিল|দলিল\s*নং)[:\s-]*([A-Za-z0-9-]+|\d+)', text, re.IGNORECASE)
-        if deed_matches:
-            fields["detected_deed_numbers"] = list(set([m.strip() for m in deed_matches if len(m.strip()) >= 3]))[:3]
+        bn_to_ar = {'০':'0', '১':'1', '২':'2', '৩':'3', '৪':'4', '৫':'5', '৬':'6', '৭':'7', '৮':'8', '৯':'9'}
+        def to_arabic_num(s: str) -> str:
+            return ''.join(bn_to_ar.get(ch, ch) for ch in str(s))
 
-        # Match Dag numbers (দাগ নং: ১২৩ or DAG: 123)
-        dag_matches = re.findall(r'(?:দাগ|প্লট|DAG|PLOT)[:\s-]*([০-৯\d]+)', text, re.IGNORECASE)
-        if dag_matches:
-            fields["detected_dag_numbers"] = list(set([d.strip() for d in dag_matches]))[:5]
+        # 1. Deed Type Detection
+        if re.search(r'সাফ[-\s]*কবালা|বিক্রয়[-\s]*দলিল|SAF\s*KABALA', text, re.IGNORECASE):
+            fields["detected_deed_type"] = "সাফ-কবালা (Deed of Outright Sale)"
+        elif re.search(r'হেবা\s*বিল\s*এওয়াজ', text, re.IGNORECASE):
+            fields["detected_deed_type"] = "হেবা বিল এওয়াজ (Gift for Consideration)"
+        elif re.search(r'দানপত্র|হেবা', text, re.IGNORECASE):
+            fields["detected_deed_type"] = "দানপত্র / হেবা (Deed of Gift)"
+        elif re.search(r'বণ্টননামা', text, re.IGNORECASE):
+            fields["detected_deed_type"] = "বণ্টননামা (Partition Deed)"
+        elif re.search(r'খত[িী]*[য়য][় া]*ন|স্বত্বল[িী]*প[িী]|পর্চা|রেকর্ড\s*অব\s*রাইটস|ROR|KHATIAN', text, re.IGNORECASE):
+            fields["detected_deed_type"] = "আর.এস. খতিয়ান / পরচা (Record of Rights)"
 
-        # Match Khatian numbers (খতিয়ান নং: ৪৫৬ or KHATIAN: 456)
-        khatian_matches = re.findall(r'(?:খতিয়ান|পর্চা|KHATIAN|PORCHA)[:\s-]*([০-৯\d]+)', text, re.IGNORECASE)
+        # 2. Match Deed Numbers
+        deed_candidates = []
+        for m in re.findall(r'SAVAR[-_]\d{8}[-_][A-Za-z0-9-]+', text, re.IGNORECASE):
+            deed_candidates.append(m.strip().upper())
+        for m in re.findall(r'([০-৯\d]{3,6}\s*/\s*[০-৯\d]{4})', text):
+            deed_candidates.append(m.strip().replace(" ", ""))
+        for m in re.findall(r'(?:দলিল\s*নং|দলিল\s*নম্বর|DEED\s*NO)[\s:.-]*([০-৯\d]{3,8})', text, re.IGNORECASE):
+            val = m.strip()
+            if val.upper() not in ["MOUZA", "NUMBER", "DEED", "SAVAR"]:
+                deed_candidates.append(val)
+
+        seen_deeds = set()
+        for d in deed_candidates:
+            if d not in seen_deeds and len(d) >= 3:
+                seen_deeds.add(d)
+                fields["detected_deed_numbers"].append(d)
+        fields["detected_deed_numbers"] = fields["detected_deed_numbers"][:3]
+
+        # 3. Match Dag numbers (both inline labels and table grid rows)
+        dags, dags_ar = [], []
+        dag_matches = re.findall(r'(?:হাল\s*দাগ|সাবেক\s*দাগ|দাগ|প্লট|DAG|PLOT)[\s:.-]*(?:নং|নম্বর|NO)?[\s:.-]*([০-৯\d]{1,6})', text, re.IGNORECASE)
+        for d in dag_matches:
+            d_str = d.strip()
+            if d_str and d_str not in dags:
+                dags.append(d_str)
+                dags_ar.append(to_arabic_num(d_str))
+
+        # Check for tabular Dag rows following header (e.g. ১০৪ (104))
+        table_dags = re.findall(r'\n\s*([০-৯\d]{1,6})\s*\([০-৯\d]+\)', text)
+        for td in table_dags:
+            td_str = td.strip()
+            if td_str and td_str not in dags:
+                dags.append(td_str)
+                dags_ar.append(to_arabic_num(td_str))
+
+        fields["detected_dag_numbers"] = dags[:5]
+        fields["detected_dag_numbers_ar"] = dags_ar[:5]
+
+        # 4. Match Khatian numbers
+        khatian_matches = re.findall(r'(?:আর[\s.]*এস[\s.]*খত|এস[\s.]*এ[\s.]*খত|বি[\s.]*এস[\s.]*খত|খতিয়ান|খতিয়ান|খতয়ান|খতয়ান|খতিয|খতয|KHATIAN|PORCHA)[\s:.-]*(?:নং|নম্বর|NO)?[\s:.-]*([০-৯\d]{1,6})', text, re.IGNORECASE)
         if khatian_matches:
-            fields["detected_khatian_numbers"] = list(set([k.strip() for k in khatian_matches]))[:5]
+            khats, khats_ar = [], []
+            for k in khatian_matches:
+                k_str = k.strip()
+                if k_str and k_str not in khats:
+                    khats.append(k_str)
+                    khats_ar.append(to_arabic_num(k_str))
+            fields["detected_khatian_numbers"] = khats[:5]
+            fields["detected_khatian_numbers_ar"] = khats_ar[:5]
 
-        # Detect common pilot Mouzas
-        for mouza in ["আমিনবাজার", "Aminbazar", "বিরুলিয়া", "Birulia", "সাভার", "Savar"]:
-            if mouza.lower() in text.lower():
-                fields["detected_mouza"] = mouza
+        # 5. Detect Mouza and J.L. Number (Prioritize Specific Mouza over Upazila)
+        mouzas = [
+            ("আমিনবাজার", ["আমিনবাজার", "আমনিবাজার", "aminbazar"], "২৬ (26)"),
+            ("বিরুলিয়া", ["বিরুলিয়া", "বিরুলীয়া", "birulia"], "২৭ (27)"),
+            ("সাভার পৌরসভা", ["সাভার", "savar"], "২৮ (28)")
+        ]
+        for canonical, variants, jl in mouzas:
+            if any(v.lower() in text.lower() for v in variants):
+                fields["detected_mouza"] = canonical
+                fields["detected_jl_number"] = jl
                 break
 
-        # Detect Decimal Area (e.g. 12.50 decimals or ১২.৫০ শতাংশ)
-        area_match = re.search(r'([\d.]+|[০-৯.]+)\s*(?:decimals?|শতাংশ|শতক)', text, re.IGNORECASE)
+        # 6. Detect Decimal Area
+        area_match = re.search(r'([\d.]+|[০-৯.]+)\s*(?:decimals?|শতাংশ|শতক|একর)', text, re.IGNORECASE)
         if area_match:
             fields["detected_area"] = area_match.group(0)
+
+        # 7. Detect Land Classification
+        classes = [
+            ("নাল (কৃষি জমি)", ["নাল", "কৃষি জমি", "nal", "agricultural"]),
+            ("ভিটি / বাস্তু (উঁচু জমি)", ["ভিটি", "বাস্তু", "ভিটা", "homestead"]),
+            ("বাণিজ্যিক", ["বাণিজ্যিক", "commercial"]),
+            ("পুকুর / জলাশয়", ["পুকুর", "ডোবা", "জলাশয়", "pond"]),
+            ("বাগান", ["বাগান", "ফলবাগান", "orchard"])
+        ]
+        for label, terms in classes:
+            if any(term in text.lower() for term in terms):
+                fields["detected_land_class"] = label
+                break
+
+        # 8. Detect Seller / Donor
+        seller_match = re.search(r'(?:দাতার\s*নাম|বিক্রেতার\s*নাম)[:\s.-]*([^\n,।]+)', text)
+        if seller_match:
+            s_name = seller_match.group(1).strip()
+            if len(s_name) >= 3 and not any(x in s_name for x in ["সাভার", "আমিনবাজার", "ঢাকা", "দলিল", "দাগ"]):
+                fields["detected_seller"] = s_name
+
+        # 9. Detect Purchaser / Donee
+        buyer_match = re.search(r'(?:গ্রহীতার\s*নাম|ক্রেতার\s*নাম)[:\s.-]*([^\n,।]+)', text)
+        if buyer_match:
+            b_name = buyer_match.group(1).strip()
+            if len(b_name) >= 3 and not any(x in b_name for x in ["সাভার", "আমিনবাজার", "ঢাকা", "দলিল", "দাগ"]):
+                fields["detected_buyer"] = b_name
 
         return fields

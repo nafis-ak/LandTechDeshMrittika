@@ -61,3 +61,13 @@ def get_sample_pdf():
         return FileResponse(str(sample_path), media_type="application/pdf", filename="sample_khatian.pdf")
     raise HTTPException(status_code=404, detail="Sample PDF not found")
 
+@router.get("/sample-porcha")
+def get_sample_porcha():
+    from fastapi.responses import FileResponse
+    from backend.app.config import BASE_DIR
+    sample_path = BASE_DIR / "frontend" / "assets" / "samples" / "sample_porcha.png"
+    if sample_path.exists():
+        return FileResponse(str(sample_path), media_type="image/png", filename="sample_porcha.png")
+    raise HTTPException(status_code=404, detail="Sample porcha not found")
+
+

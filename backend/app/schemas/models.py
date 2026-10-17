@@ -11,10 +11,63 @@ class TokenResponse(BaseModel):
     user_id: str
     name: str
     role: str
+    status: str = "ACTIVE"
+    email: str
 
 class LoginRequest(BaseModel):
     email: str
     password: str
+    remember_me: bool = False
+
+class SignupRequest(BaseModel):
+    full_name: str
+    email: str
+    password: str
+    confirm_password: str
+    phone: Optional[str] = ""
+    role: Optional[str] = "CITIZEN"
+    terms_agreed: bool = True
+
+class VerifyEmailRequest(BaseModel):
+    email: str
+    code: str
+
+class ResendCodeRequest(BaseModel):
+    email: str
+    purpose: str = "EMAIL_VERIFY"
+
+class ForgotPasswordRequest(BaseModel):
+    email: str
+
+class ResetPasswordRequest(BaseModel):
+    email: str
+    code: str
+    new_password: str
+    confirm_password: str
+
+class ChangePasswordRequest(BaseModel):
+    old_password: str
+    new_password: str
+    confirm_password: str
+
+class UserProfile(BaseModel):
+    user_id: str
+    email: str
+    full_name: str
+    phone: Optional[str] = ""
+    role: str
+    status: str
+    created_at: str
+
+class AdminRoleChangeRequest(BaseModel):
+    target_user_id: str
+    new_role: str
+    reason: str
+
+class AdminStatusChangeRequest(BaseModel):
+    target_user_id: str
+    new_status: str
+    reason: str
 
 class ParcelSummary(BaseModel):
     parcel_id: str

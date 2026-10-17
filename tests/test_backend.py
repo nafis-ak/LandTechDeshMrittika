@@ -21,7 +21,7 @@ class TestBackendEndpoints(unittest.TestCase):
         # Obtain tokens for Citizen and Officer roles
         login_res_cit = client.post("/api/v1/auth/login", json={
             "email": "citizen@example.com",
-            "password": "any"
+            "password": "Password123!"
         })
         assert login_res_cit.status_code == 200, f"Citizen login failed: {login_res_cit.text}"
         cls.citizen_token = login_res_cit.json()["access_token"]
@@ -29,7 +29,7 @@ class TestBackendEndpoints(unittest.TestCase):
 
         login_res_off = client.post("/api/v1/auth/login", json={
             "email": "officer@savar.land.gov.bd",
-            "password": "any"
+            "password": "Password123!"
         })
         assert login_res_off.status_code == 200, f"Officer login failed: {login_res_off.text}"
         cls.officer_token = login_res_off.json()["access_token"]
