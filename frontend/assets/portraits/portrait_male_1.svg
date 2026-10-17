@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 130" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bg-portr" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#e8f5e9"/>
+      <stop offset="100%" stop-color="#e8f5e9" stop-opacity="0.6"/>
+    </linearGradient>
+  </defs>
+  <rect width="100" height="130" rx="12" fill="url(#bg-portr)"/>
+  
+  <!-- Subtle Badge Background -->
+  <circle cx="50" cy="55" r="38" fill="#ffffff" opacity="0.6"/>
+  
+  <!-- Body / Formal Suit -->
+  <path d="M15 130 C15 95 32 85 50 85 C68 85 85 95 85 130 Z" fill="#0f172a"/>
+  <!-- Shirt & Tie/Scarf -->
+  <path d="M42 85 L50 98 L58 85 Z" fill="#ffffff"/>
+  <path d="M48 88 L52 88 L50 108 Z" fill="#2d6a4f"/>
+  
+  <!-- Head & Hair -->
+  
+        <circle cx="50" cy="55" r="22" fill="#fed7aa"/>
+        <path d="M28 50 C28 34 72 34 72 50 C66 40 34 40 28 50 Z" fill="#1e293b"/>
+        
+  
+  <!-- Eyes & Eyebrows -->
+  <circle cx="43" cy="56" r="2" fill="#334155"/>
+  <circle cx="57" cy="56" r="2" fill="#334155"/>
+  <path d="M40 51 Q43 49 46 51" stroke="#334155" stroke-width="1.2" fill="none"/>
+  <path d="M54 51 Q57 49 60 51" stroke="#334155" stroke-width="1.2" fill="none"/>
+  
+  <!-- Nose & Gentle Smile -->
+  <path d="M50 56 L49 62 L52 62" stroke="#ea580c" stroke-width="0.8" fill="none" opacity="0.6"/>
+  <path d="M46 67 Q50 70 54 67" stroke="#334155" stroke-width="1.2" fill="none"/>
+
+  <!-- Official Demo Watermark Banner -->
+  <rect x="10" y="112" width="80" height="13" rx="3" fill="#0f172a" opacity="0.8"/>
+  <text x="50" y="121" fill="#f8fafc" font-size="6" font-family="Arial, sans-serif" font-weight="bold" text-anchor="middle" letter-spacing="0.5">DEMO OFFICIAL</text>
+</svg>

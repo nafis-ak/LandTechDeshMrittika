@@ -37,8 +37,8 @@
         <ul class="agro-nav-menu">
           <li><a href="#hero" class="active">হোম</a></li>
           <li><a href="#walkthrough">আমাদের সম্পর্কে</a></li>
-          <li><a href="#features">সেবাসমূহ</a></li>
-          <li><a href="#trust">ফিচারসমূহ</a></li>
+          <li><a href="javascript:void(0)" onclick="navigateToApp('map')">ভূমি ম্যাপ (GIS)</a></li>
+          <li><a href="javascript:void(0)" onclick="navigateToApp('officials-directory')">কর্মকর্তা ডিরেক্টরি</a></li>
         </ul>
 
         <div class="agro-nav-actions" style="display:flex; align-items:center; gap:0.6rem;">
@@ -397,6 +397,11 @@
             <span class="nav-icon">🗺️</span>
             <span class="nav-label">ক্যাডাস্ট্রাল ম্যাপ ও খাস রক্ষা</span>
             <span class="nav-badge">P6</span>
+          </div>
+          <div class="sidebar-nav-item" data-page="officials-directory" id="nav-item-officials">
+            <span class="nav-icon">🏛️</span>
+            <span class="nav-label">ভূমি কর্মকর্তা ও দপ্তর ডিরেক্টরি</span>
+            <span class="nav-badge" style="background:#047857; color:#ffffff;">ডিরেক্টরি</span>
           </div>
 
           <div class="nav-category-title" id="nav-cat-admin">সিস্টেম ও প্রশাসন</div>
@@ -950,58 +955,300 @@
 
 
           <!-- ==========================================
-               WORKSPACE 7: CADASTRAL GIS & KHAS (P6)
+               WORKSPACE 7: BANGLADESH-WIDE CADASTRAL GIS & MAP (P6)
                ========================================== -->
           <div id="page-map" class="workspace-page">
             <div class="page-header-row">
               <div class="page-title-block">
-                <h3>ক্যাডাস্ট্রাল সীমানা ও ১-নং খাস জমি রক্ষা (P6)</h3>
-                <p>সাভার পাইলট অঞ্চলের ক্যাডাস্ট্রাল মৌজা ম্যাপ, খাস দাগ ও ঢাকা-আরিচা মহাসড়ক অধিগ্রহণ করিডোর বাফার।</p>
+                <h3>বাংলাদেশ-ব্যাপী প্রশাসনিক ভূগোল ও ক্যাডাস্ট্রাল ল্যান্ড ম্যাপ (P6)</h3>
+                <p>৮টি বিভাগ, ৬৪টি জেলা ও ৫০১টি উপজেলার সমন্বিত ভৌগোলিক তথ্য, সাভার পাইলট ক্যাডাস্ট্রাল পার্সেল, ১-নং খাস জমি ও জাতীয় অবকাঠামো করিডোর।</p>
+              </div>
+              <div style="display:flex; gap:0.5rem; align-items:center;">
+                <button id="map-reset-bd-btn" class="btn btn-secondary-stone btn-sm" title="সমগ্র বাংলাদেশ সার্বিক দৃশ্য">
+                  <span>🇧🇩 সমগ্র বাংলাদেশ ভিউ</span>
+                </button>
+                <button class="btn btn-primary-forest btn-sm" onclick="switchAppPage('officials-directory')">
+                  <span>🏛️ কর্মকর্তা ডিরেক্টরি</span>
+                </button>
               </div>
             </div>
 
+            <!-- Prominent Demo Data Disclaimer -->
+            <div class="demo-map-disclaimer-banner">
+              <span class="pill-tag" style="background:#fee2e2; color:#b91c1c; font-weight:700; border:1px solid #fca5a5;">
+                DEMO DATA — NOT AN OFFICIAL LAND SURVEY
+              </span>
+              <span>
+                <strong>প্রতীকী প্রদর্শন ডেটা:</strong> এই ম্যাপে প্রদর্শিত ক্যাডাস্ট্রাল পার্সেল ও বাউন্ডারিগুলো প্রোটোটাইপ প্রদর্শনীর জন্য কৃত্রিমভাবে তৈরি। এটি কোনো সরকার-কর্তৃক চূড়ান্তভাবে নির্ধারিত মৌজা সীমানা জরিপ বা আইনানুগ স্বত্ব নির্ধারণী নথি নয়।
+              </span>
+            </div>
+
+            <!-- Nationwide Administrative Hierarchy Selector Bar -->
+            <div class="map-geo-selector-bar">
+              <div class="map-geo-selector-grid">
+                <div class="calm-form-field" style="margin-bottom:0;">
+                  <label style="font-size:0.75rem; font-weight:600; color:var(--c-stone-600); margin-bottom:0.25rem;">বিভাগ (Division)</label>
+                  <select id="map-filter-division" class="calm-select" style="font-size:0.82rem; padding:6px 8px;">
+                    <option value="">-- সমগ্র বাংলাদেশ (সব বিভাগ) --</option>
+                  </select>
+                </div>
+                <div class="calm-form-field" style="margin-bottom:0;">
+                  <label style="font-size:0.75rem; font-weight:600; color:var(--c-stone-600); margin-bottom:0.25rem;">জেলা (District)</label>
+                  <select id="map-filter-district" class="calm-select" style="font-size:0.82rem; padding:6px 8px;" disabled>
+                    <option value="">-- সকল জেলা --</option>
+                  </select>
+                </div>
+                <div class="calm-form-field" style="margin-bottom:0;">
+                  <label style="font-size:0.75rem; font-weight:600; color:var(--c-stone-600); margin-bottom:0.25rem;">উপজেলা (Upazila)</label>
+                  <select id="map-filter-upazila" class="calm-select" style="font-size:0.82rem; padding:6px 8px;" disabled>
+                    <option value="">-- সকল উপজেলা --</option>
+                  </select>
+                </div>
+                <div class="calm-form-field" style="margin-bottom:0;">
+                  <label style="font-size:0.75rem; font-weight:600; color:var(--c-stone-600); margin-bottom:0.25rem;">ইউনিয়ন / পৌরসভা</label>
+                  <select id="map-filter-union" class="calm-select" style="font-size:0.82rem; padding:6px 8px;" disabled>
+                    <option value="">-- সকল ইউনিয়ন --</option>
+                  </select>
+                </div>
+                <div class="calm-form-field" style="margin-bottom:0;">
+                  <label style="font-size:0.75rem; font-weight:600; color:var(--c-stone-600); margin-bottom:0.25rem;">মৌজা (Mouza / JL)</label>
+                  <select id="map-filter-mouza" class="calm-select" style="font-size:0.82rem; padding:6px 8px;" disabled>
+                    <option value="">-- সকল মৌজা --</option>
+                  </select>
+                </div>
+              </div>
+              <div class="map-geo-search-row">
+                <div style="flex:1; display:flex; gap:0.5rem; align-items:center; position:relative;">
+                  <input type="text" id="map-geo-search-input" class="calm-input" placeholder="মৌজা বা ভৌগোলিক এলাকা দ্রুত খুঁজুন (যেমন: বিরুলিয়া, আমিনবাজার, পটিয়া, মিরপুর)..." style="font-size:0.82rem;">
+                  <button id="map-geo-search-btn" class="btn btn-secondary-stone btn-sm">অনুসন্ধান</button>
+                  <div id="map-geo-search-results" class="map-search-dropdown" style="display:none;"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Map Layout: Main Canvas & Control Panel -->
             <div class="map-workspace-layout">
-              <div class="calm-card" style="padding:0; overflow:hidden;">
+              <div class="calm-card" style="padding:0; overflow:hidden; position:relative;">
                 <div id="gis-map-canvas"></div>
+                <div id="map-loading-indicator" class="map-floating-indicator" style="display:none;">
+                  <span class="spinner-sm"></span> পার্সেল ডাটা লোড হচ্ছে...
+                </div>
+                <div id="map-coverage-banner" class="map-floating-coverage-badge">
+                  <span id="map-coverage-text">সার্বিক বাংলাদেশ প্রশাসনিক কেন্দ্র স্তর সক্রিয়</span>
+                </div>
               </div>
 
-              <!-- Side Map Controls & Legend -->
-              <div class="calm-card">
-                <h4 style="font-size:0.95rem; font-weight:700; margin-bottom:0.75rem;">ম্যাপ লেয়ার ও নিয়ন্ত্রণ</h4>
+              <!-- Side Map Controls, Legend & Detail Drawer -->
+              <div style="display:flex; flex-direction:column; gap:1rem;">
                 
-                <div style="font-size:0.82rem; display:flex; flex-direction:column; gap:0.6rem; margin-bottom:1.5rem;">
-                  <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer;">
-                    <input type="checkbox" id="layer-parcels-toggle" checked>
-                    <span>ক্যাডাস্ট্রাল পার্সেল বাউন্ডারি</span>
-                  </label>
-                  <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer;">
-                    <input type="checkbox" id="layer-khas-toggle" checked>
-                    <span>১-নং খাস জমি ওভারলে (হলুদ)</span>
-                  </label>
-                  <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer;">
-                    <input type="checkbox" id="layer-corridor-toggle" checked>
-                    <span>মহাসড়ক অধিগ্রহণ করিডোর (১০০ মি.)</span>
-                  </label>
-                </div>
+                <!-- Layer Controls & Legend Card -->
+                <div class="calm-card">
+                  <h4 style="font-size:0.95rem; font-weight:700; margin-bottom:0.75rem;">ম্যাপ লেয়ার ও নিয়ন্ত্রণ</h4>
+                  
+                  <div style="font-size:0.82rem; display:flex; flex-direction:column; gap:0.6rem; margin-bottom:1.25rem;">
+                    <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer;">
+                      <input type="checkbox" id="layer-parcels-toggle" checked>
+                      <span>ক্যাডাস্ট্রাল ডেমো পার্সেল বাউন্ডারি</span>
+                    </label>
+                    <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer;">
+                      <input type="checkbox" id="layer-khas-toggle" checked>
+                      <span>১-নং খাস জমি ওভারলে (হলুদ)</span>
+                    </label>
+                    <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer;">
+                      <input type="checkbox" id="layer-corridor-toggle" checked>
+                      <span>অবকাঠামো করিডোর বাফার (বেগুনি)</span>
+                    </label>
+                    <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer;">
+                      <input type="checkbox" id="layer-offices-toggle" checked>
+                      <span>ভূমি প্রশাসন কার্যালয় মার্কার (নীল)</span>
+                    </label>
+                  </div>
 
-                <div style="padding:0.75rem; background:var(--c-stone-100); border-radius:var(--radius-sm); font-size:0.78rem; line-height:1.5;">
-                  <strong>লেজেন্ড:</strong><br>
-                  🟩 সবুজ বাউন্ডারি: নিয়মিত লেনদেনযোগ্য পার্সেল<br>
-                  🟥 লাল বাউন্ডারি: দ্বৈত বিক্রয় বা বিরোধপূর্ণ প্লট<br>
-                  🟨 হ্যাচিং জোন: সরকারি ১-নং খাস খতিয়ানভুক্ত<br>
-                  🟪 বেগুনি রেখা: সড়ক ও জনপথ অধিগ্রহণ করিডোর
-                </div>
+                  <div style="padding:0.75rem; background:var(--c-stone-100); border-radius:var(--radius-sm); font-size:0.78rem; line-height:1.6;">
+                    <strong>লেজেন্ড:</strong><br>
+                    🟩 সবুজ বাউন্ডারি: নিয়মিত লেনদেনযোগ্য পার্সেল<br>
+                    🟥 লাল বাউন্ডারি: দ্বৈত বিক্রয় বা বিরোধপূর্ণ প্লট<br>
+                    🟨 হ্যাচিং জোন: সরকারি ১-নং খাস খতিয়ানভুক্ত জমি<br>
+                    🟪 বেগুনি রেখা: সড়ক ও রেলওয়ে ১০০মি. অধিগ্রহণ করিডোর<br>
+                    🏛️ নীল মার্কার: সহকারী কমিশনার (ভূমি) ও সাব-রেজিস্ট্রি অফিস
+                  </div>
 
-                <div style="margin-top:1.5rem;">
-                  <div class="calm-form-field">
-                    <label>দাগ নম্বরে ফোকাস করুন</label>
-                    <div style="display:flex; gap:0.4rem;">
-                      <input type="number" id="map-quick-dag" class="calm-input" placeholder="দাগ ১০১" value="101">
-                      <button id="map-quick-go-btn" class="btn btn-secondary-stone btn-sm">যান</button>
+                  <div style="margin-top:1rem;">
+                    <div class="calm-form-field" style="margin-bottom:0;">
+                      <label>দাগ নম্বরে ফোকাস করুন</label>
+                      <div style="display:flex; gap:0.4rem;">
+                        <input type="number" id="map-quick-dag" class="calm-input" placeholder="দাগ ১০১" value="101">
+                        <button id="map-quick-go-btn" class="btn btn-secondary-stone btn-sm">যান</button>
+                      </div>
                     </div>
                   </div>
                 </div>
+
+                <!-- Parcel Detail Panel / Drawer -->
+                <div class="calm-card" id="map-parcel-detail-panel">
+                  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+                    <h4 style="font-size:0.95rem; font-weight:700; margin:0;" id="map-detail-title">পার্সেল তথ্য প্যানেল</h4>
+                    <span id="map-detail-badge" class="pill-tag pill-forest" style="font-size:0.7rem;">নির্বাচন করুন</span>
+                  </div>
+
+                  <div id="map-detail-empty" style="text-align:center; padding:1.5rem 0.5rem; color:var(--c-stone-400); font-size:0.85rem;">
+                    <div style="font-size:2rem; margin-bottom:0.5rem;">🗺️</div>
+                    <p>ম্যাপে প্রদর্শিত কোনো পার্সেল বা সীমানায় ক্লিক করে বিস্তারিত বিবরণ দেখুন।</p>
+                  </div>
+
+                  <div id="map-detail-content" style="display:none; font-size:0.82rem; line-height:1.6;">
+                    <div style="background:var(--c-stone-50); border:1px solid var(--c-stone-200); border-radius:var(--radius-sm); padding:0.75rem; margin-bottom:0.75rem;">
+                      <div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--c-stone-200); padding-bottom:0.3rem; margin-bottom:0.4rem;">
+                        <span style="color:var(--c-stone-600);">পার্সেল আইডি:</span>
+                        <strong id="detail-parcel-id">BD-PAR-000001</strong>
+                      </div>
+                      <div style="display:flex; justify-content:space-between; margin-bottom:0.2rem;">
+                        <span style="color:var(--c-stone-600);">দাগ নং:</span>
+                        <strong id="detail-dag-no">-</strong>
+                      </div>
+                      <div style="display:flex; justify-content:space-between; margin-bottom:0.2rem;">
+                        <span style="color:var(--c-stone-600);">খতিয়ান নং:</span>
+                        <strong id="detail-khatian-no">-</strong>
+                      </div>
+                      <div style="display:flex; justify-content:space-between; margin-bottom:0.2rem;">
+                        <span style="color:var(--c-stone-600);">মৌজা ও জেএল:</span>
+                        <strong id="detail-mouza-jl">-</strong>
+                      </div>
+                      <div style="display:flex; justify-content:space-between; margin-bottom:0.2rem;">
+                        <span style="color:var(--c-stone-600);">প্রশাসনিক অবস্থান:</span>
+                        <span id="detail-admin-location" style="font-size:0.78rem;">-</span>
+                      </div>
+                      <div style="display:flex; justify-content:space-between;">
+                        <span style="color:var(--c-stone-600);">জমির পরিমাণ:</span>
+                        <strong id="detail-area">-</strong>
+                      </div>
+                    </div>
+
+                    <!-- Risk & Due Diligence summary -->
+                    <div id="detail-due-diligence-box" style="margin-bottom:0.75rem; padding:0.6rem; border-radius:var(--radius-sm); font-size:0.78rem;">
+                      <!-- Populated via JS -->
+                    </div>
+
+                    <div style="display:flex; gap:0.4rem;">
+                      <button id="map-detail-dossier-btn" class="btn btn-primary-forest btn-sm" style="flex:1;">
+                        🔍 নাগরিক ডসিয়ার
+                      </button>
+                      <button id="map-detail-close-btn" class="btn btn-secondary-stone btn-sm">
+                        বন্ধ
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
               </div>
+            </div>
+          </div>
+
+
+          <!-- ==========================================
+               WORKSPACE 7.5: LAND OFFICIALS DIRECTORY
+               ========================================== -->
+          <div id="page-officials-directory" class="workspace-page">
+            <div class="page-header-row">
+              <div class="page-title-block">
+                <h3>বাংলাদেশ ভূমি প্রশাসন কর্মকর্তা ও দপ্তর ডিরেক্টরি</h3>
+                <p>সহকারী কমিশনার (ভূমি), সাব-রেজিস্ট্রার, কানুনগো, সার্ভেয়ার ও ইউনিয়ন ভূমি কর্মকর্তাদের প্রশাসনিক ডিরেক্টরি (ডেমো প্রোটোটাইপ)।</p>
+              </div>
+              <div style="display:flex; gap:0.5rem; align-items:center;">
+                <button id="officials-lang-toggle" class="btn btn-secondary-stone btn-sm">
+                  <span>🌐 English</span>
+                </button>
+                <button class="btn btn-primary-forest btn-sm" onclick="switchAppPage('map')">
+                  <span>🗺️ ম্যাপে দেখুন</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Mandatory Demo Disclaimer Banner -->
+            <div class="demo-officials-disclaimer-banner">
+              <div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.3rem;">
+                <span class="pill-tag" style="background:#fee2e2; color:#b91c1c; font-weight:700; border:1px solid #fca5a5;">
+                  DEMO OFFICIAL — NOT A REAL PERSON
+                </span>
+                <span class="pill-tag pill-forest">কৃত্রিম সিন্থেটিক ডেটাসেট</span>
+              </div>
+              <p style="margin:0; font-size:0.82rem; color:var(--c-stone-800); line-height:1.5;">
+                <strong>সতর্কীকরণ ও গোপনীয়তা সুরক্ষা:</strong> এই ডিরেক্টরিতে প্রদর্শিত সকল কর্মকর্তা, ছবি, ফোন নম্বর (+880 1700-000XXX) এবং ইমেইল ঠিকানা (@demo.land.gov.bd) সম্পূর্ণ কাল্পনিক ও পরীক্ষামূলক ডেটা। কোনো বাস্তব সরকারি কর্মকর্তা বা কর্মচারীর ব্যক্তিগত বা কর্মস্থলের তথ্য এখানে অন্তর্ভুক্ত নয়।
+              </p>
+            </div>
+
+            <!-- Filter and Search Bar -->
+            <div class="calm-card" style="margin-bottom:1.5rem; padding:1.25rem;">
+              <div class="officials-filters-grid">
+                <div class="calm-form-field" style="margin-bottom:0;">
+                  <label style="font-size:0.75rem; font-weight:600; color:var(--c-stone-600); margin-bottom:0.25rem;">বিভাগ (Division)</label>
+                  <select id="officials-filter-div" class="calm-select" style="font-size:0.82rem; padding:6px 8px;">
+                    <option value="">-- সকল বিভাগ --</option>
+                  </select>
+                </div>
+                <div class="calm-form-field" style="margin-bottom:0;">
+                  <label style="font-size:0.75rem; font-weight:600; color:var(--c-stone-600); margin-bottom:0.25rem;">জেলা (District)</label>
+                  <select id="officials-filter-dist" class="calm-select" style="font-size:0.82rem; padding:6px 8px;" disabled>
+                    <option value="">-- সকল জেলা --</option>
+                  </select>
+                </div>
+                <div class="calm-form-field" style="margin-bottom:0;">
+                  <label style="font-size:0.75rem; font-weight:600; color:var(--c-stone-600); margin-bottom:0.25rem;">উপজেলা (Upazila)</label>
+                  <select id="officials-filter-upz" class="calm-select" style="font-size:0.82rem; padding:6px 8px;" disabled>
+                    <option value="">-- সকল উপজেলা --</option>
+                  </select>
+                </div>
+                <div class="calm-form-field" style="margin-bottom:0;">
+                  <label style="font-size:0.75rem; font-weight:600; color:var(--c-stone-600); margin-bottom:0.25rem;">পদবি (Designation)</label>
+                  <select id="officials-filter-desig" class="calm-select" style="font-size:0.82rem; padding:6px 8px;">
+                    <option value="">-- সকল পদবি --</option>
+                  </select>
+                </div>
+                <div class="calm-form-field" style="margin-bottom:0;">
+                  <label style="font-size:0.75rem; font-weight:600; color:var(--c-stone-600); margin-bottom:0.25rem;">দপ্তর ধরন (Office Type)</label>
+                  <select id="officials-filter-type" class="calm-select" style="font-size:0.82rem; padding:6px 8px;">
+                    <option value="">-- সকল দপ্তর --</option>
+                    <option value="AC_LAND_OFFICE">সহকারী কমিশনার (ভূমি) কার্যালয়</option>
+                    <option value="SUB_REGISTRY_OFFICE">সাব-রেজিস্ট্রি কার্যালয়</option>
+                    <option value="UNION_LAND_OFFICE">ইউনিয়ন ভূমি কার্যালয়</option>
+                    <option value="SETTLEMENT_OFFICE">উপজেলা সেটেলমেন্ট কার্যালয়</option>
+                  </select>
+                </div>
+              </div>
+
+              <div style="display:flex; gap:0.75rem; margin-top:1rem; align-items:center;">
+                <div style="flex:1; position:relative;">
+                  <input type="text" id="officials-search-query" class="calm-input" placeholder="কর্মকর্তার নাম, পদবি বা কার্যালয় দিয়ে খুঁজুন (যেমন: রিয়াজুল, সাব-রেজিস্ট্রার, সাভার)...">
+                </div>
+                <button id="officials-filter-reset-btn" class="btn btn-secondary-stone btn-sm">রিসেট ফিল্টার</button>
+              </div>
+            </div>
+
+            <!-- Stats & Status Bar -->
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; font-size:0.85rem; color:var(--c-stone-600);">
+              <div id="officials-count-label">মোট <strong>...</strong> জন ডেমো কর্মকর্তা প্রদর্শিত হচ্ছে</div>
+              <div id="officials-pagination-info">পৃষ্ঠা ১ / ১</div>
+            </div>
+
+            <!-- Profile Cards Grid -->
+            <div id="officials-cards-grid" class="officials-grid">
+              <!-- Dynamically populated via JS -->
+            </div>
+
+            <!-- Empty State -->
+            <div id="officials-empty-state" class="calm-card" style="display:none; text-align:center; padding:3rem 1rem;">
+              <div style="font-size:3rem; margin-bottom:1rem;">👥</div>
+              <h4 style="font-size:1.1rem; font-weight:700; margin-bottom:0.5rem;">কোনো ডেমো কর্মকর্তা পাওয়া যায়নি</h4>
+              <p style="color:var(--c-stone-500); font-size:0.85rem; max-width:450px; margin:0 auto 1.5rem auto;">
+                আপনার নির্বাচিত ফিল্টারের সাথে মিলে এমন কোনো সিন্থেটিক কর্মকর্তা প্রোফাইল নেই। ফিল্টার রিসেট করে পুনরায় অনুসন্ধান করুন।
+              </p>
+              <button class="btn btn-secondary-stone btn-sm" onclick="resetOfficialsFilters()">ফিল্টার রিসেট করুন</button>
+            </div>
+
+            <!-- Pagination Controls -->
+            <div id="officials-pagination-controls" style="display:flex; justify-content:center; gap:0.5rem; margin-top:2rem;">
+              <button id="officials-prev-btn" class="btn btn-secondary-stone btn-sm" disabled>« পূর্ববর্তী</button>
+              <button id="officials-next-btn" class="btn btn-secondary-stone btn-sm" disabled>পরবর্তী »</button>
             </div>
           </div>
 
@@ -2675,6 +2922,29 @@
             <button type="submit" class="btn btn-primary-forest btn-sm">স্ট্যাটাস সংরক্ষণ করুন</button>
           </div>
         </form>
+      </div>
+    </div>
+  <!-- Modal: Land Official Detail Profile -->
+  <div id="official-detail-modal" class="calm-modal-backdrop">
+    <div class="calm-modal-card" style="max-width:640px; width:92%; max-height:90vh; overflow-y:auto;">
+      <div class="modal-header" style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--c-stone-200); padding-bottom:1rem; margin-bottom:1.25rem;">
+        <div style="display:flex; align-items:center; gap:0.6rem;">
+          <span class="pill-tag" style="background:#fee2e2; color:#b91c1c; font-weight:700; border:1px solid #fca5a5;">DEMO PROFILE</span>
+          <h4 style="margin:0; font-size:1.15rem; font-weight:700;" id="modal-official-name">কর্মকর্তার নাম</h4>
+        </div>
+        <button class="modal-close-btn" onclick="closeOfficialModal()" style="background:none; border:none; font-size:1.3rem; cursor:pointer; color:var(--c-stone-400);">✕</button>
+      </div>
+      
+      <div class="modal-body" id="modal-official-body" style="padding:0;">
+        <!-- Injected via JavaScript -->
+      </div>
+      
+      <div class="modal-footer" style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--c-stone-200); padding-top:1rem; margin-top:1.5rem;">
+        <span style="font-size:0.75rem; color:var(--c-stone-400);">সংরক্ষিত ডেমো ডেটা — ল্যান্ডটেক প্রোটোটাইপ</span>
+        <div style="display:flex; gap:0.5rem;">
+          <button id="modal-official-map-btn" class="btn btn-primary-forest btn-sm">🗺️ ম্যাপে কার্যালয় দেখুন</button>
+          <button class="btn btn-secondary-stone btn-sm" onclick="closeOfficialModal()">বন্ধ করুন</button>
+        </div>
       </div>
     </div>
   </div>

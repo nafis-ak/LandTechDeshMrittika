@@ -24,6 +24,8 @@ from backend.app.api import (
     admin_users,
     citizen,
     buyer,
+    geography,
+    officials,
 )
 from backend.app.database import get_db, get_db_connection, init_auth_tables
 
@@ -71,6 +73,8 @@ app.include_router(officer.router, prefix=API_PREFIX)
 app.include_router(admin_users.router, prefix=API_PREFIX)
 app.include_router(citizen.router, prefix=API_PREFIX)
 app.include_router(buyer.router, prefix=API_PREFIX)
+app.include_router(geography.router, prefix=API_PREFIX)
+app.include_router(officials.router, prefix=API_PREFIX)
 
 
 @app.get("/api/v1/health", tags=["System"])
@@ -101,6 +105,9 @@ if DATA_DIR.exists():
 
 if FRONTEND_DIR.exists():
     app.mount("/static", StaticFiles(directory=str(FRONTEND_DIR)), name="static")
+    assets_dir = FRONTEND_DIR / "assets"
+    if assets_dir.exists():
+        app.mount("/assets", StaticFiles(directory=str(assets_dir)), name="assets")
 
     @app.get("/", include_in_schema=False)
     def serve_index():

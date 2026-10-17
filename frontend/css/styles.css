@@ -2059,16 +2059,273 @@ button, input, select, textarea {
   font-weight: 600;
 }
 
-@media (max-width: 900px) {
-  .auth-split-card {
-    grid-template-columns: 1fr;
-    max-width: 500px;
-    min-height: auto;
-  }
-  .auth-image-side {
-    display: none;
-  }
-  .auth-form-side {
-    padding: 2.25rem 1.75rem;
+}
+
+/* ==========================================================================
+   BANGLADESH-WIDE ADMINISTRATIVE GEOGRAPHY & MAP STYLES (PHASE 2 & 3)
+   ========================================================================== */
+.demo-map-disclaimer-banner,
+.demo-officials-disclaimer-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.85rem 1.25rem;
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  border-left: 4px solid #ea580c;
+  border-radius: var(--radius-md);
+  margin-bottom: 1.25rem;
+  font-size: 0.84rem;
+  color: #7c2d12;
+  line-height: 1.5;
+}
+
+.demo-officials-disclaimer-banner {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.4rem;
+}
+
+.map-geo-selector-bar {
+  margin-bottom: 1.25rem;
+  padding: 1.25rem;
+  background: #ffffff;
+  border: 1px solid var(--c-stone-200);
+  border-radius: var(--radius-lg);
+}
+
+.map-geo-selector-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+@media (max-width: 1100px) {
+  .map-geo-selector-grid {
+    grid-template-columns: repeat(3, 1fr);
   }
 }
+
+@media (max-width: 768px) {
+  .map-geo-selector-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.map-geo-search-row {
+  position: relative;
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--c-stone-200);
+}
+
+.map-search-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: #ffffff;
+  border: 1px solid var(--c-stone-200);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-float);
+  z-index: 1050;
+  max-height: 260px;
+  overflow-y: auto;
+  margin-top: 4px;
+}
+
+.map-search-item {
+  padding: 0.65rem 1rem;
+  cursor: pointer;
+  border-bottom: 1px solid var(--c-stone-100);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+  transition: background var(--transition-fast);
+}
+
+.map-search-item:hover {
+  background: var(--c-stone-100);
+}
+
+.map-search-item strong {
+  color: var(--c-forest-900);
+}
+
+.map-floating-indicator {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  background: rgba(15, 23, 42, 0.82);
+  color: #ffffff;
+  padding: 6px 12px;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 999;
+  backdrop-filter: blur(4px);
+}
+
+.map-floating-coverage-badge {
+  position: absolute;
+  bottom: 24px;
+  left: 14px;
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--c-stone-800);
+  padding: 4px 10px;
+  border: 1px solid var(--c-stone-200);
+  border-radius: var(--radius-md);
+  font-size: 0.72rem;
+  font-weight: 600;
+  z-index: 999;
+  box-shadow: var(--shadow-subtle);
+  backdrop-filter: blur(4px);
+}
+
+/* ==========================================================================
+   LAND OFFICIALS DIRECTORY STYLES (PHASE 4 & 5)
+   ========================================================================== */
+.officials-filters-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.75rem;
+}
+
+@media (max-width: 1100px) {
+  .officials-filters-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .officials-filters-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.officials-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+  gap: 1.25rem;
+}
+
+.officials-card {
+  background: #ffffff;
+  border: 1px solid var(--c-stone-200);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  box-shadow: var(--shadow-subtle);
+  display: flex;
+  flex-direction: column;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  position: relative;
+  overflow: hidden;
+}
+
+.officials-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-card);
+  border-color: var(--c-stone-300);
+}
+
+.officials-card-header {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  margin-bottom: 0.85rem;
+}
+
+.officials-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-full);
+  border: 2px solid var(--c-forest-100);
+  background: #f8fafc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.officials-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.officials-card-title {
+  flex: 1;
+}
+
+.officials-name {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--c-stone-900);
+  margin-bottom: 0.2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.officials-desig-tag {
+  display: inline-block;
+  background: var(--c-forest-50);
+  color: var(--c-forest-700);
+  border: 1px solid var(--c-forest-100);
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+}
+
+.officials-card-body {
+  font-size: 0.82rem;
+  color: var(--c-stone-700);
+  line-height: 1.5;
+  margin-bottom: 1rem;
+  flex: 1;
+}
+
+.officials-info-row {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.4rem;
+  align-items: flex-start;
+}
+
+.officials-info-icon {
+  font-size: 0.95rem;
+  flex-shrink: 0;
+  line-height: 1.2;
+}
+
+.officials-card-footer {
+  border-top: 1px solid var(--c-stone-100);
+  padding-top: 0.75rem;
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.officials-demo-watermark {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fca5a5;
+  text-transform: uppercase;
+}
+

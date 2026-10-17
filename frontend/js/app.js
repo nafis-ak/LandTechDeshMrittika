@@ -22,7 +22,15 @@ const AppState = {
   gisLayers: {
     parcels: null,
     khas: null,
-    corridor: null
+    corridor: null,
+    offices: null
+  },
+  officials: {
+    page: 1,
+    limit: 12,
+    total: 0,
+    filters: {},
+    lang: 'bn'
   },
   officerCases: [],
   selectedCase: null,
@@ -329,6 +337,8 @@ const ROLE_NAV_CONFIG = {
     { page: 'ocr', icon: '📜', label: 'দলিল ও পরচা স্ক্যান (OCR)', labelEn: 'Document OCR' },
     { page: 'citizen-applications', icon: '📝', label: 'নামজারি ও সেবা আবেদন', labelEn: 'My Applications' },
     { page: 'mutation', icon: '🔄', label: 'আবেদন ট্র্যাকিং', labelEn: 'Mutation Tracking' },
+    { page: 'map', icon: '🗺️', label: 'ক্যাডাস্ট্রাল ম্যাপ ও খাস রক্ষা', labelEn: 'Cadastral Map' },
+    { page: 'officials-directory', icon: '🏛️', label: 'ভূমি কর্মকর্তা ডিরেক্টরি', labelEn: 'Officials Directory' },
     { page: 'citizen-notifications', icon: '🔔', label: 'নোটিফিকেশন ও নোটিশ', labelEn: 'My Notifications' },
     { page: 'citizen-activity', icon: '⏱️', label: 'কার্যক্রম ও অডিট লগ', labelEn: 'My Activity' }
   ],
@@ -340,6 +350,7 @@ const ROLE_NAV_CONFIG = {
     { page: 'buyer-fraud-risk', icon: '🚨', label: 'দ্বৈত বিক্রয় ঝুঁকি যাচাই', labelEn: 'Double-Selling Risk' },
     { page: 'verify', icon: '🔐', label: 'দলিল ইন্টিগ্রিটি ভেরিফিকেশন', labelEn: 'Document Integrity' },
     { page: 'map', icon: '🗺️', label: 'ক্যাডাস্ট্রাল ম্যাপ ও সীমানা বিরোধ', labelEn: 'Map & Boundary Warnings' },
+    { page: 'officials-directory', icon: '🏛️', label: 'ভূমি কর্মকর্তা ডিরেক্টরি', labelEn: 'Officials Directory' },
     { page: 'buyer-compare-reports', icon: '📑', label: 'প্লট তুলনা ও ডিউ ডিলিজেন্স রিপোর্ট', labelEn: 'Comparison & Reports' },
     { page: 'buyer-review-requests', icon: '📨', label: 'পুনঃযাচাই আবেদন', labelEn: 'Review Requests' }
   ],
@@ -351,12 +362,16 @@ const ROLE_NAV_CONFIG = {
     { page: 'mutation', icon: '🔄', label: 'নামজারি পর্যালোচনা ও সুপারিশ', labelEn: 'Mutation Review' },
     { page: 'officer-doc-review', icon: '📜', label: 'নথি ও ওটিপি/স্বাক্ষর যাচাই', labelEn: 'Document Review' },
     { page: 'officer-hearings', icon: '📅', label: 'শুনানি ও সরেজমিন তদন্ত', labelEn: 'Hearing & Field Verification' },
+    { page: 'map', icon: '🗺️', label: 'ক্যাডাস্ট্রাল ম্যাপ ও খাস রক্ষা', labelEn: 'Cadastral Map' },
+    { page: 'officials-directory', icon: '🏛️', label: 'ভূমি কর্মকর্তা ডিরেক্টরি', labelEn: 'Officials Directory' },
     { page: 'officer-decisions', icon: '✍️', label: 'সিমুলেটেড সিদ্ধান্ত ও আদেশ', labelEn: 'Decision Simulation' },
     { page: 'audit', icon: '📋', label: 'তদন্ত ও সিদ্ধান্ত অডিট ট্রেইল', labelEn: 'Audit History' }
   ],
   ADMINISTRATOR: [
     { page: 'admin-overview', icon: '⚡', label: 'সিস্টেম সার্বিক অবস্থা', labelEn: 'System Overview' },
     { page: 'users', icon: '👥', label: 'ব্যবহারকারী ও রোল ব্যবস্থাপনা', labelEn: 'User & Role Management' },
+    { page: 'map', icon: '🗺️', label: 'ক্যাডাস্ট্রাল ম্যাপ ও খাস রক্ষা', labelEn: 'Cadastral Map' },
+    { page: 'officials-directory', icon: '🏛️', label: 'ভূমি কর্মকর্তা ডিরেক্টরি', labelEn: 'Officials Directory' },
     { page: 'security-logs', icon: '🔒', label: 'নিরাপত্তা ও অডিট লগ', labelEn: 'Security Audit Logs' },
     { page: 'settings', icon: '🩺', label: 'ডাটাবেস ও সিস্টেম ডায়াগনস্টিক', labelEn: 'API & Database Health' },
     { page: 'dataset', icon: '🗄️', label: 'সিন্থেটিক ডেটাসেট পরিসংখ্যান', labelEn: 'Dataset & Provenance' },
@@ -368,10 +383,10 @@ const ROLE_NAV_CONFIG = {
 };
 
 const ROLE_ALLOWED_PAGES = {
-  CITIZEN: ['overview', 'citizen-myland', 'citizen', 'ocr', 'citizen-applications', 'mutation', 'citizen-notifications', 'citizen-activity'],
-  BUYER: ['buyer-overview', 'citizen', 'due-diligence', 'buyer-ownership-summary', 'buyer-fraud-risk', 'verify', 'map', 'buyer-compare-reports', 'buyer-review-requests'],
-  OFFICER: ['officer-overview', 'officer-cases', 'officer', 'officer-deed-compare', 'mutation', 'officer-doc-review', 'officer-hearings', 'officer-decisions', 'audit'],
-  ADMINISTRATOR: ['admin-overview', 'users', 'security-logs', 'settings', 'dataset', 'admin-ocr-diagnostics', 'admin-rules-config', 'admin-backups', 'admin-settings']
+  CITIZEN: ['overview', 'citizen-myland', 'citizen', 'ocr', 'citizen-applications', 'mutation', 'map', 'officials-directory', 'citizen-notifications', 'citizen-activity'],
+  BUYER: ['buyer-overview', 'citizen', 'due-diligence', 'buyer-ownership-summary', 'buyer-fraud-risk', 'verify', 'map', 'officials-directory', 'buyer-compare-reports', 'buyer-review-requests'],
+  OFFICER: ['officer-overview', 'officer-cases', 'officer', 'officer-deed-compare', 'mutation', 'officer-doc-review', 'officer-hearings', 'map', 'officials-directory', 'officer-decisions', 'audit'],
+  ADMINISTRATOR: ['admin-overview', 'users', 'map', 'officials-directory', 'security-logs', 'settings', 'dataset', 'admin-ocr-diagnostics', 'admin-rules-config', 'admin-backups', 'admin-settings']
 };
 
 const ROLE_HOME_PAGE = {
@@ -553,7 +568,8 @@ function switchAppPage(pageName) {
     'admin-ocr-diagnostics': "বাংলা ওসিআর ইঞ্জিন স্বাস্থ্য",
     'admin-rules-config': "প্রতারণা সনাক্তকরণ রুলবুক",
     'admin-backups': "ডাটাবেস ব্যাকআপ ও WAL চেকপয়েন্ট",
-    'admin-settings': "প্ল্যাটফর্ম নিরাপত্তা নীতি"
+    'admin-settings': "প্ল্যাটফর্ম নিরাপত্তা নীতি",
+    'officials-directory': "ভূমি প্রশাসন কর্মকর্তা ও দপ্তর ডিরেক্টরি"
   };
   const breadcrumb = document.getElementById('breadcrumb-current-page');
   if (breadcrumb) breadcrumb.textContent = titles[pageName] || pageName;
@@ -583,6 +599,8 @@ function switchAppPage(pageName) {
     } else {
       setTimeout(initCadastralGISWorkspace, 150);
     }
+  } else if (pageName === 'officials-directory') {
+    loadOfficialsDirectory();
   } else if (pageName === 'officer') {
     loadOfficerQueue();
   } else if (pageName === 'audit') {
@@ -1735,71 +1753,941 @@ function crossReferenceOcrParcel(dagNumber) {
 }
 
 // ==========================================================================
-// WORKSPACE 7: CADASTRAL GIS & KHAS PROTECTION (P6)
+// WORKSPACE 7: BANGLADESH-WIDE CADASTRAL GIS & MAP (P6)
 // ==========================================================================
+
+let mapSearchDebounce = null;
+let mapViewportDebounce = null;
+let currentHighlightedPolygon = null;
+
 function initCadastralGISWorkspace() {
   const mapCanvas = document.getElementById('gis-map-canvas');
   if (!mapCanvas || AppState.gisMap) return;
 
-  AppState.gisMap = L.map('gis-map-canvas').setView([23.8560, 90.2600], 14);
+  // Initialize nationwide Bangladesh view
+  AppState.gisMap = L.map('gis-map-canvas', {
+    zoomControl: true,
+    minZoom: 6,
+    maxZoom: 19
+  }).setView([23.6850, 90.3563], 7);
+
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,
-    attribution: '© OpenStreetMap contributors | DeshMrittika GIS'
+    attribution: '© OpenStreetMap contributors | DeshMrittika GIS (DEMO)'
   }).addTo(AppState.gisMap);
 
+  // Initialize Layer Groups
+  AppState.gisLayers.parcels = L.layerGroup().addTo(AppState.gisMap);
+  AppState.gisLayers.khas = L.layerGroup().addTo(AppState.gisMap);
+  AppState.gisLayers.corridor = L.layerGroup().addTo(AppState.gisMap);
+  AppState.gisLayers.offices = L.layerGroup().addTo(AppState.gisMap);
+
+  // Load Static Spatial Layers: Corridors, Khas, Offices
+  loadMapAcquisitionCorridors();
+  loadMapKhasLand();
+  loadMapOffices();
+
+  // Initialize Nationwide Geographic Selectors
+  initMapGeographySelectors();
+
+  // Bounding Box Dynamic Parcel Loading on moveend
+  AppState.gisMap.on('moveend', () => {
+    clearTimeout(mapViewportDebounce);
+    mapViewportDebounce = setTimeout(loadViewportParcels, 250);
+  });
+
   // Layer toggles
-  document.getElementById('layer-khas-toggle')?.addEventListener('change', (e) => {
-    if (AppState.gisLayers.khas) {
-      if (e.target.checked) AppState.gisMap.addLayer(AppState.gisLayers.khas);
-      else AppState.gisMap.removeLayer(AppState.gisLayers.khas);
+  document.getElementById('layer-parcels-toggle')?.addEventListener('change', (e) => {
+    if (e.target.checked) {
+      if (!AppState.gisMap.hasLayer(AppState.gisLayers.parcels)) {
+        AppState.gisMap.addLayer(AppState.gisLayers.parcels);
+      }
+      loadViewportParcels();
+    } else {
+      AppState.gisMap.removeLayer(AppState.gisLayers.parcels);
     }
+  });
+
+  document.getElementById('layer-khas-toggle')?.addEventListener('change', (e) => {
+    if (e.target.checked) AppState.gisMap.addLayer(AppState.gisLayers.khas);
+    else AppState.gisMap.removeLayer(AppState.gisLayers.khas);
   });
 
   document.getElementById('layer-corridor-toggle')?.addEventListener('change', (e) => {
-    if (AppState.gisLayers.corridor) {
-      if (e.target.checked) AppState.gisMap.addLayer(AppState.gisLayers.corridor);
-      else AppState.gisMap.removeLayer(AppState.gisLayers.corridor);
-    }
+    if (e.target.checked) AppState.gisMap.addLayer(AppState.gisLayers.corridor);
+    else AppState.gisMap.removeLayer(AppState.gisLayers.corridor);
   });
 
-  // Highway Corridor (Dhaka-Aricha 100m buffer representation)
-  const corridorLine = L.polyline([
-    [23.8400, 90.2300],
-    [23.8600, 90.2600],
-    [23.8750, 90.2850]
-  ], {
-    color: '#9333ea',
-    weight: 8,
-    opacity: 0.5,
-    dashArray: '8, 8'
-  }).addTo(AppState.gisMap);
-  corridorLine.bindPopup("<strong>ঢাকা-আরিচা জাতীয় মহাসড়ক ১০০-মিটার অধিগ্রহণ করিডোর</strong>");
-  AppState.gisLayers.corridor = corridorLine;
+  document.getElementById('layer-offices-toggle')?.addEventListener('change', (e) => {
+    if (e.target.checked) AppState.gisMap.addLayer(AppState.gisLayers.offices);
+    else AppState.gisMap.removeLayer(AppState.gisLayers.offices);
+  });
 
-  // Khas Polygon (Government 1-No Khas land representation in Savar)
-  const khasPoly = L.polygon([
-    [23.8580, 90.2580],
-    [23.8620, 90.2590],
-    [23.8610, 90.2640],
-    [23.8570, 90.2630]
-  ], {
-    color: '#d97706',
-    fillColor: '#fde68a',
-    fillOpacity: 0.6,
-    weight: 2
-  }).addTo(AppState.gisMap);
-  khasPoly.bindPopup("<strong>১-নং খাস খতিয়ানভুক্ত সরকারি সম্পদ</strong><br>দাগ নং: ২০৫ (আমিনবাজার)");
-  AppState.gisLayers.khas = khasPoly;
+  // Reset Bangladesh View Button
+  document.getElementById('map-reset-bd-btn')?.addEventListener('click', () => {
+    AppState.gisMap.flyTo([23.6850, 90.3563], 7);
+    resetMapGeoSelectors();
+    updateMapCoverageBanner("সার্বিক বাংলাদেশ প্রশাসনিক কেন্দ্র স্তর সক্রিয়");
+    showToast("সমগ্র বাংলাদেশ সার্বিক ভিউতে ফিরে যাওয়া হয়েছে");
+  });
 
   // Quick Go button
   document.getElementById('map-quick-go-btn')?.addEventListener('click', () => {
     const dag = document.getElementById('map-quick-dag')?.value;
-    if (dag == '101') {
-      AppState.gisMap.setView([23.8560, 90.2600], 16);
-    } else if (dag == '205') {
-      AppState.gisMap.setView([23.8590, 90.2600], 16);
+    if (dag) {
+      AppState.gisMap.flyTo([23.8050, 90.3200], 16);
+      showToast(`দাগ নং ${dag} এ ফোকাস করা হয়েছে (সাভার পাইলট জোন)`);
     }
   });
+
+  // Map Detail Drawer Close button
+  document.getElementById('map-detail-close-btn')?.addEventListener('click', () => {
+    closeMapDetailDrawer();
+  });
+}
+
+async function loadMapAcquisitionCorridors() {
+  try {
+    const data = await LandTechAPI.getAcquisitionZonesLayer();
+    if (data && data.features && AppState.gisLayers.corridor) {
+      L.geoJSON(data, {
+        style: {
+          color: '#9333ea',
+          weight: 2,
+          fillColor: '#c084fc',
+          fillOpacity: 0.35,
+          dashArray: '5, 5'
+        },
+        onEachFeature: (feature, layer) => {
+          const p = feature.properties || {};
+          layer.bindPopup(`
+            <div style="font-size:0.85rem; line-height:1.5;">
+              <span class="pill-tag" style="background:#f3e8ff; color:#7e22ce; font-weight:700;">জাতীয় অবকাঠামো করিডোর</span>
+              <h5 style="margin:0.4rem 0 0.2rem 0; font-size:0.95rem; font-weight:700;">${p.project_name || 'অধিগ্রহণ প্রকল্প'}</h5>
+              <div><strong>গেজেট প্রজ্ঞাপন:</strong> ${p.gazette_notification_no || 'সরকারি গেজেট'}</div>
+              <div><strong>স্ট্যাটাস:</strong> ${p.status || 'GAZETTED'}</div>
+              <div style="margin-top:0.3rem; font-size:0.75rem; color:#7e22ce;">⚠️ ১০০-মিটার নিরাপত্তা বাফার এলাকা</div>
+            </div>
+          `);
+        }
+      }).addTo(AppState.gisLayers.corridor);
+    }
+  } catch (err) {
+    console.error("[Map] Failed to load acquisition corridors:", err);
+  }
+}
+
+async function loadMapKhasLand() {
+  try {
+    const data = await LandTechAPI.getKhasLandLayer(150);
+    if (data && data.features && AppState.gisLayers.khas) {
+      L.geoJSON(data, {
+        style: {
+          color: '#d97706',
+          weight: 2,
+          fillColor: '#fde68a',
+          fillOpacity: 0.55
+        },
+        onEachFeature: (feature, layer) => {
+          const p = feature.properties || {};
+          layer.bindPopup(`
+            <div style="font-size:0.85rem; line-height:1.5;">
+              <span class="pill-tag" style="background:#fef3c7; color:#92400e; font-weight:700;">১-নং খাস খতিয়ানভুক্ত সরকারি জমি</span>
+              <h5 style="margin:0.4rem 0 0.2rem 0; font-size:0.95rem; font-weight:700;">খাস রেকর্ড: ${p.khas_id || '-'}</h5>
+              <div><strong>দাগ নং:</strong> ${p.dag_number || '-'} | <strong>মৌজা:</strong> ${p.mouza || '-'}</div>
+              <div><strong>শ্রেণী:</strong> ${p.category || 'সরকারি ১-নং খাস'}</div>
+              <div><strong>নিয়ন্ত্রণকারী কর্তৃপক্ষ:</strong> ${p.authority || 'সহকারী কমিশনার (ভূমি)'}</div>
+              <div style="margin-top:0.3rem; font-size:0.75rem; color:#b45309;">⚠️ সরকারি সম্পদ — ব্যক্তিগত হস্তান্তর আইনত নিষিদ্ধ</div>
+            </div>
+          `);
+        }
+      }).addTo(AppState.gisLayers.khas);
+    }
+  } catch (err) {
+    console.error("[Map] Failed to load khas land layer:", err);
+  }
+}
+
+async function loadMapOffices() {
+  try {
+    const res = await LandTechAPI.getOffices();
+    if (res && res.offices && AppState.gisLayers.offices) {
+      res.offices.forEach(office => {
+        if (!office.latitude || !office.longitude) return;
+        const officeIcon = L.divIcon({
+          className: 'custom-office-pin',
+          html: `<div style="background:#1d4ed8; color:#ffffff; width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; border:2px solid #ffffff; box-shadow:0 3px 8px rgba(0,0,0,0.35); font-size:15px; cursor:pointer;" title="${office.office_name_bn}">🏛️</div>`,
+          iconSize: [30, 30],
+          iconAnchor: [15, 15]
+        });
+
+        const marker = L.marker([office.latitude, office.longitude], { icon: officeIcon });
+        marker.bindPopup(`
+          <div style="font-size:0.85rem; line-height:1.5; min-width:220px;">
+            <span class="pill-tag" style="background:#eff6ff; color:#1d4ed8; font-weight:700;">ভূমি প্রশাসন কার্যালয়</span>
+            <h5 style="margin:0.4rem 0 0.2rem 0; font-size:0.95rem; font-weight:700;">${office.office_name_bn}</h5>
+            <div style="color:var(--c-stone-600); font-size:0.78rem;">${office.office_name_en}</div>
+            <div style="margin-top:0.3rem;"><strong>ঠিকানা:</strong> ${office.address_bn || office.address_en || '-'}</div>
+            <div><strong>যোগাযোগ:</strong> ${office.phone_demo || '-'}</div>
+            <div style="margin-top:0.5rem;">
+              <button class="btn btn-primary-forest btn-sm" style="width:100%; font-size:0.75rem; padding:4px 8px;" onclick="navigateToApp('officials-directory')">
+                👥 দায়িত্বপ্রাপ্ত কর্মকর্তাগণ দেখুন
+              </button>
+            </div>
+          </div>
+        `);
+        marker.addTo(AppState.gisLayers.offices);
+      });
+    }
+  } catch (err) {
+    console.error("[Map] Failed to load offices layer:", err);
+  }
+}
+
+async function initMapGeographySelectors() {
+  const divSelect = document.getElementById('map-filter-division');
+  const distSelect = document.getElementById('map-filter-district');
+  const upzSelect = document.getElementById('map-filter-upazila');
+  const uniSelect = document.getElementById('map-filter-union');
+  const mouzaSelect = document.getElementById('map-filter-mouza');
+
+  // Load Divisions
+  try {
+    const data = await LandTechAPI.getDivisions();
+    if (data && data.divisions && divSelect) {
+      divSelect.innerHTML = `<option value="">-- সমগ্র বাংলাদেশ (সব বিভাগ) --</option>` +
+        data.divisions.map(d => `<option value="${d.division_id}" data-lat="${d.latitude}" data-lon="${d.longitude}">${d.name_bn} (${d.name_en})</option>`).join('');
+    }
+  } catch (e) {
+    console.error("[Map] Failed to load divisions:", e);
+  }
+
+  // Division Change
+  divSelect?.addEventListener('change', async (e) => {
+    const divId = e.target.value;
+    distSelect.innerHTML = `<option value="">-- সকল জেলা --</option>`;
+    upzSelect.innerHTML = `<option value="">-- সকল উপজেলা --</option>`;
+    uniSelect.innerHTML = `<option value="">-- সকল ইউনিয়ন --</option>`;
+    mouzaSelect.innerHTML = `<option value="">-- সকল মৌজা --</option>`;
+
+    distSelect.disabled = !divId;
+    upzSelect.disabled = true;
+    uniSelect.disabled = true;
+    mouzaSelect.disabled = true;
+
+    if (!divId) {
+      AppState.gisMap.flyTo([23.6850, 90.3563], 7);
+      updateMapCoverageBanner("সার্বিক বাংলাদেশ প্রশাসনিক কেন্দ্র স্তর সক্রিয়");
+      return;
+    }
+
+    const opt = divSelect.selectedOptions[0];
+    const lat = parseFloat(opt.getAttribute('data-lat'));
+    const lon = parseFloat(opt.getAttribute('data-lon'));
+    if (!isNaN(lat) && !isNaN(lon)) {
+      AppState.gisMap.flyTo([lat, lon], 9);
+      updateMapCoverageBanner(`${opt.textContent} বিভাগ স্তর সক্রিয়`);
+    }
+
+    try {
+      const dData = await LandTechAPI.getDistricts(divId);
+      if (dData && dData.districts) {
+        distSelect.innerHTML = `<option value="">-- সকল জেলা --</option>` +
+          dData.districts.map(dist => `<option value="${dist.district_id}" data-lat="${dist.latitude}" data-lon="${dist.longitude}">${dist.name_bn} (${dist.name_en})</option>`).join('');
+      }
+    } catch (err) {
+      console.error("[Map] Failed to load districts:", err);
+    }
+  });
+
+  // District Change
+  distSelect?.addEventListener('change', async (e) => {
+    const distId = e.target.value;
+    upzSelect.innerHTML = `<option value="">-- সকল উপজেলা --</option>`;
+    uniSelect.innerHTML = `<option value="">-- সকল ইউনিয়ন --</option>`;
+    mouzaSelect.innerHTML = `<option value="">-- সকল মৌজা --</option>`;
+
+    upzSelect.disabled = !distId;
+    uniSelect.disabled = true;
+    mouzaSelect.disabled = true;
+
+    if (!distId) return;
+
+    const opt = distSelect.selectedOptions[0];
+    const lat = parseFloat(opt.getAttribute('data-lat'));
+    const lon = parseFloat(opt.getAttribute('data-lon'));
+    if (!isNaN(lat) && !isNaN(lon)) {
+      AppState.gisMap.flyTo([lat, lon], 11);
+      updateMapCoverageBanner(`${opt.textContent} জেলা স্তর সক্রিয়`);
+    }
+
+    try {
+      const uData = await LandTechAPI.getUpazilas(distId);
+      if (uData && uData.upazilas) {
+        upzSelect.innerHTML = `<option value="">-- সকল উপজেলা --</option>` +
+          uData.upazilas.map(upz => `<option value="${upz.upazila_id}" data-lat="${upz.latitude}" data-lon="${upz.longitude}">${upz.name_bn} (${upz.name_en})</option>`).join('');
+      }
+    } catch (err) {
+      console.error("[Map] Failed to load upazilas:", err);
+    }
+  });
+
+  // Upazila Change
+  upzSelect?.addEventListener('change', async (e) => {
+    const upzId = e.target.value;
+    uniSelect.innerHTML = `<option value="">-- সকল ইউনিয়ন --</option>`;
+    mouzaSelect.innerHTML = `<option value="">-- সকল মৌজা --</option>`;
+
+    uniSelect.disabled = !upzId;
+    mouzaSelect.disabled = !upzId;
+
+    if (!upzId) return;
+
+    const opt = upzSelect.selectedOptions[0];
+    const lat = parseFloat(opt.getAttribute('data-lat'));
+    const lon = parseFloat(opt.getAttribute('data-lon'));
+    if (!isNaN(lat) && !isNaN(lon)) {
+      AppState.gisMap.flyTo([lat, lon], 13);
+    }
+
+    if (upzId === 'UPZ-2672') {
+      updateMapCoverageBanner("সাভার পাইলট জোন: ১০০,০০০ ক্যাডাস্ট্রাল পার্সেল ও খাস জমি সক্রিয়");
+    } else {
+      updateMapCoverageBanner(`${opt.textContent} উপজেলা — প্রশাসনিক মার্কার দৃশ্যমান (ক্যাডাস্ট্রাল সীমানা সাভার পাইলটে সীমাবদ্ধ)`);
+    }
+
+    try {
+      const [uniData, mouzaData] = await Promise.all([
+        LandTechAPI.getUnions(upzId),
+        LandTechAPI.getMouzas(upzId)
+      ]);
+      if (uniData && uniData.unions && uniData.unions.length > 0) {
+        uniSelect.innerHTML = `<option value="">-- সকল ইউনিয়ন --</option>` +
+          uniData.unions.map(u => `<option value="${u.union_id}">${u.name_bn} (${u.name_en})</option>`).join('');
+      } else {
+        uniSelect.innerHTML = `<option value="">-- ইউনিয়ন তথ্য সংরক্ষিত নেই --</option>`;
+      }
+
+      if (mouzaData && mouzaData.mouzas && mouzaData.mouzas.length > 0) {
+        mouzaSelect.innerHTML = `<option value="">-- সকল মৌজা --</option>` +
+          mouzaData.mouzas.map(m => `<option value="${m.mouza_id}" data-lat="${m.latitude}" data-lon="${m.longitude}" data-name="${m.name_en}">${m.name_bn} (${m.name_en}) — জেএল ${m.jl_number || '-'}</option>`).join('');
+      } else {
+        mouzaSelect.innerHTML = `<option value="">-- মৌজা সীমানা ডাটাবেসে নেই --</option>`;
+      }
+    } catch (err) {
+      console.error("[Map] Failed to load unions/mouzas:", err);
+    }
+  });
+
+  // Mouza Change
+  mouzaSelect?.addEventListener('change', (e) => {
+    const mouzaId = e.target.value;
+    if (!mouzaId) return;
+    const opt = mouzaSelect.selectedOptions[0];
+    const lat = parseFloat(opt.getAttribute('data-lat'));
+    const lon = parseFloat(opt.getAttribute('data-lon'));
+    const mName = opt.getAttribute('data-name');
+
+    if (!isNaN(lat) && !isNaN(lon)) {
+      AppState.gisMap.flyTo([lat, lon], 15);
+    }
+
+    if (mName === 'Aminbazar' || mName === 'Birulia') {
+      updateMapCoverageBanner(`${opt.textContent} — ভেক্টর ক্যাডাস্ট্রাল সীমানা সক্রিয়`);
+      loadViewportParcels();
+    } else {
+      updateMapCoverageBanner(`${opt.textContent} — এই মৌজার জন্য ডিজিটাল ক্যাডাস্ট্রাল ভেক্টর সীমানা সংরক্ষিত নেই`);
+    }
+  });
+
+  // Geographic Search Bar
+  const searchInput = document.getElementById('map-geo-search-input');
+  const searchDropdown = document.getElementById('map-geo-search-results');
+  const searchBtn = document.getElementById('map-geo-search-btn');
+
+  const executeGeoSearch = async () => {
+    const query = searchInput.value.trim();
+    if (query.length < 2) {
+      searchDropdown.style.display = 'none';
+      return;
+    }
+
+    try {
+      const data = await LandTechAPI.searchGeography(query, 10);
+      if (data && data.results && data.results.length > 0) {
+        searchDropdown.innerHTML = data.results.map(r => `
+          <div class="map-search-item" onclick="selectGeoSearchResult('${r.level}', ${r.latitude}, ${r.longitude}, '${r.name_bn}')">
+            <div>
+              <strong>${r.name_bn}</strong> <span style="color:var(--c-stone-500); font-size:0.75rem;">(${r.name_en})</span>
+              <div style="font-size:0.72rem; color:var(--c-stone-400);">${r.details || ''}</div>
+            </div>
+            <span class="pill-tag pill-forest" style="font-size:0.65rem;">${r.level}</span>
+          </div>
+        `).join('');
+        searchDropdown.style.display = 'block';
+      } else {
+        searchDropdown.innerHTML = `<div style="padding:0.75rem; text-align:center; color:var(--c-stone-400); font-size:0.8rem;">কোনো ভৌগোলিক ফলাফল পাওয়া যায়নি</div>`;
+        searchDropdown.style.display = 'block';
+      }
+    } catch (err) {
+      console.error("[Map] Search error:", err);
+    }
+  };
+
+  searchInput?.addEventListener('input', () => {
+    clearTimeout(mapSearchDebounce);
+    mapSearchDebounce = setTimeout(executeGeoSearch, 300);
+  });
+
+  searchBtn?.addEventListener('click', executeGeoSearch);
+
+  // Close search dropdown on click outside
+  document.addEventListener('click', (e) => {
+    if (!searchInput?.contains(e.target) && !searchDropdown?.contains(e.target)) {
+      if (searchDropdown) searchDropdown.style.display = 'none';
+    }
+  });
+}
+
+function selectGeoSearchResult(level, lat, lon, name) {
+  const searchDropdown = document.getElementById('map-geo-search-results');
+  if (searchDropdown) searchDropdown.style.display = 'none';
+
+  if (!isNaN(lat) && !isNaN(lon)) {
+    const zoomLevel = level === 'MOUZA' ? 15 : (level === 'UPAZILA' ? 13 : (level === 'DISTRICT' ? 11 : 9));
+    AppState.gisMap.flyTo([lat, lon], zoomLevel);
+    updateMapCoverageBanner(`${name} (${level}) অবস্থানে প্যান করা হয়েছে`);
+    showToast(`${name} (${level}) এলাকায় ম্যাপ কেন্দ্র নির্ধারণ করা হয়েছে`);
+  }
+}
+window.selectGeoSearchResult = selectGeoSearchResult;
+
+function resetMapGeoSelectors() {
+  const divSelect = document.getElementById('map-filter-division');
+  const distSelect = document.getElementById('map-filter-district');
+  const upzSelect = document.getElementById('map-filter-upazila');
+  const uniSelect = document.getElementById('map-filter-union');
+  const mouzaSelect = document.getElementById('map-filter-mouza');
+
+  if (divSelect) divSelect.value = '';
+  if (distSelect) { distSelect.innerHTML = `<option value="">-- সকল জেলা --</option>`; distSelect.disabled = true; }
+  if (upzSelect) { upzSelect.innerHTML = `<option value="">-- সকল উপজেলা --</option>`; upzSelect.disabled = true; }
+  if (uniSelect) { uniSelect.innerHTML = `<option value="">-- সকল ইউনিয়ন --</option>`; uniSelect.disabled = true; }
+  if (mouzaSelect) { mouzaSelect.innerHTML = `<option value="">-- সকল মৌজা --</option>`; mouzaSelect.disabled = true; }
+}
+
+function updateMapCoverageBanner(text) {
+  const banner = document.getElementById('map-coverage-text');
+  if (banner) banner.textContent = text;
+}
+
+async function loadViewportParcels() {
+  const toggle = document.getElementById('layer-parcels-toggle');
+  if (!toggle || !toggle.checked || !AppState.gisMap) return;
+
+  const zoom = AppState.gisMap.getZoom();
+  if (zoom < 13) {
+    AppState.gisLayers.parcels.clearLayers();
+    return;
+  }
+
+  const indicator = document.getElementById('map-loading-indicator');
+  if (indicator) indicator.style.display = 'flex';
+
+  const bounds = AppState.gisMap.getBounds();
+  const bbox = `${bounds.getWest().toFixed(5)},${bounds.getSouth().toFixed(5)},${bounds.getEast().toFixed(5)},${bounds.getNorth().toFixed(5)}`;
+
+  try {
+    const data = await LandTechAPI.getParcelsMap(bbox, null, 120);
+    AppState.gisLayers.parcels.clearLayers();
+
+    if (data && data.features && data.features.length > 0) {
+      L.geoJSON(data, {
+        style: (feature) => {
+          const isDisputed = feature.properties && feature.properties.is_disputed;
+          return {
+            color: isDisputed ? '#dc2626' : '#059669',
+            weight: 2,
+            fillColor: isDisputed ? '#fecaca' : '#a7f3d0',
+            fillOpacity: 0.45
+          };
+        },
+        onEachFeature: (feature, layer) => {
+          layer.on('click', () => {
+            showParcelDetailDrawer(feature);
+            if (currentHighlightedPolygon) {
+              currentHighlightedPolygon.setStyle({ weight: 2 });
+            }
+            layer.setStyle({ weight: 4 });
+            currentHighlightedPolygon = layer;
+          });
+        }
+      }).addTo(AppState.gisLayers.parcels);
+    }
+  } catch (err) {
+    console.error("[Map] Viewport parcel load error:", err);
+  } finally {
+    if (indicator) indicator.style.display = 'none';
+  }
+}
+
+async function showParcelDetailDrawer(feature) {
+  const p = feature.properties || {};
+  const emptyPanel = document.getElementById('map-detail-empty');
+  const contentPanel = document.getElementById('map-detail-content');
+  const titleEl = document.getElementById('map-detail-title');
+  const badgeEl = document.getElementById('map-detail-badge');
+
+  if (emptyPanel) emptyPanel.style.display = 'none';
+  if (contentPanel) contentPanel.style.display = 'block';
+
+  if (titleEl) titleEl.textContent = `দাগ নং: ${p.dag_number || '-'}`;
+  if (badgeEl) {
+    if (p.is_disputed) {
+      badgeEl.className = 'pill-tag pill-risk';
+      badgeEl.textContent = 'দ্বৈত বিক্রয় / বিরোধপূর্ণ';
+    } else {
+      badgeEl.className = 'pill-tag pill-forest';
+      badgeEl.textContent = 'নিয়মিত পার্সেল';
+    }
+  }
+
+  document.getElementById('detail-parcel-id').textContent = p.parcel_id || '-';
+  document.getElementById('detail-dag-no').textContent = p.dag_number || '-';
+  document.getElementById('detail-khatian-no').textContent = p.khatian_number || '-';
+  document.getElementById('detail-mouza-jl').textContent = `${p.mouza || '-'} (জেএল: ${p.jl_number || '-'})`;
+  document.getElementById('detail-admin-location').textContent = 'সাভার, ঢাকা জেলা';
+  document.getElementById('detail-area').textContent = `${p.area_decimal || '-'} শতাংশ`;
+
+  // Fetch full location and public due diligence summary
+  const dueDiligenceBox = document.getElementById('detail-due-diligence-box');
+  if (dueDiligenceBox) {
+    dueDiligenceBox.innerHTML = `<em>ডিউ ডিলিজেন্স তথ্য যাচাই হচ্ছে...</em>`;
+    dueDiligenceBox.style.background = 'var(--c-stone-100)';
+
+    try {
+      const locData = await LandTechAPI.getParcelLocation(p.parcel_id);
+      const dd = locData.due_diligence_summary || {};
+
+      let statusHtml = '';
+      if (dd.double_selling_flag) {
+        statusHtml += `<div style="color:var(--c-risk-danger); font-weight:700;">⚠️ দ্বৈত বিক্রয় সংক্রান্ত অভিযোগ অন্তর্ভুক্ত</div>`;
+      }
+      if (dd.khas_overlap) {
+        statusHtml += `<div style="color:#b45309; font-weight:700;">⚠️ সরকারি ১-নং খাস খতিয়ানভুক্ত এলাকা</div>`;
+      }
+      if (dd.acquisition_warning) {
+        statusHtml += `<div style="color:#7e22ce; font-weight:700;">⚠️ জাতীয় অবকাঠামো অধিগ্রহণ করিডোর সংলগ্ন</div>`;
+      }
+      if (!dd.double_selling_flag && !dd.khas_overlap && !dd.acquisition_warning) {
+        statusHtml += `<div style="color:var(--c-forest-700); font-weight:600;">✓ প্রাথমিক পাবলিক পর্যালোচনায় কোনো সংঘাত নেই</div>`;
+      }
+
+      dueDiligenceBox.innerHTML = `
+        <div style="font-weight:700; margin-bottom:0.25rem;">পাবলিক ডিউ ডিলিজেন্স সারসংক্ষেপ:</div>
+        ${statusHtml}
+        <div style="font-size:0.72rem; color:var(--c-stone-500); margin-top:0.3rem;">
+          ${locData.disclaimer || 'DEMO DATA — NOT AN OFFICIAL LAND SURVEY'}
+        </div>
+      `;
+    } catch (err) {
+      dueDiligenceBox.innerHTML = `<span style="color:var(--c-stone-500);">পাবলিক ডিউ ডিলিজেন্স বিবরণ সংরক্ষিত</span>`;
+    }
+  }
+
+  // Set citizen dossier button action
+  const dossierBtn = document.getElementById('map-detail-dossier-btn');
+  if (dossierBtn) {
+    dossierBtn.onclick = () => {
+      navigateToApp('citizen');
+      const searchInput = document.getElementById('citizen-parcel-input');
+      if (searchInput) {
+        searchInput.value = p.parcel_id;
+        loadCitizenDossier(p.parcel_id);
+      }
+    };
+  }
+}
+
+function closeMapDetailDrawer() {
+  const emptyPanel = document.getElementById('map-detail-empty');
+  const contentPanel = document.getElementById('map-detail-content');
+  if (emptyPanel) emptyPanel.style.display = 'block';
+  if (contentPanel) contentPanel.style.display = 'none';
+  if (currentHighlightedPolygon) {
+    currentHighlightedPolygon.setStyle({ weight: 2 });
+    currentHighlightedPolygon = null;
+  }
+}
+
+// ==========================================================================
+// WORKSPACE: SYNTHETIC LAND OFFICIALS DIRECTORY CONTROLLER (PHASE 4 & 5)
+// ==========================================================================
+
+let officialsSearchDebounce = null;
+
+async function loadOfficialsDirectory() {
+  await initOfficialsDirectoryWorkspace();
+  await fetchAndRenderOfficials();
+}
+
+async function initOfficialsDirectoryWorkspace() {
+  const divSelect = document.getElementById('officials-filter-div');
+  const distSelect = document.getElementById('officials-filter-dist');
+  const upzSelect = document.getElementById('officials-filter-upz');
+  const desigSelect = document.getElementById('officials-filter-desig');
+  const typeSelect = document.getElementById('officials-filter-type');
+  const searchInput = document.getElementById('officials-search-query');
+  const resetBtn = document.getElementById('officials-filter-reset-btn');
+  const langToggle = document.getElementById('officials-lang-toggle');
+  const prevBtn = document.getElementById('officials-prev-btn');
+  const nextBtn = document.getElementById('officials-next-btn');
+
+  // Load Designations
+  try {
+    const dRes = await LandTechAPI.getDesignations();
+    if (dRes && dRes.designations && desigSelect && desigSelect.options.length <= 1) {
+      desigSelect.innerHTML = `<option value="">-- সকল পদবি --</option>` +
+        dRes.designations.map(d => `<option value="${d.code}">${d.name_bn} (${d.name_en})</option>`).join('');
+    }
+  } catch (err) {
+    console.error("[Officials] Failed to load designations:", err);
+  }
+
+  // Load Divisions
+  try {
+    const divRes = await LandTechAPI.getDivisions();
+    if (divRes && divRes.divisions && divSelect && divSelect.options.length <= 1) {
+      divSelect.innerHTML = `<option value="">-- সকল বিভাগ --</option>` +
+        divRes.divisions.map(d => `<option value="${d.division_id}">${d.name_bn} (${d.name_en})</option>`).join('');
+    }
+  } catch (err) {
+    console.error("[Officials] Failed to load divisions:", err);
+  }
+
+  // Cascading Division -> District
+  divSelect?.addEventListener('change', async (e) => {
+    const divId = e.target.value;
+    distSelect.innerHTML = `<option value="">-- সকল জেলা --</option>`;
+    upzSelect.innerHTML = `<option value="">-- সকল উপজেলা --</option>`;
+    distSelect.disabled = !divId;
+    upzSelect.disabled = true;
+
+    AppState.officials.page = 1;
+    if (divId) {
+      try {
+        const distData = await LandTechAPI.getDistricts(divId);
+        if (distData && distData.districts) {
+          distSelect.innerHTML = `<option value="">-- সকল জেলা --</option>` +
+            distData.districts.map(dist => `<option value="${dist.district_id}">${dist.name_bn} (${dist.name_en})</option>`).join('');
+        }
+      } catch (err) {
+        console.error("[Officials] District load error:", err);
+      }
+    }
+    fetchAndRenderOfficials();
+  });
+
+  // Cascading District -> Upazila
+  distSelect?.addEventListener('change', async (e) => {
+    const distId = e.target.value;
+    upzSelect.innerHTML = `<option value="">-- সকল উপজেলা --</option>`;
+    upzSelect.disabled = !distId;
+
+    AppState.officials.page = 1;
+    if (distId) {
+      try {
+        const uData = await LandTechAPI.getUpazilas(distId);
+        if (uData && uData.upazilas) {
+          upzSelect.innerHTML = `<option value="">-- সকল উপজেলা --</option>` +
+            uData.upazilas.map(upz => `<option value="${upz.upazila_id}">${upz.name_bn} (${upz.name_en})</option>`).join('');
+        }
+      } catch (err) {
+        console.error("[Officials] Upazila load error:", err);
+      }
+    }
+    fetchAndRenderOfficials();
+  });
+
+  upzSelect?.addEventListener('change', () => {
+    AppState.officials.page = 1;
+    fetchAndRenderOfficials();
+  });
+
+  desigSelect?.addEventListener('change', () => {
+    AppState.officials.page = 1;
+    fetchAndRenderOfficials();
+  });
+
+  typeSelect?.addEventListener('change', () => {
+    AppState.officials.page = 1;
+    fetchAndRenderOfficials();
+  });
+
+  searchInput?.addEventListener('input', () => {
+    clearTimeout(officialsSearchDebounce);
+    officialsSearchDebounce = setTimeout(() => {
+      AppState.officials.page = 1;
+      fetchAndRenderOfficials();
+    }, 300);
+  });
+
+  resetBtn?.addEventListener('click', resetOfficialsFilters);
+
+  langToggle?.addEventListener('click', () => {
+    AppState.officials.lang = AppState.officials.lang === 'bn' ? 'en' : 'bn';
+    langToggle.innerHTML = AppState.officials.lang === 'bn' ? '<span>🌐 English</span>' : '<span>🌐 বাংলা</span>';
+    fetchAndRenderOfficials();
+  });
+
+  prevBtn?.addEventListener('click', () => {
+    if (AppState.officials.page > 1) {
+      AppState.officials.page--;
+      fetchAndRenderOfficials();
+    }
+  });
+
+  nextBtn?.addEventListener('click', () => {
+    const totalPages = Math.ceil(AppState.officials.total / AppState.officials.limit);
+    if (AppState.officials.page < totalPages) {
+      AppState.officials.page++;
+      fetchAndRenderOfficials();
+    }
+  });
+}
+
+function resetOfficialsFilters() {
+  const divSelect = document.getElementById('officials-filter-div');
+  const distSelect = document.getElementById('officials-filter-dist');
+  const upzSelect = document.getElementById('officials-filter-upz');
+  const desigSelect = document.getElementById('officials-filter-desig');
+  const typeSelect = document.getElementById('officials-filter-type');
+  const searchInput = document.getElementById('officials-search-query');
+
+  if (divSelect) divSelect.value = '';
+  if (distSelect) { distSelect.innerHTML = `<option value="">-- সকল জেলা --</option>`; distSelect.disabled = true; }
+  if (upzSelect) { upzSelect.innerHTML = `<option value="">-- সকল উপজেলা --</option>`; upzSelect.disabled = true; }
+  if (desigSelect) desigSelect.value = '';
+  if (typeSelect) typeSelect.value = '';
+  if (searchInput) searchInput.value = '';
+
+  AppState.officials.page = 1;
+  fetchAndRenderOfficials();
+  showToast("সকল ফিল্টার রিসেট করা হয়েছে");
+}
+window.resetOfficialsFilters = resetOfficialsFilters;
+
+async function fetchAndRenderOfficials() {
+  const divSelect = document.getElementById('officials-filter-div');
+  const distSelect = document.getElementById('officials-filter-dist');
+  const upzSelect = document.getElementById('officials-filter-upz');
+  const desigSelect = document.getElementById('officials-filter-desig');
+  const typeSelect = document.getElementById('officials-filter-type');
+  const searchInput = document.getElementById('officials-search-query');
+
+  const grid = document.getElementById('officials-cards-grid');
+  const emptyState = document.getElementById('officials-empty-state');
+  const countLabel = document.getElementById('officials-count-label');
+  const pageInfo = document.getElementById('officials-pagination-info');
+  const prevBtn = document.getElementById('officials-prev-btn');
+  const nextBtn = document.getElementById('officials-next-btn');
+
+  const page = AppState.officials.page || 1;
+  const limit = AppState.officials.limit || 12;
+  const offset = (page - 1) * limit;
+
+  const params = {
+    division_id: divSelect?.value || undefined,
+    district_id: distSelect?.value || undefined,
+    upazila_id: upzSelect?.value || undefined,
+    designation: desigSelect?.value || undefined,
+    office_type: typeSelect?.value || undefined,
+    search: searchInput?.value.trim() || undefined,
+    limit: limit,
+    offset: offset
+  };
+
+  try {
+    const res = await LandTechAPI.getOfficials(params);
+    AppState.officials.total = res.total || 0;
+    const totalPages = Math.max(1, Math.ceil(res.total / limit));
+    const isEn = AppState.officials.lang === 'en';
+
+    if (countLabel) {
+      countLabel.innerHTML = isEn
+        ? `Showing <strong>${res.count}</strong> of <strong>${res.total}</strong> demo officials`
+        : `মোট <strong>${res.total}</strong> জন ডেমো কর্মকর্তার মধ্যে <strong>${res.count}</strong> জন প্রদর্শিত হচ্ছে`;
+    }
+
+    if (pageInfo) {
+      pageInfo.textContent = isEn ? `Page ${page} of ${totalPages}` : `পৃষ্ঠা ${page} / ${totalPages}`;
+    }
+
+    if (prevBtn) prevBtn.disabled = page <= 1;
+    if (nextBtn) nextBtn.disabled = page >= totalPages;
+
+    if (!res.officials || res.officials.length === 0) {
+      if (grid) grid.style.display = 'none';
+      if (emptyState) emptyState.style.display = 'block';
+      return;
+    }
+
+    if (grid) grid.style.display = 'grid';
+    if (emptyState) emptyState.style.display = 'none';
+
+    grid.innerHTML = res.officials.map(official => {
+      const name = isEn ? official.name_en : official.name_bn;
+      const desig = isEn ? official.designation_en : official.designation_bn;
+      const office = isEn ? official.office_name_en : official.office_name_bn;
+      const address = isEn ? official.address_en : official.address_bn;
+      const jurisdiction = isEn ? official.jurisdiction_en : official.jurisdiction_bn;
+
+      return `
+        <div class="officials-card">
+          <div class="officials-demo-watermark">DEMO OFFICIAL</div>
+          <div class="officials-card-header">
+            <div class="officials-avatar">
+              <img src="${official.portrait_image}" alt="Portrait" onerror="this.src='/static/assets/portraits/portrait_male_1.svg'">
+            </div>
+            <div class="officials-card-title">
+              <div class="officials-name">${name}</div>
+              <span class="officials-desig-tag">${desig}</span>
+            </div>
+          </div>
+
+          <div class="officials-card-body">
+            <div class="officials-info-row">
+              <span class="officials-info-icon">🏛️</span>
+              <div><strong>${office || 'ভূমি কার্যালয়'}</strong></div>
+            </div>
+            <div class="officials-info-row">
+              <span class="officials-info-icon">📍</span>
+              <div style="font-size:0.78rem; color:var(--c-stone-600);">${jurisdiction || address || '-'}</div>
+            </div>
+            <div class="officials-info-row">
+              <span class="officials-info-icon">🆔</span>
+              <div><code style="font-size:0.75rem; background:var(--c-stone-100); padding:2px 4px; border-radius:4px;">${official.employee_number_demo}</code></div>
+            </div>
+            <div class="officials-info-row">
+              <span class="officials-info-icon">✉️</span>
+              <div style="font-size:0.75rem;"><a href="mailto:${official.email_demo}" style="color:var(--c-forest-700);">${official.email_demo}</a></div>
+            </div>
+            <div class="officials-info-row">
+              <span class="officials-info-icon">📞</span>
+              <div style="font-size:0.75rem;">${official.phone_demo}</div>
+            </div>
+          </div>
+
+          <div class="officials-card-footer">
+            <button class="btn btn-secondary-stone btn-sm" style="flex:1;" onclick="openOfficialModal('${official.official_id}')">
+              বিস্তারিত প্রোফাইল
+            </button>
+            <button class="btn btn-primary-forest btn-sm" onclick="viewOfficeOnMap('${official.office_id}', ${official.latitude}, ${official.longitude})">
+              🗺️ ম্যাপে কার্যালয়
+            </button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  } catch (err) {
+    console.error("[Officials] Fetch error:", err);
+    if (grid) grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; color:var(--c-risk-danger); padding:2rem;">কর্মকর্তা তালিকা লোড করতে ত্রুটি: ${err.message}</div>`;
+  }
+}
+
+async function openOfficialModal(officialId) {
+  const modal = document.getElementById('official-detail-modal');
+  const nameEl = document.getElementById('modal-official-name');
+  const bodyEl = document.getElementById('modal-official-body');
+  const mapBtn = document.getElementById('modal-official-map-btn');
+
+  if (!modal || !bodyEl) return;
+
+  bodyEl.innerHTML = `<div style="text-align:center; padding:2rem;"><span class="spinner-sm"></span> কর্মকর্তা প্রোফাইল লোড হচ্ছে...</div>`;
+  modal.style.display = 'flex';
+
+  try {
+    const o = await LandTechAPI.getOfficialDetail(officialId);
+    if (nameEl) nameEl.textContent = o.name_bn || o.name_en;
+
+    bodyEl.innerHTML = `
+      <div style="display:flex; gap:1.25rem; align-items:flex-start; margin-bottom:1.25rem; border-bottom:1px solid var(--c-stone-200); padding-bottom:1.25rem;">
+        <div style="width:96px; height:96px; border-radius:50%; border:3px solid var(--c-forest-100); overflow:hidden; flex-shrink:0; background:#f8fafc;">
+          <img src="${o.portrait_image}" style="width:100%; height:100%; object-fit:cover;" alt="Avatar">
+        </div>
+        <div>
+          <h4 style="margin:0 0 0.25rem 0; font-size:1.2rem; font-weight:700;">${o.name_bn}</h4>
+          <div style="color:var(--c-stone-500); font-size:0.85rem; margin-bottom:0.4rem;">${o.name_en}</div>
+          <div style="display:flex; gap:0.4rem; flex-wrap:wrap;">
+            <span class="pill-tag pill-forest">${o.designation_bn}</span>
+            <span class="pill-tag" style="background:#dbeafe; color:#1d4ed8;">${o.office_type || 'ভূমি প্রশাসন'}</span>
+            <span class="pill-tag" style="background:#dcfce7; color:#15803d;">সক্রিয় ডেমো পদবি</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; font-size:0.85rem; margin-bottom:1.25rem;">
+        <div style="background:var(--c-stone-50); padding:0.75rem; border-radius:var(--radius-sm); border:1px solid var(--c-stone-200);">
+          <div style="font-weight:700; margin-bottom:0.4rem; color:var(--c-forest-900);">কার্যালয় ও প্রশাসনিক অবস্থান:</div>
+          <div><strong>কার্যালয়:</strong> ${o.office_name_bn}</div>
+          <div><strong>বিভাগ:</strong> ${o.division_name_bn || o.division_name_en || '-'}</div>
+          <div><strong>জেলা:</strong> ${o.district_name_bn || o.district_name_en || '-'}</div>
+          <div><strong>উপজেলা:</strong> ${o.upazila_name_bn || o.upazila_name_en || '-'}</div>
+          <div style="font-size:0.78rem; color:var(--c-stone-600); margin-top:0.3rem;"><strong>ঠিকানা:</strong> ${o.address_bn || o.address_en || '-'}</div>
+        </div>
+
+        <div style="background:var(--c-stone-50); padding:0.75rem; border-radius:var(--radius-sm); border:1px solid var(--c-stone-200);">
+          <div style="font-weight:700; margin-bottom:0.4rem; color:var(--c-forest-900);">নিরাপদ ডেমো যোগাযোগ ও পরিচিতি:</div>
+          <div><strong>ডেমো আইডি:</strong> <code>${o.employee_number_demo}</code></div>
+          <div><strong>ইমেইল:</strong> <a href="mailto:${o.email_demo}" style="color:var(--c-forest-700);">${o.email_demo}</a></div>
+          <div><strong>ফোন:</strong> ${o.phone_demo}</div>
+          <div style="margin-top:0.4rem; font-size:0.75rem; color:#b45309;">
+            🔒 সংরক্ষিত ডেমো ইমেইল ডোমেইন (@demo.land.gov.bd) ও নিয়ন্ত্রিত ফোন নম্বর।
+          </div>
+        </div>
+      </div>
+
+      <div style="background:var(--c-stone-50); padding:0.75rem; border-radius:var(--radius-sm); border:1px solid var(--c-stone-200); font-size:0.82rem; margin-bottom:1rem;">
+        <div style="font-weight:700; margin-bottom:0.25rem;">কার্যপরিধি ও এখতিয়ার (Jurisdiction):</div>
+        <div>${o.jurisdiction_bn || o.jurisdiction_en || 'উপজেলা ভূমি প্রশাসন রাজস্ব ও নামজারি কার্যক্রম'}</div>
+      </div>
+
+      <div style="background:#fff7ed; border:1px solid #fed7aa; padding:0.65rem; border-radius:var(--radius-sm); font-size:0.75rem; color:#7c2d12; line-height:1.4;">
+        <strong>ডেটা প্রোভেন্যান্স ঘোষণা:</strong> ${o.provenance || 'DEMO OFFICIAL — NOT A REAL PERSON'}। এটি বাংলাদেশ ল্যান্ডটেক হ্যাকথন প্রোটোটাইপের জন্য কৃত্রিমভাবে তৈরি একটি ডেমো কর্মকর্তা প্রোফাইল।
+      </div>
+    `;
+
+    if (mapBtn) {
+      mapBtn.onclick = () => {
+        closeOfficialModal();
+        viewOfficeOnMap(o.office_id, o.latitude, o.longitude);
+      };
+    }
+  } catch (err) {
+    bodyEl.innerHTML = `<div style="color:var(--c-risk-danger); text-align:center; padding:2rem;">প্রোফাইল লোড ত্রুটি: ${err.message}</div>`;
+  }
+}
+window.openOfficialModal = openOfficialModal;
+
+function closeOfficialModal() {
+  const modal = document.getElementById('official-detail-modal');
+  if (modal) modal.style.display = 'none';
+}
+window.closeOfficialModal = closeOfficialModal;
+
+function viewOfficeOnMap(officeId, lat, lon) {
+  switchToMapOffice(lat, lon);
+}
+window.viewOfficeOnMap = viewOfficeOnMap;
+
+function switchToMapOffice(lat, lon) {
+  navigateToApp('map');
+  setTimeout(() => {
+    if (AppState.gisMap && !isNaN(lat) && !isNaN(lon)) {
+      AppState.gisMap.flyTo([lat, lon], 15);
+      showToast("ভূমি প্রশাসন কার্যালয় অবস্থানে ম্যাপ কেন্দ্র নির্ধারিত হয়েছে");
+    }
+  }, 350);
 }
 
 // ==========================================================================

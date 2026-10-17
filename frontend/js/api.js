@@ -476,4 +476,127 @@ class LandTechAPI {
     if (!res.ok) throw new Error('Failed to fetch audit logs');
     return await res.json();
   }
+
+  // ==========================================
+  // GEOGRAPHY API METHODS (PHASE 2)
+  // ==========================================
+  static async getDivisions() {
+    const res = await fetch(`${API_BASE}/geography/divisions`);
+    if (!res.ok) throw new Error('Failed to fetch divisions');
+    return await res.json();
+  }
+
+  static async getDistricts(divisionId = null) {
+    let url = `${API_BASE}/geography/districts`;
+    if (divisionId) url += `?division_id=${encodeURIComponent(divisionId)}`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('Failed to fetch districts');
+    return await res.json();
+  }
+
+  static async getUpazilas(districtId = null, limit = 100, offset = 0) {
+    let url = `${API_BASE}/geography/upazilas?limit=${limit}&offset=${offset}`;
+    if (districtId) url += `&district_id=${encodeURIComponent(districtId)}`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('Failed to fetch upazilas');
+    return await res.json();
+  }
+
+  static async getUnions(upazilaId = null) {
+    let url = `${API_BASE}/geography/unions`;
+    if (upazilaId) url += `?upazila_id=${encodeURIComponent(upazilaId)}`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('Failed to fetch unions');
+    return await res.json();
+  }
+
+  static async getMouzas(upazilaId = null, unionId = null) {
+    let url = `${API_BASE}/geography/mouzas?`;
+    if (upazilaId) url += `upazila_id=${encodeURIComponent(upazilaId)}&`;
+    if (unionId) url += `union_id=${encodeURIComponent(unionId)}&`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('Failed to fetch mouzas');
+    return await res.json();
+  }
+
+  static async searchGeography(query, limit = 20) {
+    const res = await fetch(`${API_BASE}/geography/search?q=${encodeURIComponent(query)}&limit=${limit}`);
+    if (!res.ok) throw new Error('Failed to search geography');
+    return await res.json();
+  }
+
+  // ==========================================
+  // LAND OFFICIALS DIRECTORY API METHODS (PHASE 4)
+  // ==========================================
+  static async getOfficials(params = {}) {
+    const searchParams = new URLSearchParams();
+    for (const [key, val] of Object.entries(params)) {
+      if (val !== null && val !== undefined && val !== '') {
+        searchParams.append(key, val);
+      }
+    }
+    const res = await fetch(`${API_BASE}/officials?${searchParams.toString()}`);
+    if (!res.ok) throw new Error('Failed to fetch land officials');
+    return await res.json();
+  }
+
+  static async getOfficialDetail(officialId) {
+    const res = await fetch(`${API_BASE}/officials/${encodeURIComponent(officialId)}`);
+    if (!res.ok) throw new Error('Failed to fetch official profile');
+    return await res.json();
+  }
+
+  static async getDesignations() {
+    const res = await fetch(`${API_BASE}/officials/meta/designations`);
+    if (!res.ok) throw new Error('Failed to fetch designations');
+    return await res.json();
+  }
+
+  static async getOffices(params = {}) {
+    const searchParams = new URLSearchParams();
+    for (const [key, val] of Object.entries(params)) {
+      if (val !== null && val !== undefined && val !== '') {
+        searchParams.append(key, val);
+      }
+    }
+    const res = await fetch(`${API_BASE}/officials/offices?${searchParams.toString()}`);
+    if (!res.ok) throw new Error('Failed to fetch land offices');
+    return await res.json();
+  }
+
+  static async getOfficeDetail(officeId) {
+    const res = await fetch(`${API_BASE}/officials/offices/${encodeURIComponent(officeId)}`);
+    if (!res.ok) throw new Error('Failed to fetch office detail');
+    return await res.json();
+  }
+
+  // ==========================================
+  // SPATIAL MAP & PARCEL LOCATION API (PHASE 3)
+  // ==========================================
+  static async getParcelsMap(bbox = null, mouza = null, limit = 100) {
+    let url = `${API_BASE}/parcels/map?limit=${limit}`;
+    if (bbox) url += `&bbox=${encodeURIComponent(bbox)}`;
+    if (mouza) url += `&mouza=${encodeURIComponent(mouza)}`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('Failed to fetch map parcels');
+    return await res.json();
+  }
+
+  static async getParcelLocation(parcelId) {
+    const res = await fetch(`${API_BASE}/parcels/${encodeURIComponent(parcelId)}/location`);
+    if (!res.ok) throw new Error('Failed to fetch parcel location');
+    return await res.json();
+  }
+
+  static async getAcquisitionZonesLayer() {
+    const res = await fetch(`${API_BASE}/parcels/layers/acquisition-zones`);
+    if (!res.ok) throw new Error('Failed to fetch acquisition zones layer');
+    return await res.json();
+  }
+
+  static async getKhasLandLayer(limit = 100) {
+    const res = await fetch(`${API_BASE}/parcels/layers/khas-land?limit=${limit}`);
+    if (!res.ok) throw new Error('Failed to fetch khas land layer');
+    return await res.json();
+  }
 }
