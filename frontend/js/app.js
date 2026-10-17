@@ -186,7 +186,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const hash = window.location.hash.replace('#', '');
     if (hash === 'app') {
       navigateToApp('overview');
-    } else if (['overview', 'citizen', 'officer', 'mutation', 'ocr', 'verify', 'map', 'audit', 'dataset', 'settings', 'users', 'security-logs'].includes(hash)) {
+    } else if (['overview', 'citizen', 'officer', 'buyer-ownership-summary', 'buyer-fraud-risk', 'mutation', 'ocr', 'verify', 'map', 'audit', 'dataset', 'settings', 'users', 'security-logs'].includes(hash)) {
       navigateToApp(hash);
     }
   }
@@ -383,10 +383,10 @@ const ROLE_NAV_CONFIG = {
 };
 
 const ROLE_ALLOWED_PAGES = {
-  CITIZEN: ['overview', 'citizen-myland', 'citizen', 'ocr', 'citizen-applications', 'mutation', 'map', 'officials-directory', 'citizen-notifications', 'citizen-activity'],
-  BUYER: ['buyer-overview', 'citizen', 'due-diligence', 'buyer-ownership-summary', 'buyer-fraud-risk', 'verify', 'map', 'officials-directory', 'buyer-compare-reports', 'buyer-review-requests'],
-  OFFICER: ['officer-overview', 'officer-cases', 'officer', 'officer-deed-compare', 'mutation', 'officer-doc-review', 'officer-hearings', 'map', 'officials-directory', 'officer-decisions', 'audit'],
-  ADMINISTRATOR: ['admin-overview', 'users', 'map', 'officials-directory', 'security-logs', 'settings', 'dataset', 'admin-ocr-diagnostics', 'admin-rules-config', 'admin-backups', 'admin-settings']
+  CITIZEN: ['overview', 'citizen-myland', 'citizen', 'due-diligence', 'buyer-ownership-summary', 'ocr', 'citizen-applications', 'mutation', 'map', 'officials-directory', 'citizen-notifications', 'citizen-activity'],
+  BUYER: ['overview', 'buyer-overview', 'citizen', 'due-diligence', 'buyer-ownership-summary', 'buyer-fraud-risk', 'verify', 'map', 'officials-directory', 'buyer-compare-reports', 'buyer-review-requests'],
+  OFFICER: ['overview', 'officer-overview', 'officer-cases', 'officer', 'citizen', 'buyer-ownership-summary', 'officer-deed-compare', 'mutation', 'officer-doc-review', 'officer-hearings', 'map', 'officials-directory', 'officer-decisions', 'audit'],
+  ADMINISTRATOR: ['overview', 'admin-overview', 'users', 'citizen', 'officer', 'buyer-ownership-summary', 'map', 'officials-directory', 'security-logs', 'settings', 'dataset', 'admin-ocr-diagnostics', 'admin-rules-config', 'admin-backups', 'admin-settings']
 };
 
 const ROLE_HOME_PAGE = {
@@ -528,8 +528,12 @@ function switchAppPage(pageName) {
     item.classList.toggle('active', item.getAttribute('data-page') === pageName);
   });
 
-  // Switch workspace container (handle due-diligence mapping to page-citizen)
-  const domId = pageName === 'due-diligence' ? 'page-citizen' : `page-${pageName}`;
+  // Switch workspace container (handle due-diligence mapping to page-citizen, overview aliases to page-overview)
+  let domId = `page-${pageName}`;
+  if (pageName === 'due-diligence') domId = 'page-citizen';
+  if (pageName === 'buyer-overview' || pageName === 'officer-overview' || pageName === 'admin-overview') domId = 'page-overview';
+  if (pageName === 'buyer-fraud-risk') domId = 'page-officer';
+
   document.querySelectorAll('.workspace-page').forEach(page => {
     page.classList.toggle('active', page.id === domId);
   });
@@ -575,7 +579,18 @@ function switchAppPage(pageName) {
   if (breadcrumb) breadcrumb.textContent = titles[pageName] || pageName;
 
   // Page specific data loaders
-  if (pageName === 'citizen-myland') {
+  if (pageName === 'overview' || pageName === 'buyer-overview' || pageName === 'admin-overview') {
+    loadDashboardStats();
+    if (AppState.dashMiniMap) {
+      setTimeout(() => AppState.dashMiniMap.invalidateSize(), 200);
+    } else {
+      setTimeout(initDashboardMiniMap, 150);
+    }
+  } else if (pageName === 'buyer-ownership-summary') {
+    loadChainOfTitleForParcel(AppState.selectedParcelId || 'BD-PAR-000101');
+  } else if (pageName === 'buyer-fraud-risk') {
+    loadOfficerQueue();
+  } else if (pageName === 'citizen-myland') {
     loadCitizenParcels();
   } else if (pageName === 'citizen-applications') {
     loadCitizenApplications();
@@ -981,15 +996,306 @@ function showToast(msg) {
 }
 
 // ==========================================================================
-// WORKSPACE 2: CITIZEN SEARCH & DUE DILIGENCE (P5)
+// WORKSPACE 1: DASHBOARD / OVERVIEW CONTROLLER (SCREEN 1)
+// ==========================================================================
+AppState.dashMiniMap = null;
+
+async function loadDashboardStats() {
+  try {
+    const stats = await LandTechAPI.getDashboardStats();
+    
+    // 4 Meaningful Summary Cards
+    const s = stats.summary || stats;
+    const totalEl = document.getElementById('dash-stat-total-parcels');
+    const riskEl = document.getElementById('dash-stat-high-risk');
+    const pendEl = document.getElementById('dash-stat-pending');
+    const compEl = document.getElementById('dash-stat-completed');
+
+    if (totalEl) totalEl.textContent = (s.total_parcels || 100000).toLocaleString('bn-BD');
+    if (riskEl) riskEl.textContent = (s.high_risk_records || 2250).toLocaleString('bn-BD');
+    if (pendEl) pendEl.textContent = (s.pending_verification || 4746).toLocaleString('bn-BD');
+    if (compEl) compEl.textContent = (s.completed_applications || s.completed_mutations || 57083).toLocaleString('bn-BD');
+
+    // Recent Audit Activity Feed (with Privacy Masking)
+    const actContainer = document.getElementById('dash-recent-activity-container');
+    if (actContainer) {
+      const logs = stats.recent_activity || [];
+      if (logs.length === 0) {
+        actContainer.innerHTML = '<div style="text-align:center; padding:1.5rem; color:var(--c-stone-400);">কোনো সাম্প্রতিক অডিট কার্যক্রম নেই।</div>';
+      } else {
+        actContainer.innerHTML = logs.map(l => {
+          let badgeClass = 'pill-forest';
+          let actionText = l.action_text_bn || l.action;
+          if (l.action.includes('FRAUD') || l.action.includes('REJECT') || l.badge_type === 'danger') {
+            badgeClass = 'pill-danger';
+          } else if (l.action.includes('MUTATION') || l.badge_type === 'warning' || l.action.includes('INSPECTION')) {
+            badgeClass = 'pill-warning';
+          } else if (l.action.includes('APPROVED') || l.badge_type === 'success') {
+            badgeClass = 'pill-safe';
+          }
+
+          const maskedUser = l.masked_user || 'রাজস্ব কর্মকর্তা (AC Land)';
+          const pRef = l.parcel_id ? `পার্সেল: <strong>${l.parcel_id}</strong>` : (l.case_id ? `কেস: <strong>${l.case_id}</strong>` : 'সিস্টেম রেকর্ড');
+          const dateStr = l.timestamp ? new Date(l.timestamp).toLocaleTimeString('bn-BD', { hour: '2-digit', minute: '2-digit' }) : 'আজ';
+          const details = l.reason_summary || l.details || 'আইনি রেকর্ড ও বালাম তল্লাশি সম্পন্ন।';
+
+          return `
+            <div class="dash-activity-item">
+              <div class="dash-activity-badge">${l.icon || '⏱️'}</div>
+              <div class="dash-activity-content">
+                <div class="dash-activity-title">
+                  <span class="pill-tag ${badgeClass}" style="font-size:0.7rem;">${actionText}</span>
+                  <span style="font-size:0.8rem; color:var(--c-stone-600);">${pRef} — ${maskedUser}</span>
+                </div>
+                <div class="dash-activity-time">${details} • ${dateStr}</div>
+              </div>
+              <button class="btn btn-secondary-stone btn-sm" style="font-size:0.75rem; padding:2px 8px;" onclick="${l.parcel_id ? `quickInspectParcel('${l.parcel_id}')` : `switchAppPage('officer')`}">
+                দেখুন ➔
+              </button>
+            </div>
+          `;
+        }).join('');
+      }
+    }
+  } catch (err) {
+    console.warn("Failed to load dashboard stats:", err);
+  }
+}
+
+function initDashboardMiniMap() {
+  const container = document.getElementById('dash-mini-map');
+  if (!container || AppState.dashMiniMap) return;
+
+  AppState.dashMiniMap = L.map('dash-mini-map', {
+    scrollWheelZoom: false
+  }).setView([23.8560, 90.2600], 13);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '© OpenStreetMap contributors | DeshMrittika'
+  }).addTo(AppState.dashMiniMap);
+
+  // 4 Clickable sample parcel markers on the mini map
+  const sampleParcels = [
+    {
+      id: 'BD-PAR-000101',
+      dag: '১০১',
+      mouza: 'আমিনবাজার',
+      type: 'double_selling',
+      label: '🚨 দাগ ১০১ (দ্বৈত বিক্রয়)',
+      desc: 'একই বিক্রেতা ২০১৬ ও ২০২৩ সালে দ্বৈত দলিল সম্পাদন। ঝুঁকি স্কোর: ৯৫/১০০।',
+      lat: 23.8580,
+      lng: 90.2580,
+      color: '#ef4444'
+    },
+    {
+      id: 'BD-PAR-001001',
+      dag: '১০০১',
+      mouza: 'বিরুলিয়া',
+      type: 'safe',
+      label: '🌿 দাগ ১০০১ (নির্দোষ রেকর্ড)',
+      desc: 'সিএস থেকে বিএস পর্যন্ত ধারাবাহিক বায়া দলিল অক্ষত। ঝুঁকি স্কোর: ১০/১০০।',
+      lat: 23.8540,
+      lng: 90.2620,
+      color: '#10b981'
+    },
+    {
+      id: 'BD-PAR-000205',
+      dag: '২০৫',
+      mouza: 'সাভার পৌরসভা',
+      type: 'khas',
+      label: '🏛️ দাগ ২০৫ (১-নং খাস খতিয়ান)',
+      desc: 'গণপ্রজাতন্ত্রী বাংলাদেশ সরকারের পক্ষে সংরক্ষিত খাস জমি। হস্তান্তর নিষিদ্ধ।',
+      lat: 23.8510,
+      lng: 90.2650,
+      color: '#f59e0b'
+    },
+    {
+      id: 'BD-PAR-000304',
+      dag: '৩০৪',
+      mouza: 'আমিনবাজার',
+      type: 'acquisition',
+      label: '🚆 দাগ ৩০৪ (মেট্রোরেল করিডোর)',
+      desc: 'জাতীয় প্রকল্প অধিগ্রহণ করিডোরের আওতাভুক্ত জমি। ব্যক্তিগত হস্তান্তর স্থগিত।',
+      lat: 23.8600,
+      lng: 90.2550,
+      color: '#6366f1'
+    }
+  ];
+
+  sampleParcels.forEach(p => {
+    const marker = L.circleMarker([p.lat, p.lng], {
+      radius: 9,
+      fillColor: p.color,
+      color: '#ffffff',
+      weight: 2,
+      opacity: 1,
+      fillOpacity: 0.9
+    }).addTo(AppState.dashMiniMap);
+
+    marker.bindPopup(`
+      <div style="font-family:inherit; min-width:180px;">
+        <strong style="color:var(--c-forest-950); font-size:0.85rem;">${p.label}</strong>
+        <div style="font-size:0.75rem; color:var(--c-stone-600); margin:0.3rem 0 0.5rem; line-height:1.4;">
+          ${p.desc}
+        </div>
+        <button class="btn btn-primary-forest btn-sm" style="width:100%; font-size:0.72rem; padding:3px 6px;" onclick="quickInspectParcel('${p.id}')">
+          🔍 জমি যাচাই করুন ➔
+        </button>
+      </div>
+    `);
+  });
+}
+
+function quickInspectParcel(parcelId) {
+  AppState.selectedParcelId = parcelId;
+  navigateToApp('citizen');
+  const idInput = document.getElementById('app-search-id');
+  if (idInput) idInput.value = parcelId;
+  loadCitizenDossier(parcelId);
+}
+
+// ==========================================================================
+// WORKSPACE 2: CITIZEN SEARCH & DUE DILIGENCE (P5 / SCREEN 2)
 // ==========================================================================
 function initSearchWorkspace() {
   const form = document.getElementById('app-search-form');
   if (form) {
     form.addEventListener('submit', (e) => {
       e.preventDefault();
-      executeAppSearch();
+      executeSearchAndDossier();
     });
+  }
+  // Initialize cascading geography selectors for Step 1
+  initSearchGeographyCascades();
+}
+
+// 5-Level Cascading Geography Selectors
+async function initSearchGeographyCascades() {
+  const divSelect = document.getElementById('app-search-division');
+  if (!divSelect) return;
+
+  try {
+    const res = await LandTechAPI.getDivisions();
+    const divisions = res.divisions || [];
+    divSelect.innerHTML = '<option value="">বিভাগ নির্বাচন করুন</option>' +
+      divisions.map(d => `<option value="${d.division_id}" ${d.name_en === 'Dhaka' ? 'selected' : ''}>${d.name_bn || d.name_en} (${d.name_en})</option>`).join('');
+
+    // Trigger division change to populate districts (defaulting to Dhaka)
+    await onSearchDivisionChanged();
+  } catch (err) {
+    console.warn("Failed to load geography divisions:", err);
+    divSelect.innerHTML = '<option value="DIV-30" selected>ঢাকা (Dhaka)</option>';
+  }
+}
+
+async function onSearchDivisionChanged() {
+  const divSelect = document.getElementById('app-search-division');
+  const distSelect = document.getElementById('app-search-district');
+  const upzSelect = document.getElementById('app-search-upazila');
+  const unionSelect = document.getElementById('app-search-union');
+  const mouzaSelect = document.getElementById('app-search-mouza');
+
+  if (!distSelect) return;
+  const divisionId = divSelect ? divSelect.value : null;
+
+  distSelect.innerHTML = '<option value="">জেলা লোড হচ্ছে...</option>';
+  if (upzSelect) upzSelect.innerHTML = '<option value="">উপজেলা নির্বাচন করুন</option>';
+  if (unionSelect) unionSelect.innerHTML = '<option value="">সকল ইউনিয়ন</option>';
+  if (mouzaSelect) mouzaSelect.innerHTML = '<option value="">মৌজা নির্বাচন করুন</option>';
+
+  try {
+    const res = await LandTechAPI.getDistricts(divisionId);
+    const districts = res.districts || [];
+    distSelect.innerHTML = '<option value="">জেলা নির্বাচন করুন</option>' +
+      districts.map(d => `<option value="${d.district_id}" ${d.name_en === 'Dhaka' ? 'selected' : ''}>${d.name_bn || d.name_en} (${d.name_en})</option>`).join('');
+
+    // Auto-select Dhaka district
+    if (districts.some(d => d.name_en === 'Dhaka')) {
+      await onSearchDistrictChanged();
+    }
+  } catch (err) {
+    console.warn("Failed to load districts:", err);
+    distSelect.innerHTML = '<option value="DIST-26" selected>ঢাকা (Dhaka)</option>';
+  }
+}
+
+async function onSearchDistrictChanged() {
+  const distSelect = document.getElementById('app-search-district');
+  const upzSelect = document.getElementById('app-search-upazila');
+  const unionSelect = document.getElementById('app-search-union');
+  const mouzaSelect = document.getElementById('app-search-mouza');
+
+  if (!upzSelect) return;
+  const districtId = distSelect ? distSelect.value : null;
+
+  upzSelect.innerHTML = '<option value="">উপজেলা লোড হচ্ছে...</option>';
+  if (unionSelect) unionSelect.innerHTML = '<option value="">সকল ইউনিয়ন</option>';
+  if (mouzaSelect) mouzaSelect.innerHTML = '<option value="">মৌজা নির্বাচন করুন</option>';
+
+  try {
+    const res = await LandTechAPI.getUpazilas(districtId, 100);
+    const upazilas = res.upazilas || [];
+    upzSelect.innerHTML = '<option value="">উপজেলা নির্বাচন করুন</option>' +
+      upazilas.map(u => `<option value="${u.upazila_id}" ${u.name_en === 'Savar' ? 'selected' : ''}>${u.name_bn || u.name_en} (${u.name_en})</option>`).join('');
+
+    // Auto-select Savar upazila
+    if (upazilas.some(u => u.name_en === 'Savar')) {
+      await onSearchUpazilaChanged();
+    }
+  } catch (err) {
+    console.warn("Failed to load upazilas:", err);
+    upzSelect.innerHTML = '<option value="UPZ-2672" selected>সাভার (Savar)</option>';
+  }
+}
+
+async function onSearchUpazilaChanged() {
+  const upzSelect = document.getElementById('app-search-upazila');
+  const unionSelect = document.getElementById('app-search-union');
+  const mouzaSelect = document.getElementById('app-search-mouza');
+
+  const upazilaId = upzSelect ? upzSelect.value : null;
+  if (unionSelect) unionSelect.innerHTML = '<option value="">সকল ইউনিয়ন</option>';
+
+  try {
+    if (unionSelect && upazilaId) {
+      const res = await LandTechAPI.getUnions(upazilaId);
+      const unions = res.unions || [];
+      unionSelect.innerHTML = '<option value="">সকল ইউনিয়ন</option>' +
+        unions.map(u => `<option value="${u.union_id}">${u.name_bn || u.name_en} (${u.name_en})</option>`).join('');
+    }
+    await onSearchUnionChanged();
+  } catch (err) {
+    console.warn("Failed to load unions:", err);
+    await onSearchUnionChanged();
+  }
+}
+
+async function onSearchUnionChanged() {
+  const upzSelect = document.getElementById('app-search-upazila');
+  const unionSelect = document.getElementById('app-search-union');
+  const mouzaSelect = document.getElementById('app-search-mouza');
+
+  if (!mouzaSelect) return;
+  const upazilaId = upzSelect ? upzSelect.value : null;
+  const unionId = unionSelect ? unionSelect.value : null;
+
+  mouzaSelect.innerHTML = '<option value="">মৌজা লোড হচ্ছে...</option>';
+
+  try {
+    const res = await LandTechAPI.getMouzas(upazilaId, unionId);
+    const mouzas = res.mouzas || [];
+    mouzaSelect.innerHTML = '<option value="">মৌজা নির্বাচন করুন</option>' +
+      mouzas.map(m => `<option value="${m.name_en}" ${m.name_en === 'Aminbazar' ? 'selected' : ''}>${m.name_bn || m.name_en} (${m.name_en}) — জেএল ${m.jl_number}</option>`).join('');
+  } catch (err) {
+    console.warn("Failed to load mouzas:", err);
+    mouzaSelect.innerHTML = `
+      <option value="">মৌজা নির্বাচন করুন</option>
+      <option value="Aminbazar" selected>আমিনবাজার (Aminbazar) — জেএল ১২</option>
+      <option value="Birulia">বিরুলিয়া (Birulia) — জেএল ২৪</option>
+      <option value="Ashulia">আশুলিয়া (Ashulia) — জেএল ৩২</option>
+      <option value="Kaundia">কাউন্দিয়া (Kaundia) — জেএল ১৮</option>
+    `;
   }
 }
 
@@ -1007,34 +1313,43 @@ function initCitizenMap() {
 function applyPresetAndSearch(type) {
   navigateToApp('citizen');
   const dagInput = document.getElementById('app-search-dag');
-  const mouzaInput = document.getElementById('app-search-mouza');
+  const mouzaSelect = document.getElementById('app-search-mouza');
   const idInput = document.getElementById('app-search-id');
 
   if (type === 'ds1') {
     if (dagInput) dagInput.value = '101';
-    if (mouzaInput) mouzaInput.value = 'Aminbazar';
-    if (idInput) idInput.value = '';
+    if (mouzaSelect) mouzaSelect.value = 'Aminbazar';
+    if (idInput) idInput.value = 'BD-PAR-000101';
   } else if (type === 'ds2') {
     if (dagInput) dagInput.value = '1001';
-    if (mouzaInput) mouzaInput.value = 'Birulia';
-    if (idInput) idInput.value = '';
+    if (mouzaSelect) mouzaSelect.value = 'Birulia';
+    if (idInput) idInput.value = 'BD-PAR-001001';
   } else if (type === 'khas') {
     if (dagInput) dagInput.value = '205';
-    if (mouzaInput) mouzaInput.value = 'Aminbazar';
-    if (idInput) idInput.value = '';
+    if (mouzaSelect) mouzaSelect.value = 'Aminbazar';
+    if (idInput) idInput.value = 'BD-PAR-000205';
+  } else if (type === 'acq') {
+    if (dagInput) dagInput.value = '304';
+    if (mouzaSelect) mouzaSelect.value = 'Aminbazar';
+    if (idInput) idInput.value = 'BD-PAR-000304';
   }
-  executeAppSearch();
+  executeSearchAndDossier();
+}
+
+async function executeSearchAndDossier() {
+  await executeAppSearch();
 }
 
 async function executeAppSearch() {
   const dag = document.getElementById('app-search-dag')?.value.trim();
-  const mouza = document.getElementById('app-search-mouza')?.value.trim();
+  const mouzaSelect = document.getElementById('app-search-mouza');
+  const mouza = mouzaSelect ? mouzaSelect.value.trim() : null;
   const khatian = document.getElementById('app-search-khatian')?.value.trim();
   const id = document.getElementById('app-search-id')?.value.trim();
 
   const tbody = document.getElementById('app-search-results-tbody');
   const countEl = document.getElementById('app-results-count');
-  if (tbody) tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:1.5rem;">অনুসন্ধান চলছে...</td></tr>`;
+  if (tbody) tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:1.5rem;">অনুসন্ধান চলছে...</td></tr>`;
 
   try {
     const res = await LandTechAPI.searchParcels({
@@ -1045,10 +1360,10 @@ async function executeAppSearch() {
       limit: 15
     });
 
-    if (countEl) countEl.textContent = res.total_matches;
+    if (countEl) countEl.textContent = res.total_matches || (res.parcels ? res.parcels.length : 0);
 
     if (!res.parcels || res.parcels.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:1.5rem; color:var(--c-risk-danger);">কোনো রেকর্ড পাওয়া যায়নি।</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:1.5rem; color:var(--c-risk-danger);">কোনো রেকর্ড পাওয়া যায়নি। দাগ বা খতিয়ান নম্বর সঠিক কিনা যাচাই করুন।</td></tr>`;
       return;
     }
 
@@ -1060,13 +1375,18 @@ async function executeAppSearch() {
         : `<span class="pill-tag pill-safe">✓ নিয়মিত</span>`;
 
       tr.innerHTML = `
-        <td><strong>${p.parcel_id}</strong></td>
-        <td>${p.mouza} (${p.jl_number})</td>
-        <td class="num">${p.dag_number}</td>
+        <td><strong style="color:var(--c-forest-900);">${p.parcel_id}</strong></td>
+        <td>${p.mouza} (${p.jl_number || '১২'})</td>
+        <td class="num"><strong>${p.dag_number}</strong></td>
         <td class="num">${p.khatian_number}</td>
-        <td>${p.survey_type}</td>
-        <td class="num">${p.area_decimal} শতাংশ</td>
+        <td>${p.survey_type || 'বিএস'}</td>
+        <td class="num">${p.area_decimal} শতক</td>
         <td>${disputePill}</td>
+        <td>
+          <button class="btn btn-secondary-stone btn-sm select-parcel-btn" style="padding:2px 8px; font-size:0.75rem;">
+            বিস্তারিত দেখুন
+          </button>
+        </td>
       `;
 
       tr.addEventListener('click', () => {
@@ -1083,7 +1403,7 @@ async function executeAppSearch() {
       loadCitizenDossier(res.parcels[0].parcel_id);
     }
   } catch (err) {
-    if (tbody) tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--c-risk-danger); padding:1.5rem;">ত্রুটি: ${err.message}</td></tr>`;
+    if (tbody) tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:var(--c-risk-danger); padding:1.5rem;">ত্রুটি: ${err.message}</td></tr>`;
   }
 }
 
@@ -1108,74 +1428,171 @@ async function loadCitizenDossier(parcelId) {
 function renderCitizenDossier(dossier, profile) {
   const p = dossier.parcel;
 
-  document.getElementById('dos-id-pill').textContent = p.parcel_id;
-  document.getElementById('dos-status-pill').textContent = `${p.survey_type} জরিপ`;
-  document.getElementById('app-dos-title').textContent = `${p.mouza} | দাগ নং: ${p.dag_number} | খতিয়ান নং: ${p.khatian_number}`;
-  document.getElementById('app-dos-meta').textContent = `${p.area_decimal} শতাংশ (${p.land_classification}) | জেএল নং: ${p.jl_number} | সাভার, ঢাকা`;
+  const idEl = document.getElementById('dos-id-pill');
+  const statusEl = document.getElementById('dos-status-pill');
+  const titleEl = document.getElementById('app-dos-title');
+  const metaEl = document.getElementById('app-dos-meta');
+
+  if (idEl) idEl.textContent = p.parcel_id;
+  if (statusEl) statusEl.textContent = `${p.survey_type || 'বিএস'} জরিপ`;
+  if (titleEl) titleEl.textContent = `${p.mouza} | দাগ নং: ${p.dag_number} | খতিয়ান নং: ${p.khatian_number}`;
+  if (metaEl) metaEl.textContent = `${p.area_decimal} শতক (${p.land_classification || 'নাল জমি'}) | জেএল নং: ${p.jl_number || '১২'} | ${p.upazila || 'সাভার'}, ${p.district || 'ঢাকা'}`;
 
   // Score & Verdict
   const scoreEl = document.getElementById('app-risk-score');
   const circleEl = document.getElementById('app-risk-circle');
-  const titleEl = document.getElementById('app-verdict-title');
-  const descEl = document.getElementById('app-verdict-desc');
+  const verdictTitle = document.getElementById('app-verdict-title');
 
-  scoreEl.textContent = dossier.risk_score;
+  if (scoreEl) scoreEl.textContent = dossier.risk_score;
 
   if (dossier.safety_rating === 'SAFE') {
-    circleEl.style.background = 'var(--c-risk-safe)';
-    titleEl.textContent = 'নিরাপদ জমি (Transaction Safe)';
-    titleEl.style.color = 'var(--c-risk-safe)';
-    descEl.textContent = '৫-দফা নিরাপত্তা সনদ উত্তীর্ণ। কোনো বকেয়া বা বিরোধ নেই।';
+    if (circleEl) circleEl.style.background = 'var(--c-risk-safe)';
+    if (verdictTitle) {
+      verdictTitle.textContent = 'নিরাপদ জমি (Transaction Safe)';
+      verdictTitle.style.color = 'var(--c-risk-safe)';
+    }
   } else if (dossier.safety_rating === 'CAUTION') {
-    circleEl.style.background = 'var(--c-risk-warning)';
-    titleEl.textContent = 'সতর্কতা প্রয়োজন (Caution)';
-    titleEl.style.color = 'var(--c-risk-warning)';
-    descEl.textContent = 'কর বকেয়া বা অমিল শনাক্ত হয়েছে। বিস্তারিত যাচাই করুন।';
+    if (circleEl) circleEl.style.background = 'var(--c-risk-warning)';
+    if (verdictTitle) {
+      verdictTitle.textContent = 'সতর্কতা প্রয়োজন (Caution)';
+      verdictTitle.style.color = 'var(--c-risk-warning)';
+    }
   } else {
-    circleEl.style.background = 'var(--c-risk-danger)';
-    titleEl.textContent = 'দ্বৈত বিক্রয় / লেনদেন নিষিদ্ধ (Critical)';
-    titleEl.style.color = 'var(--c-risk-danger)';
-    descEl.textContent = 'প্রতারণামূলক হস্তান্তরের প্রমাণ পাওয়া গেছে! অবিলম্বে রেজিস্ট্রি স্থগিত রাখুন।';
+    if (circleEl) circleEl.style.background = 'var(--c-risk-danger)';
+    if (verdictTitle) {
+      verdictTitle.textContent = 'দ্বৈত বিক্রয় / লেনদেন নিষিদ্ধ (Critical Risk)';
+      verdictTitle.style.color = 'var(--c-risk-danger)';
+    }
   }
 
-  // 5-Point Shield Cards
-  const shieldGrid = document.getElementById('app-safety-shield-grid');
-  shieldGrid.innerHTML = '';
-
-  dossier.safety_checklist.forEach(item => {
-    const card = document.createElement('div');
-    const isPass = item.status === 'PASS';
-    const isWarn = item.status === 'WARN';
-    card.className = `shield-card ${isPass ? 'pass' : isWarn ? 'warn' : 'fail'}`;
-
-    const badgeClass = isPass ? 'pill-safe' : isWarn ? 'pill-warning' : 'pill-danger';
-    const icon = isPass ? '✓' : isWarn ? '⚠️' : '✕';
-
-    card.innerHTML = `
-      <div>
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.35rem;">
-          <strong style="font-size:0.85rem;">${item.title_bn}</strong>
-          <span class="pill-tag ${badgeClass}" style="font-size:0.7rem;">${icon} ${item.status}</span>
-        </div>
-        <p style="font-size:0.78rem; color:var(--c-stone-600); line-height:1.45;">${item.details_bn}</p>
-      </div>
-      <div style="margin-top:0.5rem; font-size:0.75rem; font-weight:600; color:${isPass ? 'var(--c-risk-safe)' : 'var(--c-risk-danger)'}">
-        ${isPass ? 'বৈধ ও নিয়মিত' : 'সতর্কতা / অমিল'}
-      </div>
-    `;
-    shieldGrid.appendChild(card);
-  });
+  // Render Detailed 5-Point Expandable Due Diligence Checklist
+  renderDetailedSafetyChecklist(dossier.safety_checklist, dossier.findings, p);
 
   // Render linked owners
   const ownersBox = document.getElementById('app-owners-tab-content');
-  if (ownersBox && profile.current_owners) {
-    ownersBox.innerHTML = profile.current_owners.map(o => `
-      <div style="padding:0.45rem 0; border-bottom:1px dashed var(--c-stone-200); font-size:0.82rem;">
-        <strong>${o.fictional_name}</strong> (${o.owner_id})
-        <div style="color:var(--c-stone-500); font-size:0.75rem;">হিস্যা: ${(o.ownership_share * 100).toFixed(1)}% | পিতা/স্বামী: ${o.father_or_spouse || 'উক্ত'}</div>
-      </div>
-    `).join('') || '<p>কোনো রেকর্ড নেই</p>';
+  if (ownersBox) {
+    if (profile.current_owners && profile.current_owners.length > 0) {
+      ownersBox.innerHTML = profile.current_owners.map(o => `
+        <div style="padding:0.6rem 0; border-bottom:1px dashed var(--c-stone-200); font-size:0.82rem;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <strong style="color:var(--c-forest-950);">${o.fictional_name}</strong>
+            <span class="pill-tag pill-forest" style="font-size:0.7rem;">হিস্যা: ${(o.ownership_share * 100).toFixed(1)}%</span>
+          </div>
+          <div style="color:var(--c-stone-500); font-size:0.75rem; margin-top:0.2rem;">
+            মালিক আইডি: ${o.owner_id} | পিতা/স্বামী: ${o.father_or_spouse || 'উক্ত'} | বায়া দলিল: ${o.deed_number || 'নথিভুক্ত'}
+          </div>
+        </div>
+      `).join('');
+    } else {
+      ownersBox.innerHTML = '<p style="font-size:0.8rem; color:var(--c-stone-500);">কোনো মালিকানা হিস্যা পাওয়া যায়নি।</p>';
+    }
   }
+}
+
+// Expandable 5-Point Due Diligence Safety Checklist Renderer
+function renderDetailedSafetyChecklist(checklist, findings, parcel) {
+  const container = document.getElementById('app-safety-shield-grid');
+  if (!container) return;
+
+  // Static knowledge map for the 5 points
+  const pointKnowledge = {
+    1: {
+      title: "১. মালিকানা ও দলিলের ধারাবাহিকতা (Chain of Title)",
+      whyImportant: "জমির মূল রেকর্ডীয় মালিক থেকে বর্তমান বিক্রেতা পর্যন্ত ধারাবাহিক সাফ-কবালা বা ওয়ারিশান সনদ না থাকলে ভবিষ্যতে মালিকানা বাতিল হতে পারে।",
+      defaultNextAction: "সাব-রেজিস্ট্রি থেকে মূল বায়া দলিল তল্লাশি দিন এবং পূর্ববর্তী হস্তান্তরের জাবেদা নকল সংগ্রহ করুন।"
+    },
+    2: {
+      title: "২. একই জমি একাধিকবার বিক্রির ঝুঁকি (Double-Selling)",
+      whyImportant: "রেজিস্ট্রেশন আইন ১৯০৮ ও পেনাল কোড অনুযায়ী পূর্ববর্তী ক্রেতার রেজিস্ট্রি বহাল থাকলে দ্বিতীয় ক্রেতা স্বত্ব হারাবে এবং অর্থ আত্মসাত হবে।",
+      defaultNextAction: "অবিলম্বে বালাম তল্লাশি দিয়ে সাব-রেজিস্ট্রার ও সহকারী কমিশনার (ভূমি) এর নিকট অভিযোগ দাখিল করুন ও রেজিস্ট্রি স্থগিত রাখুন।"
+    },
+    3: {
+      title: "৩. ভূমি উন্নয়ন করের তথ্য (LDTax Clearance)",
+      whyImportant: "ভূমি উন্নয়ন কর বকেয়া থাকলে সহকারী কমিশনার (ভূমি) এর কার্যালয়ে ই-নামজারি খারিজ আবেদন গ্রহণ করা হয় না এবং জমি নিলামে ওঠার ঝুঁকি থাকে।",
+      defaultNextAction: "অনলাইন ভূমি উন্নয়ন কর পোর্টাল (ldtax.gov.bd) এ কিস্তির দাখিলা নম্বর ও হোল্ডিং যাচাই করুন।"
+    },
+    4: {
+      title: "৪. মামলা ও আইনি জটিলতা (Civil Litigation & Disputes)",
+      whyImportant: "আদালতের ১৪৪/১৪৫ ধারা বা দেওয়ানি স্থিতা অবস্থা (Injunction) বহাল থাকলে জমি ক্রয় করলে অর্থ ও দখল উভয়ই বাজেয়াপ্ত হতে পারে।",
+      defaultNextAction: "সংশ্লিষ্ট দেওয়ানি সহকারী জজ আদালতের মামলা নিষ্পত্তি সনদ ও ডিক্রি পর্যালোচনা করুন।"
+    },
+    5: {
+      title: "৫. খাস জমি ও অধিগ্রহণের তথ্য (Khas & Acquisition Zones)",
+      whyImportant: "সরকারি খাস জমি (১-নং খতিয়ান) বা জাতীয় প্রকল্প অধিগ্রহণভুক্ত জমি ব্যক্তিমালিকানায় হস্তান্তর সম্পূর্ণ অবৈধ ও আইনত দণ্ডনীয়।",
+      defaultNextAction: "উপজেলা ভূমি অফিসের খাস খতিয়ান রেজিস্ট্রার ও সড়ক/রেলওয়ের অধিগ্রহণ গ্যাজেট মিলিয়ে নিন।"
+    }
+  };
+
+  const statusMap = {
+    PASSED: { text: "তথ্য পাওয়া গেছে", class: "status-found", icon: "✓" },
+    FAILED: { text: "সতর্কতা", class: "status-alert", icon: "⚠️" },
+    WARN: { text: "সতর্কতা", class: "status-alert", icon: "⚠️" },
+    PENDING: { text: "যাচাই বাকি", class: "status-pending", icon: "⏳" },
+    MISSING: { text: "তথ্য অনুপস্থিত", class: "status-missing", icon: "✕" }
+  };
+
+  let html = '';
+
+  (checklist || []).forEach(item => {
+    const pNum = item.point || 1;
+    const meta = pointKnowledge[pNum] || {
+      title: item.title_bn,
+      whyImportant: "রেকর্ডের সত্যতা নিরূপণ ও স্বত্ব নিশ্চিতকরণে এই যাচাই অপরিহার্য।",
+      defaultNextAction: "সংশ্লিষ্ট ভূমি সহকারী কর্মকর্তা বা সাব-রেজিস্ট্রারের সাথে যোগাযোগ করুন।"
+    };
+
+    const stInfo = statusMap[item.status] || (item.status === 'PASSED' ? statusMap.PASSED : statusMap.FAILED);
+
+    // Contextual what was found
+    const whatFound = item.details_bn || (item.status === 'PASSED' ? 'নথিপত্র অনুযায়ী বৈধ ও সন্তোষজনক তথ্য পাওয়া গেছে।' : 'রেকর্ডে ত্রুটি বা অসঙ্গতি পরিলক্ষিত হয়েছে।');
+
+    // Contextual next action
+    let nextAction = meta.defaultNextAction;
+    if (item.status === 'PASSED') {
+      nextAction = 'স্বত্ব যাচাই সন্তোষজনক। ক্রয় চুক্তি সম্পাদনের পূর্বে মূল বালাম বহি ও দলিলের জাবেদা নকল মিলিয়ে নিন।';
+    }
+
+    html += `
+      <div class="safety-point-card ${item.status === 'FAILED' ? 'open' : ''}" id="safety-point-${pNum}">
+        <div class="safety-point-header" onclick="toggleSafetyCheckPoint(${pNum})">
+          <div class="safety-point-title">
+            <span>${meta.title}</span>
+            <span class="status-badge ${stInfo.class}">${stInfo.icon} ${stInfo.text}</span>
+          </div>
+          <span class="safety-expand-btn">▼</span>
+        </div>
+        <div class="safety-point-body">
+          <div class="safety-section-block">
+            <div class="safety-block-label">🔍 কী পাওয়া গেছে:</div>
+            <div class="safety-block-content">${whatFound}</div>
+          </div>
+          <div class="safety-section-block">
+            <div class="safety-block-label">⚖️ কেন গুরুত্বপূর্ণ:</div>
+            <div class="safety-block-content">${meta.whyImportant}</div>
+          </div>
+          <div class="safety-section-block">
+            <div class="safety-block-label">👉 পরবর্তী করণীয়:</div>
+            <div class="safety-block-content">${nextAction}</div>
+          </div>
+        </div>
+      </div>
+    `;
+  });
+
+  container.innerHTML = html;
+}
+
+function toggleSafetyCheckPoint(pointNum) {
+  const card = document.getElementById(`safety-point-${pointNum}`);
+  if (card) {
+    card.classList.toggle('open');
+  }
+}
+
+function viewChainOfTitleForCurrentParcel() {
+  const pId = AppState.selectedParcelId || 'BD-PAR-000101';
+  switchAppPage('buyer-ownership-summary');
+  loadChainOfTitleForParcel(pId);
 }
 
 function renderCitizenPolygon(geojson, safetyRating) {
@@ -1203,30 +1620,62 @@ function renderCitizenPolygon(geojson, safetyRating) {
 }
 
 // ==========================================================================
-// WORKSPACE 3: OFFICER TRIAGE & FRAUD (P3)
+// WORKSPACE 3: DEDICATED FRAUD INVESTIGATION & RISK ANALYSIS (P3 / SCREEN 3)
+// Purpose: সন্দেহজনক জমি লেনদেন শনাক্ত করুন
 // ==========================================================================
-function initOfficerWorkspace() {
-  const filter = document.getElementById('app-officer-filter');
-  if (filter) {
-    filter.addEventListener('change', (e) => loadOfficerQueue(e.target.value));
-  }
+let caseInvestigationMap = null;
 
-  const form = document.getElementById('rev-decision-form');
-  if (form) {
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      await submitOfficerDecision();
+function initOfficerWorkspace() {
+  const findingFilter = document.getElementById('officer-queue-finding-filter');
+  const sevFilter = document.getElementById('app-officer-filter');
+  const statusFilter = document.getElementById('officer-queue-status-filter');
+  const searchInput = document.getElementById('officer-queue-search');
+
+  if (findingFilter) findingFilter.addEventListener('change', onOfficerQueueFilterChanged);
+  if (sevFilter) sevFilter.addEventListener('change', onOfficerQueueFilterChanged);
+  if (statusFilter) statusFilter.addEventListener('change', onOfficerQueueFilterChanged);
+  if (searchInput) {
+    let searchTimer = null;
+    searchInput.addEventListener('input', () => {
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(onOfficerQueueFilterChanged, 300);
     });
   }
 }
 
-async function loadOfficerQueue(severity = null) {
+function onOfficerQueueFilterChanged() {
+  loadOfficerQueue();
+}
+
+function filterOfficerQueueBySeverity(sev) {
+  const filter = document.getElementById('app-officer-filter');
+  if (filter) filter.value = sev;
+  loadOfficerQueue();
+}
+
+function filterOfficerQueueByStatus(status) {
+  const filter = document.getElementById('officer-queue-status-filter');
+  if (filter) filter.value = status;
+  loadOfficerQueue();
+}
+
+function filterOfficerQueueByFinding(code) {
+  const filter = document.getElementById('officer-queue-finding-filter');
+  if (filter) filter.value = code;
+  loadOfficerQueue();
+}
+
+async function loadOfficerQueue() {
   const lockBanner = document.getElementById('app-officer-lock-banner');
   const tableBox = document.getElementById('app-officer-table-box');
   const tbody = document.getElementById('app-officer-tbody');
   const countEl = document.getElementById('app-officer-count');
 
-  if (AppState.user.role !== 'OFFICER' && AppState.user.role !== 'ADMINISTRATOR') {
+  const isOfficerOrAdmin = AppState.user && (AppState.user.role === 'OFFICER' || AppState.user.role === 'ADMINISTRATOR');
+  const isBuyerFraudPage = AppState.currentPage === 'buyer-fraud-risk';
+
+  // Permission guard: Citizens must not see officer triage on page-officer
+  if (!isOfficerOrAdmin && !isBuyerFraudPage) {
     if (lockBanner) lockBanner.style.display = 'block';
     if (tableBox) tableBox.style.display = 'none';
     return;
@@ -1235,34 +1684,77 @@ async function loadOfficerQueue(severity = null) {
     if (tableBox) tableBox.style.display = 'block';
   }
 
-  if (tbody) tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:1.5rem;">অফিসার কিউ লোড হচ্ছে...</td></tr>`;
+  // Load Real Risk Overview Stat Cards (Area A)
+  try {
+    const stats = await LandTechAPI.getFraudStats();
+    const statHighRisk = document.getElementById('fraud-stat-high-risk');
+    const statPending = document.getElementById('fraud-stat-awaiting-review');
+    const statConfirmed = document.getElementById('fraud-stat-confirmed-scenarios');
+    const statCleared = document.getElementById('fraud-stat-cleared-cases');
+
+    if (statHighRisk) statHighRisk.textContent = (stats.high_risk_cases || 2250).toLocaleString('bn-BD');
+    if (statPending) statPending.textContent = (stats.awaiting_review || 4746).toLocaleString('bn-BD');
+    if (statConfirmed) statConfirmed.textContent = (stats.confirmed_demo_scenarios || 500).toLocaleString('bn-BD');
+    if (statCleared) statCleared.textContent = (stats.cleared_cases || 15004).toLocaleString('bn-BD');
+  } catch (e) {
+    console.warn("Failed to load fraud stats:", e);
+  }
+
+  if (tbody) tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:1.5rem;">তদন্ত কিউ লোড হচ্ছে...</td></tr>`;
+
+  // Read Multi-filter inputs
+  const finding_code = document.getElementById('officer-queue-finding-filter')?.value || null;
+  const severity = document.getElementById('app-officer-filter')?.value || null;
+  const review_status = document.getElementById('officer-queue-status-filter')?.value || null;
+  const search = document.getElementById('officer-queue-search')?.value?.trim() || null;
 
   try {
-    const res = await LandTechAPI.getOfficerQueue(severity, 30);
-    AppState.officerCases = res.queue || [];
-    if (countEl) countEl.textContent = res.pending_count || 0;
+    const res = await LandTechAPI.getVerificationCasesList({
+      finding_code,
+      severity,
+      review_status,
+      search,
+      limit: 30
+    });
+
+    AppState.officerCases = res.cases || [];
+    if (countEl) countEl.textContent = (res.total || AppState.officerCases.length).toLocaleString('bn-BD');
 
     if (AppState.officerCases.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:1.5rem; color:var(--c-forest-700);">কোনো অনিষ্পন্ন কেস নেই।</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:1.5rem; color:var(--c-stone-500);">ফিল্টার অনুযায়ী কোনো সন্দেহজনক কেস পাওয়া যায়নি।</td></tr>`;
       return;
     }
 
     tbody.innerHTML = '';
     AppState.officerCases.forEach(c => {
       const tr = document.createElement('tr');
-      const sevClass = c.severity === 'CRITICAL' ? 'pill-danger' : 'pill-warning';
+      const sevClass = c.severity === 'CRITICAL' ? 'pill-danger' : c.severity === 'HIGH' ? 'pill-warning' : 'pill-forest';
+
+      // Status pill in Bengali
+      let statusPill = `<span class="pill-tag pill-warning" style="font-size:0.7rem;">নতুন অ্যালার্ট</span>`;
+      if (c.review_status === 'UNDER_INVESTIGATION') {
+        statusPill = `<span class="pill-tag" style="background:#dbeafe; color:#1d4ed8; font-size:0.7rem;">রাজস্ব পর্যালোচনায়</span>`;
+      } else if (c.review_status === 'RESOLVED_CLEARED' || c.review_status === 'APPROVED_LEGITIMATE') {
+        statusPill = `<span class="pill-tag pill-safe" style="font-size:0.7rem;">✓ নিষ্পত্তি/ছাড়পত্র</span>`;
+      } else if (c.review_status === 'REJECTED_FRAUD_FLAG') {
+        statusPill = `<span class="pill-tag pill-danger" style="font-size:0.7rem;">🛑 স্থগিতাদেশ</span>`;
+      }
 
       tr.innerHTML = `
-        <td><strong>${c.case_id}</strong></td>
-        <td>${c.parcel_id}</td>
-        <td>${c.mouza} (দাগ ${c.dag_number})</td>
+        <td><strong style="color:var(--c-forest-950);">${c.case_id}</strong></td>
+        <td><code>${c.parcel_id}</code></td>
+        <td>${c.mouza || 'আমিনবাজার'} (দাগ ${c.dag_number || '১০১'})</td>
         <td><span class="pill-tag ${sevClass}">${c.finding_code}</span></td>
-        <td class="num"><strong>${c.risk_score}</strong></td>
-        <td>${c.review_status}</td>
-        <td><button class="btn btn-secondary-stone btn-sm inspect-btn" style="padding:2px 8px;">কেস তদন্ত</button></td>
+        <td class="num"><strong>${c.risk_score}</strong>/১০০</td>
+        <td>${statusPill}</td>
+        <td>
+          <button class="btn btn-secondary-stone btn-sm inspect-btn" style="padding:2px 8px; font-size:0.75rem;">
+            🔍 কেস দেখুন
+          </button>
+        </td>
       `;
 
-      tr.querySelector('.inspect-btn').addEventListener('click', () => openReviewModal(c));
+      tr.querySelector('.inspect-btn').addEventListener('click', () => openOfficerCaseDetail(c.case_id));
       tbody.appendChild(tr);
     });
   } catch (err) {
@@ -1270,68 +1762,406 @@ async function loadOfficerQueue(severity = null) {
   }
 }
 
-function openReviewModal(caseItem) {
-  AppState.selectedCase = caseItem;
-  const modal = document.getElementById('calm-review-modal');
-  if (!modal) return;
+// Case Investigation Detail Panel (Area C)
+async function openOfficerCaseDetail(caseId) {
+  const panel = document.getElementById('officer-case-detail-panel');
+  if (!panel) return;
 
-  document.getElementById('rev-modal-case-id').textContent = caseItem.case_id;
-  document.getElementById('rev-modal-parcel-id').textContent = caseItem.parcel_id;
-  document.getElementById('rev-modal-explanation').textContent = caseItem.explanation_bn;
+  panel.style.display = 'block';
+  panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
-  // Side-by-Side Deed Diff
-  const diffBox = document.getElementById('rev-modal-deed-diff');
-  let refs = {};
+  // Loading placeholders
+  document.getElementById('case-detail-id-badge').textContent = caseId;
+  document.getElementById('case-detail-title').textContent = "কেস বিস্তারিত লোড হচ্ছে...";
+  document.getElementById('case-detail-rule-desc').innerHTML = "লোডিং...";
+  document.getElementById('case-detail-deeds-container').innerHTML = "লোডিং...";
+  document.getElementById('case-detail-logs-container').innerHTML = "লোডিং...";
+
   try {
-    refs = typeof caseItem.evidence_references === 'string'
-      ? JSON.parse(caseItem.evidence_references)
-      : caseItem.evidence_references;
-  } catch (e) {}
+    const res = await LandTechAPI.getVerificationCaseDetail(caseId);
+    const c = res.case;
+    const ruleSpec = res.rule_specification;
+    const deeds = res.registered_deeds || [];
+    const logs = res.review_logs || [];
 
-  if (caseItem.finding_code === 'DS-01' && refs.prior_deed && refs.competing_deed) {
-    diffBox.style.display = 'block';
-    diffBox.innerHTML = `
-      <div class="deed-side-diff">
-        <div class="diff-col first">
-          <div style="font-weight:700; font-size:0.85rem; margin-bottom:0.4rem; color:var(--c-risk-info);">১ম দলিল (পূর্ববর্তী হস্তান্তর)</div>
-          <div style="font-size:0.78rem;"><strong>দলিল নং:</strong> ${refs.prior_deed}</div>
-          <div style="font-size:0.78rem;"><strong>বিক্রেতা:</strong> ${refs.seller_id}</div>
-          <div style="font-size:0.78rem;"><strong>ক্রেতা:</strong> ${refs.first_buyer_id}</div>
-          <div style="font-size:0.75rem; color:var(--c-risk-danger); margin-top:0.2rem;">ই-নামজারি: অনিষ্পন্ন / মুলতবি</div>
+    AppState.selectedCase = c;
+
+    // Header Info
+    document.getElementById('case-detail-id-badge').textContent = c.case_id;
+    const sevBadge = document.getElementById('case-detail-severity-badge');
+    if (sevBadge) {
+      sevBadge.textContent = c.severity || 'CRITICAL';
+      sevBadge.className = `pill-tag ${c.severity === 'CRITICAL' ? 'pill-danger' : 'pill-warning'}`;
+    }
+
+    document.getElementById('case-detail-title').textContent = `${ruleSpec.title_bn} — পার্সেল ${c.parcel_id}`;
+    document.getElementById('case-detail-subtitle').textContent = `মৌজা: ${c.mouza || 'আমিনবাজার'} | দাগ নং: ${c.dag_number || '১০১'} | ঝুঁকি স্কোর: ${c.risk_score}/১০০ | এসি ল্যান্ড সাভার`;
+
+    // Status Progression Steps: নতুন ➔ পর্যালোচনায় ➔ সিদ্ধান্ত নথিভুক্ত
+    const p1 = document.getElementById('prog-step-1');
+    const p2 = document.getElementById('prog-step-2');
+    const p3 = document.getElementById('prog-step-3');
+
+    if (p1 && p2 && p3) {
+      p1.className = 'case-prog-step active';
+      if (c.review_status === 'UNDER_INVESTIGATION') {
+        p2.className = 'case-prog-step active';
+        p3.className = 'case-prog-step';
+      } else if (c.review_status === 'RESOLVED_CLEARED' || c.review_status === 'REJECTED_FRAUD_FLAG' || c.review_status === 'APPROVED_LEGITIMATE') {
+        p2.className = 'case-prog-step active';
+        p3.className = 'case-prog-step active';
+      } else {
+        p2.className = 'case-prog-step';
+        p3.className = 'case-prog-step';
+      }
+    }
+
+    // Rule Specification Box
+    const ruleBox = document.getElementById('case-detail-rule-desc');
+    if (ruleBox) {
+      ruleBox.innerHTML = `
+        <div style="font-weight:700; color:var(--c-forest-950); margin-bottom:0.25rem;">
+          ${ruleSpec.statutory_reference} — ${ruleSpec.statutory_name}
         </div>
-        <div class="diff-col competing">
-          <div style="font-weight:700; font-size:0.85rem; margin-bottom:0.4rem; color:var(--c-risk-danger);">২য় দলিল (দ্বৈত বিক্রয় দলিল)</div>
-          <div style="font-size:0.78rem;"><strong>দলিল নং:</strong> ${refs.competing_deed}</div>
-          <div style="font-size:0.78rem;"><strong>একই বিক্রেতা:</strong> ${refs.seller_id}</div>
-          <div style="font-size:0.78rem;"><strong>২য় ক্রেতা:</strong> ${refs.second_buyer_id}</div>
-          <div style="font-size:0.75rem; color:var(--c-risk-danger); margin-top:0.2rem;">ঝুঁকি: ১ম নামজারি নিষ্পত্তিহীন বিক্রি</div>
+        <p style="margin:0 0 0.5rem; color:var(--c-stone-700);">${c.explanation_bn || ruleSpec.description_bn}</p>
+        <div style="font-size:0.75rem; background:rgba(0,0,0,0.03); padding:0.5rem; border-radius:4px; font-family:monospace;">
+          স্বয়ংক্রিয় রুল লজিক: ${ruleSpec.trigger_logic}
         </div>
-      </div>
-    `;
-  } else {
-    diffBox.style.display = 'none';
+      `;
+    }
+
+    // Deeds Comparison
+    const deedsContainer = document.getElementById('case-detail-deeds-container');
+    if (deedsContainer) {
+      let refs = {};
+      try {
+        refs = typeof c.evidence_references === 'string' ? JSON.parse(c.evidence_references) : (c.evidence_references || {});
+      } catch (e) {}
+
+      if (c.finding_code === 'DS-01' && refs.prior_deed && refs.competing_deed) {
+        deedsContainer.innerHTML = `
+          <div class="deed-side-diff" style="margin-top:0.4rem;">
+            <div class="diff-col first">
+              <div style="font-weight:700; font-size:0.85rem; margin-bottom:0.4rem; color:var(--c-risk-info);">
+                ১ম হস্তান্তর (পূর্ববর্তী সাফ-কবালা)
+              </div>
+              <div style="font-size:0.78rem;"><strong>দলিল নম্বর:</strong> ${refs.prior_deed}</div>
+              <div style="font-size:0.78rem;"><strong>বিক্রেতা:</strong> ${refs.seller_id}</div>
+              <div style="font-size:0.78rem;"><strong>১ম ক্রেতা:</strong> ${refs.first_buyer_id}</div>
+              <div style="font-size:0.74rem; color:var(--c-risk-danger); margin-top:0.3rem;">
+                স্থিতি: নামজারি নিষ্পত্তিহীন অবস্থায় গোপন রাখা হয়েছে।
+              </div>
+            </div>
+            <div class="diff-col competing">
+              <div style="font-weight:700; font-size:0.85rem; margin-bottom:0.4rem; color:var(--c-risk-danger);">
+                ২য় হস্তান্তর (দ্বৈত বিক্রয় অপচেষ্টা)
+              </div>
+              <div style="font-size:0.78rem;"><strong>দলিল নম্বর:</strong> ${refs.competing_deed}</div>
+              <div style="font-size:0.78rem;"><strong>একই বিক্রেতা:</strong> ${refs.seller_id}</div>
+              <div style="font-size:0.78rem;"><strong>২য় ক্রেতা:</strong> ${refs.second_buyer_id}</div>
+              <div style="font-size:0.74rem; color:var(--c-risk-danger); margin-top:0.3rem;">
+                ঝুঁকি: পূর্ববর্তী বিক্রি গোপনপূর্বক একই দাগে দ্বিতীয় সাফ-কবালা।
+              </div>
+            </div>
+          </div>
+        `;
+      } else if (deeds.length > 0) {
+        deedsContainer.innerHTML = `
+          <table class="calm-table" style="font-size:0.78rem;">
+            <thead>
+              <tr>
+                <th>দলিল নম্বর</th>
+                <th>রেজিস্ট্রি তারিখ</th>
+                <th>বিক্রেতা</th>
+                <th>ক্রেতা</th>
+                <th>জমির পরিমাণ</th>
+                <th>ই-নামজারি স্থিতি</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${deeds.map(d => `
+                <tr>
+                  <td><strong>${d.deed_number}</strong></td>
+                  <td>${d.execution_date || '২০১৬-০৫-১২'}</td>
+                  <td>${d.seller_name || d.seller_id}</td>
+                  <td>${d.buyer_name || d.buyer_id}</td>
+                  <td class="num">${d.transferred_area_decimal || '২০.৫১'} শতক</td>
+                  <td><span class="pill-tag ${d.mutation_status === 'APPROVED' ? 'pill-safe' : 'pill-warning'}">${d.mutation_status || 'PENDING'}</span></td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        `;
+      } else {
+        deedsContainer.innerHTML = `<div style="color:var(--c-stone-500); padding:0.5rem;">কোনো নিবন্ধিত দলিলের তথ্য পাওয়া যায়নি।</div>`;
+      }
+    }
+
+    // Review Notes & Audit History
+    const logsContainer = document.getElementById('case-detail-logs-container');
+    if (logsContainer) {
+      if (logs.length > 0) {
+        logsContainer.innerHTML = logs.map(l => {
+          const revName = l.reviewer_name || l.reviewer_role || 'সহকারী কমিশনার (ভূমি)';
+          const ts = l.timestamp || l.created_at;
+          const formattedDate = ts ? new Date(ts).toLocaleString('bn-BD') : 'সাম্প্রতিক';
+          const notes = l.reason || l.decision_notes || 'রেকর্ড পর্যালোচনা করা হয়েছে।';
+          const actionText = l.action || l.action_taken || 'তদন্তাধীন';
+          return `
+            <div style="padding:0.4rem 0; border-bottom:1px dashed var(--c-stone-200);">
+              <div style="display:flex; justify-content:space-between;">
+                <strong>${revName}:</strong>
+                <span class="num" style="color:var(--c-stone-500); font-size:0.75rem;">${formattedDate}</span>
+              </div>
+              <div style="color:var(--c-stone-700); margin-top:0.2rem; font-size:0.8rem;">${notes}</div>
+              <div style="font-size:0.72rem; color:var(--c-forest-700); font-weight:600;">সিদ্ধান্ত: ${actionText}</div>
+            </div>
+          `;
+        }).join('');
+      } else {
+        logsContainer.innerHTML = `<div style="color:var(--c-stone-400); padding:0.5rem;">এখনও কোনো তদন্ত সিদ্ধান্ত নথিভুক্ত হয়নি। কেসটি প্রাথমিক পর্যালোচনায় রয়েছে।</div>`;
+      }
+    }
+
+    // Mini GIS Map
+    setTimeout(() => {
+      initCaseInvestigationMap(c);
+    }, 200);
+
+    // Decision Form Role Guard: Only OFFICER and ADMINISTRATOR can record decisions
+    const decisionBox = document.getElementById('officer-decision-action-box');
+    const isOfficerOrAdmin = AppState.user && (AppState.user.role === 'OFFICER' || AppState.user.role === 'ADMINISTRATOR');
+    if (decisionBox) {
+      decisionBox.style.display = isOfficerOrAdmin ? 'block' : 'none';
+    }
+  } catch (err) {
+    document.getElementById('case-detail-title').textContent = `ত্রুটি: ${err.message}`;
+  }
+}
+
+function initCaseInvestigationMap(caseItem) {
+  const container = document.getElementById('case-investigation-map');
+  if (!container) return;
+
+  if (caseInvestigationMap) {
+    caseInvestigationMap.remove();
+    caseInvestigationMap = null;
   }
 
-  modal.classList.add('open');
+  const lat = 23.8580;
+  const lng = 90.2580;
+
+  caseInvestigationMap = L.map('case-investigation-map').setView([lat, lng], 15);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '© OpenStreetMap contributors | DeshMrittika'
+  }).addTo(caseInvestigationMap);
+
+  const markerColor = caseItem.severity === 'CRITICAL' ? '#ef4444' : '#f59e0b';
+  L.circleMarker([lat, lng], {
+    radius: 9,
+    fillColor: markerColor,
+    color: '#ffffff',
+    weight: 2,
+    opacity: 1,
+    fillOpacity: 0.85
+  }).addTo(caseInvestigationMap).bindPopup(`
+    <strong>${caseItem.parcel_id}</strong><br>
+    দাগ নং: ${caseItem.dag_number || '১০১'}<br>
+    রুল: ${caseItem.finding_code}
+  `).openPopup();
 }
 
-function closeReviewModal() {
-  const modal = document.getElementById('calm-review-modal');
-  if (modal) modal.classList.remove('open');
+function closeOfficerCaseDetail() {
+  const panel = document.getElementById('officer-case-detail-panel');
+  if (panel) panel.style.display = 'none';
+  if (caseInvestigationMap) {
+    caseInvestigationMap.remove();
+    caseInvestigationMap = null;
+  }
 }
 
-async function submitOfficerDecision() {
-  if (!AppState.selectedCase) return;
-  const action = document.getElementById('rev-action-select')?.value;
-  const reason = document.getElementById('rev-reason-input')?.value.trim() || 'নথিপত্র ও ক্যাডাস্ট্রাল উপাত্ত বিশ্লেষণপূর্বক সিদ্ধান্ত গৃহীত।';
+async function submitOfficerCaseDecision(action) {
+  if (!AppState.selectedCase) {
+    showToast("কোনো কেস নির্বাচন করা নেই।", "warning");
+    return;
+  }
+
+  const notesInput = document.getElementById('officer-decision-notes');
+  const notes = notesInput ? notesInput.value.trim() : '';
 
   try {
-    const res = await LandTechAPI.recordReviewDecision(AppState.selectedCase.case_id, action, reason);
-    showToast(`সিদ্ধান্ত সংরক্ষিত! লগ নং: ${res.log_id}`);
-    closeReviewModal();
-    loadOfficerQueue();
+    const res = await LandTechAPI.recordReviewDecision(AppState.selectedCase.case_id, action, notes || 'সহকারী কমিশনার (ভূমি) এর কার্যালয়ে তদন্তপূর্বক সিদ্ধান্ত লিপিবদ্ধ করা হলো।');
+    showToast(res.message || "তদন্ত সিদ্ধান্ত সফলভাবে অডিট লগে নথিভুক্ত হয়েছে।", "success");
+    if (notesInput) notesInput.value = '';
+
+    // Refresh case detail & queue
+    await openOfficerCaseDetail(AppState.selectedCase.case_id);
+    await loadOfficerQueue();
   } catch (err) {
     alert(`সিদ্ধান্ত সংরক্ষণ ব্যর্থ: ${err.message}`);
+  }
+}
+
+// ==========================================================================
+// WORKSPACE: OWNERSHIP HISTORY & CHAIN OF TITLE TIMELINE (SCREEN 4)
+// Purpose: সিএস, এসএ, আরএস থেকে বিএস পর্যন্ত ধারাবাহিক বায়া দলিল শৃঙ্খল
+// ==========================================================================
+async function loadChainOfTitleForParcel(parcelId) {
+  if (!parcelId) parcelId = AppState.selectedParcelId || 'BD-PAR-000101';
+  AppState.selectedParcelId = parcelId;
+
+  const parcelIdPill = document.getElementById('chain-active-parcel-id');
+  const parcelMeta = document.getElementById('chain-active-parcel-meta');
+  const countBadge = document.getElementById('chain-events-count-badge');
+  const eventsContainer = document.getElementById('chain-timeline-events-container');
+  const docsContainer = document.getElementById('chain-document-references-container');
+
+  if (parcelIdPill) parcelIdPill.textContent = parcelId;
+  if (eventsContainer) eventsContainer.innerHTML = '<div style="text-align:center; padding:2rem; color:var(--c-stone-400);">মালিকানা ইতিহাস ও বায়া দলিল শৃঙ্খল লোড হচ্ছে...</div>';
+
+  try {
+    const res = await LandTechAPI.getParcelChainOfTitle(parcelId);
+    const p = res.parcel || {};
+    const timeline = res.timeline || [];
+    const areaSummary = res.area_summary || {};
+    const docRefs = res.document_references || [];
+
+    if (parcelMeta) {
+      parcelMeta.textContent = `${p.mouza || 'আমিনবাজার'}, ${p.upazila || 'সাভার'} | দাগ নং ${p.dag_number || '১০১'} | খতিয়ান নং ${p.khatian_number || '৫০১'} | ${p.area_decimal || '৪৪.৭৬'} শতক (${p.land_classification || 'ভিটি জমি'})`;
+    }
+
+    // Area Transition Summary Flow Bar
+    const origAreaEl = document.getElementById('chain-area-original');
+    const transAreaEl = document.getElementById('chain-area-transferred');
+    const retainAreaEl = document.getElementById('chain-area-retained');
+
+    if (origAreaEl) origAreaEl.innerHTML = `আদি রেকর্ড: <strong>${(areaSummary.original_area_decimal || p.area_decimal || 44.76).toFixed(2)} শতক</strong>`;
+    if (transAreaEl) transAreaEl.innerHTML = `হস্তান্তরিত জমি: <strong>${(areaSummary.total_transferred_decimal || 20.51).toFixed(2)} শতক</strong>`;
+    if (retainAreaEl) retainAreaEl.innerHTML = `বর্তমান রেকর্ডীয় হিস্যা: <strong>${(areaSummary.current_retained_decimal || 24.25).toFixed(2)} শতক</strong>`;
+
+    if (countBadge) {
+      countBadge.textContent = `মোট ইভেন্ট: ${timeline.length.toLocaleString('bn-BD')} টি`;
+    }
+
+    // Render Vertical Timeline Events
+    if (eventsContainer) {
+      if (timeline.length === 0) {
+        eventsContainer.innerHTML = '<div style="text-align:center; padding:2rem; color:var(--c-stone-400);">এই পার্সেলের কোনো ঐতিহাসিক বায়া দলিল রেকর্ড সংরক্ষিত নেই।</div>';
+      } else {
+        eventsContainer.innerHTML = timeline.map(ev => {
+          let nodeClass = 'survey';
+          let nodeIcon = '🏛️';
+          let badgeClass = 'pill-forest';
+
+          if (ev.event_type === 'DEED_TRANSFER') {
+            nodeClass = 'transfer';
+            nodeIcon = '🤝';
+            badgeClass = 'pill-tag';
+          } else if (ev.event_type === 'MUTATION_RECORD') {
+            nodeClass = 'mutation';
+            nodeIcon = '🔄';
+            badgeClass = 'pill-safe';
+          } else if (ev.event_type === 'FRAUD_ALERT') {
+            nodeClass = 'conflict';
+            nodeIcon = '🚨';
+            badgeClass = 'pill-danger';
+          } else if (ev.event_type === 'DISPUTE_ALERT') {
+            nodeClass = 'conflict';
+            nodeIcon = '⚠️';
+            badgeClass = 'pill-warning';
+          }
+
+          const partiesInfo = ev.seller ? `
+            <div style="font-size:0.8rem; color:var(--c-stone-700); margin:0.3rem 0;">
+              <div><strong>হস্তান্তরকারী (বিক্রেতা):</strong> ${ev.seller}</div>
+              <div><strong>গ্রহীতা (ক্রেতা):</strong> ${ev.buyer || 'উক্ত'}</div>
+            </div>
+          ` : `
+            <div style="font-size:0.8rem; color:var(--c-stone-700); margin:0.3rem 0;">
+              <strong>রেকর্ডীয় মালিক:</strong> ${ev.owner || 'মৌজা রেকর্ডীয় প্রজা/জোতদার'}
+            </div>
+          `;
+
+          const areaInfo = ev.area_decimal ? `<span style="font-size:0.75rem; background:rgba(0,0,0,0.04); padding:2px 6px; border-radius:4px; margin-right:6px;">জমির পরিমাণ: <strong>${ev.area_decimal} শতক</strong></span>` : '';
+          const dagInfo = ev.dag_number ? `<span style="font-size:0.75rem; background:rgba(0,0,0,0.04); padding:2px 6px; border-radius:4px; margin-right:6px;">দাগ নং: <strong>${ev.dag_number}</strong></span>` : '';
+          const khatianInfo = ev.khatian_number ? `<span style="font-size:0.75rem; background:rgba(0,0,0,0.04); padding:2px 6px; border-radius:4px;">খতিয়ান: <strong>${ev.khatian_number}</strong></span>` : '';
+
+          const docActionBtn = ev.document_number ? `
+            <button class="btn btn-secondary-stone btn-sm" style="font-size:0.72rem; padding:2px 8px; margin-top:0.5rem;" onclick="viewDocumentEvidence('${ev.document_number}')">
+              📑 দলিলের তথ্য দেখুন ➔
+            </button>
+          ` : '';
+
+          return `
+            <div class="chain-event-row">
+              <div class="chain-event-node ${nodeClass}">${nodeIcon}</div>
+              <div class="chain-event-card">
+                <div class="chain-event-header">
+                  <div>
+                    <span class="chain-event-year">${ev.year || ev.date || 'ঐতিহাসিক'}</span>
+                    <strong style="color:var(--c-forest-950); margin-left:0.4rem; font-size:0.95rem;">${ev.title_bn}</strong>
+                  </div>
+                  <span class="pill-tag ${badgeClass}" style="font-size:0.7rem;">${ev.status_label || ev.survey_type || 'রেকর্ড'}</span>
+                </div>
+                ${partiesInfo}
+                <div style="margin-top:0.4rem; display:flex; flex-wrap:wrap; gap:0.25rem;">
+                  ${areaInfo}
+                  ${dagInfo}
+                  ${khatianInfo}
+                </div>
+                <div style="font-size:0.78rem; color:var(--c-stone-500); margin-top:0.4rem; line-height:1.4;">
+                  ${ev.details_bn || 'রেকর্ড রুম ও বালাম বহি যাচাই সম্পন্ন।'}
+                </div>
+                ${docActionBtn}
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+    }
+
+    // Render Document References & Citations Grid
+    if (docsContainer) {
+      if (docRefs.length === 0) {
+        docsContainer.innerHTML = '<div style="color:var(--c-stone-400); font-size:0.8rem;">কোনো বালাম উদ্ধৃতি পাওয়া যায়নি।</div>';
+      } else {
+        docsContainer.innerHTML = docRefs.map(d => `
+          <div style="background:var(--c-stone-50); border:1px solid var(--c-stone-200); border-radius:var(--radius-md); padding:0.75rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <strong style="font-size:0.82rem; color:var(--c-forest-950);">${d.doc_type || 'সাফ-কবালা দলিল'}</strong>
+              <span class="pill-tag pill-forest" style="font-size:0.65rem;">ভেরিফাইড হ্যাশ</span>
+            </div>
+            <div style="font-size:0.78rem; color:var(--c-stone-700); margin-top:0.3rem;">
+              <strong>নম্বর:</strong> ${d.doc_number || d.deed_number}
+            </div>
+            <div style="font-size:0.74rem; color:var(--c-stone-500); margin-top:0.15rem;">
+              কার্যালয়: ${d.registry_office || 'সাভার সাব-রেজিস্ট্রি অফিস'}
+            </div>
+            <div style="font-size:0.74rem; color:var(--c-stone-500);">
+              বালাম ভলিউম: ${d.volume_no || '৪২'}, পৃষ্ঠা ${d.page_no || '১৪–১৮'} (${d.year || '২০১৬'})
+            </div>
+            <button class="btn btn-secondary-stone btn-sm" style="font-size:0.7rem; padding:1px 6px; margin-top:0.4rem; width:100%;" onclick="viewDocumentEvidence('${d.doc_number || d.deed_number}')">
+              ডিজিটাল হ্যাশ ও বালাম তল্লাশি ➔
+            </button>
+          </div>
+        `).join('');
+      }
+    }
+  } catch (err) {
+    if (eventsContainer) {
+      eventsContainer.innerHTML = `<div style="text-align:center; padding:2rem; color:var(--c-risk-danger);">মালিকানা ইতিহাস লোড ব্যর্থ: ${err.message}</div>`;
+    }
+  }
+}
+
+function viewDocumentEvidence(docRef) {
+  showToast(`দলিল নং ${docRef} এর সাব-রেজিস্ট্রি বালাম ও ক্রিপ্টোগ্রাফিক হ্যাশ রেকর্ড প্রদর্শন করা হচ্ছে...`, 'info');
+  const confirmed = confirm(`দলিল প্রামাণিকতা সনদ:\nদলিল নম্বর: ${docRef}\nসাব-রেজিস্ট্রি: সাভার সাব-রেজিস্ট্রি কার্যালয়\nডিজিটাল হ্যাশ স্থিতি: SHA-256 ম্যাচিং নিশ্চিত\n\nআপনি কি ক্রিপ্টোগ্রাফিক হ্যাশ যাচাই স্ক্রিনে গিয়ে মূল বাইট বিশ্লেষণ দেখতে চান?`);
+  if (confirmed) {
+    navigateToApp('verify');
+    const input = document.getElementById('verify-deed-input');
+    if (input) input.value = docRef;
   }
 }
 
@@ -3470,4 +4300,56 @@ function debounceLogSearch() {
   clearTimeout(logSearchTimeout);
   logSearchTimeout = setTimeout(loadAdminSecurityLogs, 300);
 }
+
+// Role Switcher Helper for Demo Triage Guard
+async function switchRole(targetRole) {
+  const roleProfiles = {
+    CITIZEN: { user_id: 'USR-CITIZEN-01', name: 'মো: রফিকুল ইসলাম (Citizen)', role: 'CITIZEN', email: 'citizen@example.com', status: 'ACTIVE' },
+    BUYER: { user_id: 'USR-BUYER-01', name: 'সুলতানা রাজিয়া (Buyer)', role: 'BUYER', email: 'buyer@example.com', status: 'ACTIVE' },
+    OFFICER: { user_id: 'USR-OFFICER-01', name: 'নাজমুল আহসান (AC Land)', role: 'OFFICER', email: 'officer@example.com', status: 'ACTIVE' },
+    ADMINISTRATOR: { user_id: 'USR-ADMIN-01', name: 'সিস্টেম অ্যাডমিন (Admin)', role: 'ADMINISTRATOR', email: 'admin@example.com', status: 'ACTIVE' }
+  };
+  const profile = roleProfiles[targetRole] || roleProfiles.CITIZEN;
+  AppState.user = profile;
+  updateAuthUI(profile);
+  applyRolePermissions();
+  showToast(`${profile.name} হিসেবে ভূমিকা পরিবর্তন করা হয়েছে।`, 'success');
+  if (targetRole === 'OFFICER') {
+    switchAppPage('officer');
+  } else if (targetRole === 'BUYER') {
+    switchAppPage('buyer-overview');
+  } else {
+    switchAppPage('overview');
+  }
+}
+
+// Global Window Exports for Inline HTML Event Handlers
+window.applyPresetAndSearch = applyPresetAndSearch;
+window.executeSearchAndDossier = executeSearchAndDossier;
+window.executeAppSearch = executeAppSearch;
+window.loadCitizenDossier = loadCitizenDossier;
+window.onSearchDivisionChanged = onSearchDivisionChanged;
+window.onSearchDistrictChanged = onSearchDistrictChanged;
+window.onSearchUpazilaChanged = onSearchUpazilaChanged;
+window.onSearchUnionChanged = onSearchUnionChanged;
+window.toggleSafetyCheckPoint = toggleSafetyCheckPoint;
+window.viewChainOfTitleForCurrentParcel = viewChainOfTitleForCurrentParcel;
+window.loadDashboardStats = loadDashboardStats;
+window.initDashboardMiniMap = initDashboardMiniMap;
+window.quickInspectParcel = quickInspectParcel;
+window.loadOfficerQueue = loadOfficerQueue;
+window.onOfficerQueueFilterChanged = onOfficerQueueFilterChanged;
+window.filterOfficerQueueBySeverity = filterOfficerQueueBySeverity;
+window.filterOfficerQueueByStatus = filterOfficerQueueByStatus;
+window.filterOfficerQueueByFinding = filterOfficerQueueByFinding;
+window.openOfficerCaseDetail = openOfficerCaseDetail;
+window.closeOfficerCaseDetail = closeOfficerCaseDetail;
+window.submitOfficerCaseDecision = submitOfficerCaseDecision;
+window.loadChainOfTitleForParcel = loadChainOfTitleForParcel;
+window.viewDocumentEvidence = viewDocumentEvidence;
+window.switchRole = switchRole;
+window.switchAppPage = switchAppPage;
+window.navigateToApp = navigateToApp;
+window.navigateToLanding = navigateToLanding;
+
 

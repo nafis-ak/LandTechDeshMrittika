@@ -599,4 +599,44 @@ class LandTechAPI {
     if (!res.ok) throw new Error('Failed to fetch khas land layer');
     return await res.json();
   }
+
+  // ==========================================
+  // DASHBOARD, FRAUD TRIAGE & CHAIN OF TITLE
+  // ==========================================
+  static async getDashboardStats() {
+    const res = await fetch(`${API_BASE}/dashboard/stats`);
+    if (!res.ok) throw new Error('Failed to fetch dashboard stats');
+    return await res.json();
+  }
+
+  static async getFraudStats() {
+    const res = await fetch(`${API_BASE}/verification/stats`);
+    if (!res.ok) throw new Error('Failed to fetch fraud stats');
+    return await res.json();
+  }
+
+  static async getVerificationCasesList(params = {}) {
+    const searchParams = new URLSearchParams();
+    for (const [key, val] of Object.entries(params)) {
+      if (val !== null && val !== undefined && val !== '') {
+        searchParams.append(key, val);
+      }
+    }
+    const res = await fetch(`${API_BASE}/verification/cases?${searchParams.toString()}`);
+    if (!res.ok) throw new Error('Failed to fetch verification cases');
+    return await res.json();
+  }
+
+  static async getVerificationCaseDetail(caseId) {
+    const res = await fetch(`${API_BASE}/verification/cases/${encodeURIComponent(caseId)}`);
+    if (!res.ok) throw new Error('Failed to fetch verification case detail');
+    return await res.json();
+  }
+
+  static async getParcelChainOfTitle(parcelId) {
+    const res = await fetch(`${API_BASE}/parcels/${encodeURIComponent(parcelId)}/chain-of-title`);
+    if (!res.ok) throw new Error('Failed to fetch chain of title');
+    return await res.json();
+  }
 }
+

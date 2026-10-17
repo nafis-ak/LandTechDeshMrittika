@@ -490,59 +490,186 @@
                WORKSPACE 1: OVERVIEW DASHBOARD
                ========================================== -->
           <div id="page-overview" class="workspace-page active">
-            <div class="page-header-row">
-              <div class="page-title-block">
-                <h3>পাইলট অঞ্চল সারসংক্ষেপ — সাভার উপজেলা (BBS 26/2672)</h3>
-                <p>ডিজিটাল রেকর্ড, নিবন্ধিত দলিল ও স্বয়ংক্রিয় জালিয়াতি শনাক্তকরণের সার্বিক পরিসংখ্যান।</p>
+            <!-- Compact Welcome Header -->
+            <div class="dash-welcome-banner">
+              <div class="dash-welcome-text">
+                <h2>আপনার জমির তথ্য, এক জায়গায়</h2>
+                <p>ভূমি রেকর্ড অনুসন্ধান, দলিলের সত্যতা নিরূপণ, খাস জমি শনাক্তকরণ এবং এসি ল্যান্ড ট্রায়াজ ড্যাশবোর্ড।</p>
               </div>
-              <button class="btn btn-primary-forest btn-sm" onclick="navigateToApp('citizen')">
-                নতুন অনুসন্ধান ➔
+              <button class="btn btn-primary-forest" style="background:#10b981; color:#022c22; font-weight:700; white-space:nowrap; border:none; box-shadow:0 4px 12px rgba(0,0,0,0.15);" onclick="switchAppPage('citizen')">
+                🔍 জমি যাচাই করুন ➔
               </button>
             </div>
 
-            <!-- Metric Cards -->
-            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap:1rem; margin-bottom:1.5rem;">
-              <div class="calm-card" style="padding:1.25rem;">
-                <div style="font-size:0.8rem; color:var(--c-stone-500);">মোট পার্সেল (সাভার পাইলট)</div>
-                <div class="num" style="font-size:1.8rem; font-weight:700; color:var(--c-forest-900); margin-top:0.2rem;">১০০,০০০</div>
-                <div style="font-size:0.75rem; color:var(--c-stone-400); margin-top:0.3rem;">আমিনবাজার, বিরুলিয়া, সাভার পৌরসভা</div>
+            <!-- 4 Meaningful Summary Cards (Connected to real backend stats) -->
+            <div class="dash-stats-grid">
+              <div class="dash-stat-card safe-accent" id="dash-card-total-parcels" onclick="switchAppPage('map')">
+                <div class="stat-label">
+                  <span>মোট ডেমো পার্সেল</span>
+                  <span>🗺️</span>
+                </div>
+                <div class="stat-num" id="dash-stat-total-parcels">১০০,০০০</div>
+                <div class="stat-desc">সাভার পাইলট ও সারা দেশ (ক্লিক করে ম্যাপে দেখুন)</div>
               </div>
 
-              <div class="calm-card" style="padding:1.25rem;">
-                <div style="font-size:0.8rem; color:var(--c-stone-500);">রেজিস্ট্রিকৃত সাফ-কবালা দলিল</div>
-                <div class="num" style="font-size:1.8rem; font-weight:700; color:var(--c-forest-900); margin-top:0.2rem;">৫৮,৩৩৩</div>
-                <div style="font-size:0.75rem; color:var(--c-forest-700); margin-top:0.3rem;">১০০% ক্রিপ্টোগ্রাফিক হ্যাশ সংযুক্ত</div>
+              <div class="dash-stat-card risk-accent" id="dash-card-high-risk" onclick="switchAppPage('officer')">
+                <div class="stat-label">
+                  <span>ঝুঁকিপূর্ণ রেকর্ড</span>
+                  <span>🚨</span>
+                </div>
+                <div class="stat-num" id="dash-stat-high-risk">২,২৫০</div>
+                <div class="stat-desc">দ্বৈত বিক্রয় ও অসঙ্গতি (ক্লিক করে ট্রায়াজে দেখুন)</div>
               </div>
 
-              <div class="calm-card" style="padding:1.25rem;">
-                <div style="font-size:0.8rem; color:var(--c-stone-500);">দ্বৈত বিক্রয় অ্যালার্ট (DS-01)</div>
-                <div class="num" style="font-size:1.8rem; font-weight:700; color:var(--c-risk-danger); margin-top:0.2rem;">৫০০ টি</div>
-                <div style="font-size:0.75rem; color:var(--c-risk-danger); margin-top:0.3rem;">তাত্ক্ষণিক ট্রায়াজ কিউতে সংরক্ষিত</div>
+              <div class="dash-stat-card warning-accent" id="dash-card-pending" onclick="switchAppPage('officer-cases')">
+                <div class="stat-label">
+                  <span>যাচাইয়ের অপেক্ষায়</span>
+                  <span>⏳</span>
+                </div>
+                <div class="stat-num" id="dash-stat-pending">৪,৭৪৬</div>
+                <div class="stat-desc">তদন্তাধীন কেস ও তলবকৃত নথি (ক্লিক করে দেখুন)</div>
               </div>
 
-              <div class="calm-card" style="padding:1.25rem;">
-                <div style="font-size:0.8rem; color:var(--c-stone-500);">খাস জমি ও অধিগ্রহণ জোন দাগ</div>
-                <div class="num" style="font-size:1.8rem; font-weight:700; color:var(--c-risk-warning); margin-top:0.2rem;">১,৫০০ টি</div>
-                <div style="font-size:0.75rem; color:var(--c-stone-500); margin-top:0.3rem;">১-নং খতিয়ানভুক্ত সরকারি সম্পদ</div>
+              <div class="dash-stat-card" id="dash-card-completed" onclick="switchAppPage('mutation')">
+                <div class="stat-label">
+                  <span>সম্পন্ন আবেদন</span>
+                  <span>✓</span>
+                </div>
+                <div class="stat-num" id="dash-stat-completed">৫৭,০৮৩</div>
+                <div class="stat-desc">অনুমোদিত ই-নামজারি খারিজ (ক্লিক করে ট্র্যাক করুন)</div>
               </div>
             </div>
 
-            <!-- Quick Demo Jump Row -->
-            <div class="calm-card">
-              <h4 style="font-size:1rem; font-weight:700; margin-bottom:0.75rem;">দ্রুত যাচাইকরণ ডেমো টেস্ট কেসসমূহ:</h4>
-              <div style="display:flex; flex-wrap:wrap; gap:0.75rem;">
-                <button class="btn btn-secondary-stone btn-sm" onclick="applyPresetAndSearch('ds1')">
-                  🚨 প্রতারণামূলক দ্বৈত বিক্রয় (DS-01) — দাগ ১০১
+            <!-- Visually Prominent Bangladesh Map Preview with Clickable Sample Parcels -->
+            <div class="dash-map-anchor-card">
+              <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
+                <div>
+                  <h4 style="font-size:1.05rem; font-weight:800; color:var(--c-forest-950); margin:0;">
+                    🗺️ বাংলাদেশ-ব্যাপী ল্যান্ড ইন্টেলিজেন্স ও ক্যাডাস্ট্রাল ম্যাপ
+                  </h4>
+                  <p style="font-size:0.8rem; color:var(--c-stone-500); margin:0.2rem 0 0;">
+                    নির্বাচিত প্লট চিহ্নিত করতে ডানের নমুনা পার্সেলে ক্লিক করুন অথবা পূর্ণ ম্যাপে ড্র্যাগ ও জুম করুন।
+                  </p>
+                </div>
+                <button class="btn btn-secondary-stone btn-sm" onclick="switchAppPage('map')">
+                  পূর্ণাঙ্গ জিআইএস ম্যাপ খুলুন ➔
                 </button>
-                <button class="btn btn-secondary-stone btn-sm" onclick="applyPresetAndSearch('ds2')">
-                  ✓ নির্দোষ ধারাবাহিক বিক্রয় (DS-02) — দাগ ১০০১
+              </div>
+
+              <div class="dash-map-split">
+                <!-- Mini Leaflet Map Preview -->
+                <div class="dash-map-canvas-box" id="dash-mini-map"></div>
+
+                <!-- Clickable Sample Parcels -->
+                <div class="dash-showcase-list" id="dash-showcase-container">
+                  <div class="dash-sample-item" onclick="applyPresetAndSearch('ds1')">
+                    <div class="dash-sample-header">
+                      <span class="dash-sample-title">🚨 দাগ ১০১ — আমিনবাজার, সাভার</span>
+                      <span class="pill-tag" style="background:#fee2e2; color:#991b1b; font-size:0.7rem; font-weight:700;">দ্বৈত বিক্রয় (DS-01)</span>
+                    </div>
+                    <div class="dash-sample-desc">
+                      একই বিক্রেতা ২০১৬ ও ২০২৩ সালে দুটি ভিন্ন দলিলের মাধ্যমে দ্বৈত বিক্রয়ের অপচেষ্টা। ঝুঁকি স্কোর: ৯৫/১০০।
+                    </div>
+                  </div>
+
+                  <div class="dash-sample-item" onclick="applyPresetAndSearch('ds2')">
+                    <div class="dash-sample-header">
+                      <span class="dash-sample-title">🌿 দাগ ১০০১ — বিরুলিয়া, সাভার</span>
+                      <span class="pill-tag" style="background:#dcfce7; color:#166534; font-size:0.7rem; font-weight:700;">নির্দোষ রেকর্ড (DS-02)</span>
+                    </div>
+                    <div class="dash-sample-desc">
+                      সিএস, এসএ, আরএস থেকে বিএস পর্যন্ত বায়া দলিল শৃঙ্খল সম্পূর্ণ অটুট ও খাজনা পরিশোধিত। ঝুঁকি স্কোর: ১০/১০০।
+                    </div>
+                  </div>
+
+                  <div class="dash-sample-item" onclick="applyPresetAndSearch('khas')">
+                    <div class="dash-sample-header">
+                      <span class="dash-sample-title">🏛️ দাগ ২০৫ — সাভার পৌরসভা</span>
+                      <span class="pill-tag" style="background:#fef3c7; color:#92400e; font-size:0.7rem; font-weight:700;">১-নং খাস খতিয়ান</span>
+                    </div>
+                    <div class="dash-sample-desc">
+                      গণপ্রজাতন্ত্রী বাংলাদেশ সরকারের পক্ষে জেলা প্রশাসক অনুকূলে সংরক্ষিত খাল ও খাস জমি। হস্তান্তর নিষিদ্ধ।
+                    </div>
+                  </div>
+
+                  <div class="dash-sample-item" onclick="applyPresetAndSearch('acq')">
+                    <div class="dash-sample-header">
+                      <span class="dash-sample-title">🚆 দাগ ৩০৪ — আমিনবাজার করিডোর</span>
+                      <span class="pill-tag" style="background:#e0e7ff; color:#3730a3; font-size:0.7rem; font-weight:700;">মেট্রোরেল অধিগ্রহণ জোন</span>
+                    </div>
+                    <div class="dash-sample-desc">
+                      ঢাকা ম্যাস ট্রানটিউট কোম্পানি লিমিটেড (ডিএমটিসিএল) প্রকল্প অধিগ্রহণ করিডোরের আওতাভুক্ত জমি।
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Map Legend Bar -->
+              <div class="dash-map-legend-bar">
+                <span style="font-weight:700; color:var(--c-stone-800);">ম্যাপ লেজেন্ড:</span>
+                <span><span style="display:inline-block; width:10px; height:10px; background:#10b981; border-radius:50%; margin-right:4px;"></span> ব্যক্তিমালিকানাধীন বৈধ পার্সেল</span>
+                <span><span style="display:inline-block; width:10px; height:10px; background:#ef4444; border-radius:50%; margin-right:4px;"></span> উচ্চ ঝুঁকিপূর্ণ / দ্বৈত বিক্রয়</span>
+                <span><span style="display:inline-block; width:10px; height:10px; background:#f59e0b; border-radius:50%; margin-right:4px;"></span> সরকারি ১-নং খাস খতিয়ান</span>
+                <span><span style="display:inline-block; width:10px; height:10px; background:#6366f1; border-radius:50%; margin-right:4px;"></span> জাতীয় প্রকল্প অধিগ্রহণ জোন</span>
+              </div>
+            </div>
+
+            <!-- Compact "কী করতে চান?" Action Area -->
+            <div style="margin-bottom:1.5rem;">
+              <h4 style="font-size:1.05rem; font-weight:800; color:var(--c-forest-950); margin-bottom:0.75rem;">
+                কী করতে চান?
+              </h4>
+              <div class="dash-action-cards-grid">
+                <div class="dash-action-card" onclick="switchAppPage('citizen')">
+                  <div class="dash-action-icon">🛡️</div>
+                  <div class="dash-action-title">জমি কেনার আগে যাচাই</div>
+                  <div class="dash-action-sub">দাগ বা খতিয়ান নম্বর দিয়ে বায়া দলিল, নামজারি, বকেয়া কর ও খাস জমি স্ক্রিনিং।</div>
+                  <div class="dash-action-link">যাচাই শুরু করুন ➔</div>
+                </div>
+
+                <div class="dash-action-card" onclick="switchAppPage('ocr')">
+                  <div class="dash-action-icon">📜</div>
+                  <div class="dash-action-title">দলিল ও পরচা যাচাই</div>
+                  <div class="dash-action-sub">প্রাচীন হস্তলিখিত দলিল ও পরচার এআই ওসিআর এবং ক্রিপ্টোগ্রাফিক হ্যাশ যাচাই।</div>
+                  <div class="dash-action-link">দলিল স্ক্যান করুন ➔</div>
+                </div>
+
+                <div class="dash-action-card" onclick="switchAppPage('buyer-ownership-summary')">
+                  <div class="dash-action-icon">⏳</div>
+                  <div class="dash-action-title">মালিকানা ইতিহাস দেখুন</div>
+                  <div class="dash-action-sub">সিএস, এসএ, আরএস থেকে বিএস পর্যন্ত ধারাবাহিক বায়া দলিল শৃঙ্খল ও টাইমলাইন।</div>
+                  <div class="dash-action-link">টাইমলাইন দেখুন ➔</div>
+                </div>
+
+                <div class="dash-action-card" onclick="switchAppPage('mutation')">
+                  <div class="dash-action-icon">🔄</div>
+                  <div class="dash-action-title">জমির আবেদন ট্র্যাক করুন</div>
+                  <div class="dash-action-sub">ই-নামজারি, জমাভাগ ও রাজস্ব সেবা আবেদনের সর্বশেষ স্থিতি ও আদেশ ট্র্যাকিং।</div>
+                  <div class="dash-action-link">আবেদন ট্র্যাক করুন ➔</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Recent Activity List (Real Audit & Review Data) -->
+            <div class="dash-activity-feed">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+                <div>
+                  <h4 style="font-size:1rem; font-weight:800; color:var(--c-forest-950); margin:0;">
+                    ⏱️ সাম্প্রতিক কার্যক্রম ও অডিট নিরীক্ষা
+                  </h4>
+                  <p style="font-size:0.78rem; color:var(--c-stone-500); margin:0.15rem 0 0;">
+                    সিস্টেমে রাজস্ব কর্মকর্তা ও নাগরিকদের সর্বশেষ যাচাই ও ট্রায়াজ সিদ্ধান্তের অডিট লগ (গোপনীয় তথ্য সুরক্ষিত)।
+                  </p>
+                </div>
+                <button class="btn btn-secondary-stone btn-sm" onclick="switchAppPage('officer')">
+                  সকল লগ দেখুন
                 </button>
-                <button class="btn btn-secondary-stone btn-sm" onclick="applyPresetAndSearch('khas')">
-                  🏛️ ১-নং খাস খতিয়ান জমি — দাগ ২০৫
-                </button>
-                <button class="btn btn-secondary-stone btn-sm" onclick="navigateToApp('ocr')">
-                  📜 প্রাচীন পরচা ও দলিল OCR টেস্ট
-                </button>
+              </div>
+
+              <div id="dash-recent-activity-container">
+                <div style="text-align:center; padding:1.5rem; color:var(--c-stone-400); font-size:0.85rem;">
+                  কার্যক্রম লোড হচ্ছে...
+                </div>
               </div>
             </div>
           </div>
@@ -557,120 +684,217 @@
                 <h3>নাগরিক একক বাতায়ন — ৫-দফা ক্রেতা ডিউ ডিলিজেন্স</h3>
                 <p>জমি ক্রয়ের পূর্বে দাগ বা খতিয়ান দিয়ে বায়া দলিল, নামজারি, মামলা, কর ও খাস জমির ছাড়পত্র দেখুন।</p>
               </div>
-              <button class="btn btn-secondary-stone btn-sm" onclick="window.print()">
-                🖨️ ডসিয়ার প্রিন্ট / PDF
-              </button>
+              <div style="display:flex; gap:0.5rem;">
+                <button class="btn btn-secondary-stone btn-sm" onclick="switchAppPage('buyer-ownership-summary')">
+                  ⏳ বায়া দলিল শৃঙ্খল
+                </button>
+                <button class="btn btn-secondary-stone btn-sm" onclick="window.print()">
+                  🖨️ ডসিয়ার প্রিন্ট / PDF
+                </button>
+              </div>
             </div>
 
-            <!-- Search Form Card -->
-            <div class="calm-card">
-              <form id="app-search-form" class="search-input-grid">
+            <!-- 3-Step Navigation Bar -->
+            <div class="step-nav-bar">
+              <div class="step-nav-item active" id="step-nav-1">
+                <div class="step-nav-num">১</div>
+                <div class="step-nav-text">
+                  <h5>ধাপ ১: জমির অবস্থান</h5>
+                  <p>বিভাগ, জেলা, উপজেলা ও মৌজা</p>
+                </div>
+              </div>
+              <div class="step-nav-item active" id="step-nav-2">
+                <div class="step-nav-num">২</div>
+                <div class="step-nav-text">
+                  <h5>ধাপ ২: জমির পরিচয়</h5>
+                  <p>দাগ, খতিয়ান অথবা পার্সেল আইডি</p>
+                </div>
+              </div>
+              <div class="step-nav-item active" id="step-nav-3">
+                <div class="step-nav-num">৩</div>
+                <div class="step-nav-text">
+                  <h5>ধাপ ৩: ফলাফল ও ডিউ ডিলিজেন্স</h5>
+                  <p>৫-দফা নিরাপত্তা সনদ ও ম্যাপ</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Step 1 & 2 Combined Form Card -->
+            <div class="cascading-selectors-card">
+              <!-- Step 1: Cascading Geography Selectors -->
+              <div style="font-size:0.9rem; font-weight:800; color:var(--c-forest-950); margin-bottom:0.5rem; display:flex; align-items:center; gap:0.5rem;">
+                <span class="pill-tag pill-forest" style="font-size:0.7rem;">ধাপ ১</span>
+                <span>জমির প্রশাসনিক অবস্থান নির্বাচন করুন</span>
+              </div>
+              <div class="cascading-geo-grid">
                 <div class="calm-form-field">
-                  <label for="app-search-mouza">মৌজা নির্বাচন</label>
-                  <select id="app-search-mouza" class="calm-input">
-                    <option value="Aminbazar">আমিনবাজার (জেএল ২৬)</option>
-                    <option value="Birulia">বিরুলিয়া (জেএল ২৭)</option>
-                    <option value="Savar">সাভার পৌরসভা (জেএল ২৮)</option>
+                  <label for="app-search-division">বিভাগ (Division)</label>
+                  <select id="app-search-division" class="calm-input" onchange="onSearchDivisionChanged()">
+                    <option value="">বিভাগ লোড হচ্ছে...</option>
                   </select>
                 </div>
                 <div class="calm-form-field">
-                  <label for="app-search-dag">দাগ নম্বর (Dag)</label>
-                  <input type="number" id="app-search-dag" class="calm-input" placeholder="যেমন: ১০১" value="101">
+                  <label for="app-search-district">জেলা (District)</label>
+                  <select id="app-search-district" class="calm-input" onchange="onSearchDistrictChanged()">
+                    <option value="">জেলা নির্বাচন করুন</option>
+                  </select>
                 </div>
                 <div class="calm-form-field">
-                  <label for="app-search-khatian">খতিয়ান নম্বর (Khatian)</label>
-                  <input type="number" id="app-search-khatian" class="calm-input" placeholder="যেমন: ৫০১">
+                  <label for="app-search-upazila">উপজেলা (Upazila)</label>
+                  <select id="app-search-upazila" class="calm-input" onchange="onSearchUpazilaChanged()">
+                    <option value="">উপজেলা নির্বাচন করুন</option>
+                  </select>
                 </div>
                 <div class="calm-form-field">
-                  <label for="app-search-id">পার্সেল আইডি (ID)</label>
-                  <input type="text" id="app-search-id" class="calm-input" placeholder="BD-PAR-000101">
+                  <label for="app-search-union">ইউনিয়ন (Union)</label>
+                  <select id="app-search-union" class="calm-input" onchange="onSearchUnionChanged()">
+                    <option value="">সকল ইউনিয়ন</option>
+                  </select>
                 </div>
-                <button type="submit" class="btn btn-primary-forest" style="height:42px;">
-                  <span>🔍 অনুসন্ধান</span>
-                </button>
+                <div class="calm-form-field">
+                  <label for="app-search-mouza">মৌজা ও জেএল (Mouza)</label>
+                  <select id="app-search-mouza" class="calm-input">
+                    <option value="">মৌজা নির্বাচন করুন</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Step 2: Flexible Land Identifiers Search -->
+              <div style="font-size:0.9rem; font-weight:800; color:var(--c-forest-950); margin-top:1.25rem; margin-bottom:0.5rem; display:flex; align-items:center; gap:0.5rem;">
+                <span class="pill-tag pill-forest" style="font-size:0.7rem;">ধাপ ২</span>
+                <span>জমির পরিচয় নম্বর দিয়ে অনুসন্ধান করুন</span>
+              </div>
+              <form id="app-search-form" onsubmit="event.preventDefault(); executeSearchAndDossier();">
+                <div class="id-search-grid">
+                  <div class="calm-form-field">
+                    <label for="app-search-dag">দাগ নম্বর (Dag No.)</label>
+                    <input type="number" id="app-search-dag" class="calm-input" placeholder="যেমন: ১০১" value="101">
+                  </div>
+                  <div class="calm-form-field">
+                    <label for="app-search-khatian">খতিয়ান নম্বর (Khatian No.)</label>
+                    <input type="number" id="app-search-khatian" class="calm-input" placeholder="যেমন: ৫০১">
+                  </div>
+                  <div class="calm-form-field">
+                    <label for="app-search-id">পার্সেল আইডি (Parcel ID)</label>
+                    <input type="text" id="app-search-id" class="calm-input" placeholder="BD-PAR-000101">
+                  </div>
+                  <button type="submit" class="btn btn-primary-forest" style="height:40px; padding:0 1.5rem; white-space:nowrap;">
+                    🔍 জমি খুঁজুন
+                  </button>
+                </div>
               </form>
-            </div>
 
-            <!-- Search Results Table -->
-            <div class="table-responsive-box" style="margin-bottom:1.5rem;">
-              <div style="padding:0.75rem 1.25rem; background:var(--c-stone-100); border-bottom:1px solid var(--c-stone-200); display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-size:0.85rem; font-weight:600;">ম্যাচিং ফলাফল: <strong id="app-results-count" class="num">1</strong> টি পার্সেল</span>
-                <span style="font-size:0.78rem; color:var(--c-stone-500);">সারিতে ক্লিক করে বিস্তারিত ৫-দফা ডসিয়ার দেখুন</span>
+              <!-- Terminology Clarification Banner -->
+              <div class="term-help-banner">
+                <span>📌 <strong>দাগ নম্বর:</strong> মৌজার মধ্যে নির্দিষ্ট জমির নকশার পরিচিতি নম্বর।</span>
+                <span>📖 <strong>খতিয়ান:</strong> জমির রেকর্ডে মালিকানা ও হিস্যা তথ্যের সরকারি বিবরণ।</span>
+                <span>🗺️ <strong>মৌজা:</strong> ভূমি জরিপ ও রাজস্ব রেকর্ডের নির্দিষ্ট ভৌগোলিক একক।</span>
               </div>
-              <table class="calm-table">
-                <thead>
-                  <tr>
-                    <th>পার্সেল আইডি</th>
-                    <th>মৌজা ও জেএল</th>
-                    <th>দাগ নং</th>
-                    <th>খতিয়ান নং</th>
-                    <th>জরিপ শ্রেণি</th>
-                    <th>পরিমাণ</th>
-                    <th>আইনি স্থিতি</th>
-                  </tr>
-                </thead>
-                <tbody id="app-search-results-tbody">
-                  <!-- Injected via JavaScript -->
-                </tbody>
-              </table>
             </div>
 
-            <!-- 5-Point Due Diligence Dossier Card -->
-            <div id="app-dossier-card" class="calm-card">
-              
-              <div style="display:flex; justify-content:space-between; align-items:flex-start; padding-bottom:1.25rem; border-bottom:1px solid var(--c-stone-200); gap:1.5rem; flex-wrap:wrap;">
-                <div>
-                  <div style="display:flex; align-items:center; gap:0.6rem;">
-                    <span class="pill-tag pill-forest" id="dos-status-pill">বিএস সিটি জরিপ</span>
-                    <span class="pill-tag" id="dos-id-pill" style="font-family:monospace; font-weight:700;">BD-PAR-000101</span>
-                  </div>
-                  <h3 id="app-dos-title" style="font-size:1.35rem; font-weight:700; margin:0.4rem 0 0.2rem;">আমিনবাজার | দাগ নং: ১০১ | খতিয়ান নং: ৫০১</h3>
-                  <div id="app-dos-meta" style="font-size:0.85rem; color:var(--c-stone-500);">১০.০০ শতাংশ (নাল জমি) | সাভার, ঢাকা</div>
+            <!-- Step 3: Understand Results & Due Diligence -->
+            <div id="step-3-results-section">
+              <!-- Search Results Table -->
+              <div class="table-responsive-box" style="margin-bottom:1.5rem;">
+                <div style="padding:0.75rem 1.25rem; background:var(--c-stone-100); border-bottom:1px solid var(--c-stone-200); display:flex; justify-content:space-between; align-items:center;">
+                  <span style="font-size:0.85rem; font-weight:600;">ম্যাচিং ফলাফল: <strong id="app-results-count" class="num">1</strong> টি পার্সেল</span>
+                  <span style="font-size:0.78rem; color:var(--c-stone-500);">সারিতে ক্লিক করে বিস্তারিত ৫-দফা ডসিয়ার ও ম্যাপ দেখুন</span>
                 </div>
+                <table class="calm-table">
+                  <thead>
+                    <tr>
+                      <th>পার্সেল আইডি</th>
+                      <th>মৌজা ও জেএল</th>
+                      <th>দাগ নং</th>
+                      <th>খতিয়ান নং</th>
+                      <th>জরিপ শ্রেণি</th>
+                      <th>জমির পরিমাণ</th>
+                      <th>আইনি স্থিতি</th>
+                      <th>অ্যাকশন</th>
+                    </tr>
+                  </thead>
+                  <tbody id="app-search-results-tbody">
+                    <!-- Injected via JavaScript -->
+                  </tbody>
+                </table>
+              </div>
 
-                <!-- Risk Gauge -->
-                <div style="display:flex; align-items:center; gap:1rem; background:var(--c-stone-100); padding:0.75rem 1.25rem; border-radius:var(--radius-lg); border:1px solid var(--c-stone-200);">
-                  <div id="app-risk-circle" style="width:54px; height:54px; border-radius:50%; background:var(--c-risk-danger); color:#ffffff; display:flex; flex-direction:column; align-items:center; justify-content:center; font-weight:700;">
-                    <span id="app-risk-score" class="num" style="font-size:1.2rem; line-height:1;">95</span>
-                    <span style="font-size:0.6rem; opacity:0.8;">/১০০</span>
-                  </div>
+              <!-- 5-Point Due Diligence Dossier Card -->
+              <div id="app-dossier-card" class="calm-card" style="margin-bottom:1.5rem;">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; padding-bottom:1.25rem; border-bottom:1px solid var(--c-stone-200); gap:1.5rem; flex-wrap:wrap;">
                   <div>
-                    <h4 id="app-verdict-title" style="font-size:0.95rem; font-weight:700; color:var(--c-risk-danger);">দ্বৈত বিক্রয় / লেনদেন নিষিদ্ধ</h4>
-                    <p id="app-verdict-desc" style="font-size:0.78rem; color:var(--c-stone-600);">অনিষ্পন্ন হস্তান্তরের কারণে লেনদেন স্থগিত রাখার পরামর্শ।</p>
+                    <div style="display:flex; align-items:center; gap:0.6rem;">
+                      <span class="pill-tag pill-forest" id="dos-status-pill">বিএস সিটি জরিপ</span>
+                      <span class="pill-tag" id="dos-id-pill" style="font-family:monospace; font-weight:700;">BD-PAR-000101</span>
+                      <span class="pill-tag" style="background:#fef3c7; color:#92400e; font-size:0.7rem; font-weight:700;">DEMO DATA — NOT AN OFFICIAL LAND SURVEY</span>
+                    </div>
+                    <h3 id="app-dos-title" style="font-size:1.35rem; font-weight:700; margin:0.4rem 0 0.2rem;">আমিনবাজার | দাগ নং: ১০১ | খতিয়ান নং: ৫০১</h3>
+                    <div id="app-dos-meta" style="font-size:0.85rem; color:var(--c-stone-500);">১০.০০ শতাংশ (নাল জমি) | সাভার, ঢাকা</div>
+                  </div>
+
+                  <!-- Risk Gauge with Clear Statement -->
+                  <div style="display:flex; align-items:center; gap:1rem; background:var(--c-stone-100); padding:0.75rem 1.25rem; border-radius:var(--radius-lg); border:1px solid var(--c-stone-200); max-width:440px;">
+                    <div id="app-risk-circle" style="width:54px; height:54px; border-radius:50%; background:var(--c-risk-danger); color:#ffffff; display:flex; flex-direction:column; align-items:center; justify-content:center; font-weight:700; flex-shrink:0;">
+                      <span id="app-risk-score" class="num" style="font-size:1.2rem; line-height:1;">95</span>
+                      <span style="font-size:0.6rem; opacity:0.8;">/১০০</span>
+                    </div>
+                    <div>
+                      <h4 id="app-verdict-title" style="font-size:0.92rem; font-weight:700; color:var(--c-risk-danger); margin:0 0 0.2rem;">দ্বৈত বিক্রয় / লেনদেন নিষিদ্ধ</h4>
+                      <p style="font-size:0.74rem; color:var(--c-stone-600); margin:0; line-height:1.4;">
+                        এই স্কোর রেকর্ডে পাওয়া ঝুঁকির ইঙ্গিত; এটি জমির আইনি মালিকানার চূড়ান্ত সিদ্ধান্ত নয়।
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <!-- 5-Point Safety Shield Grid -->
-              <h4 style="font-size:1rem; font-weight:700; margin-top:1.25rem;">
-                🛡️ ৫-দফা ক্রেতা নিরাপত্তা সনদ (5-Point Safety Shield)
-              </h4>
-              <div id="app-safety-shield-grid" class="safety-shield-container">
-                <!-- Injected via JavaScript -->
-              </div>
-
-              <!-- Cadastral Map & Profile Layout -->
-              <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1.5rem; margin-top:1.5rem;">
-                <!-- Mini Map -->
-                <div>
-                  <div style="font-size:0.85rem; font-weight:600; margin-bottom:0.4rem;">🗺️ ক্যাডাস্ট্রাল প্লট বাউন্ডারি (WGS-84)</div>
-                  <div id="app-citizen-map" style="height:320px; border-radius:var(--radius-md); border:1px solid var(--c-stone-200); background:#e2e8f0;"></div>
+                <!-- Expandable 5-Point Safety Checklist -->
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:1.25rem; margin-bottom:0.75rem;">
+                  <h4 style="font-size:1rem; font-weight:800; color:var(--c-forest-950); margin:0;">
+                    🛡️ বিস্তারিত ঝুঁকি যাচাই — ৫-দফা ক্রেতা নিরাপত্তা সনদ
+                  </h4>
+                  <span style="font-size:0.78rem; color:var(--c-stone-500);">প্রতিটি পয়েন্টে ক্লিক করে কারণ ও করণীয় দেখুন</span>
                 </div>
 
-                <!-- Linked Records Tab Box -->
-                <div>
-                  <div style="font-size:0.85rem; font-weight:600; margin-bottom:0.4rem;">📜 সংযুক্ত আইনি রেকর্ড ও হিস্যা</div>
-                  <div style="background:var(--c-stone-50); border:1px solid var(--c-stone-200); border-radius:var(--radius-md); padding:1rem; height:320px; overflow-y:auto;">
-                    <div id="app-owners-tab-content">লোড হচ্ছে...</div>
+                <div id="app-safety-shield-grid" class="due-diligence-checklist-grid">
+                  <!-- Dynamically rendered via renderDetailedSafetyChecklist -->
+                </div>
+
+                <!-- Cadastral Map & Document Evidence Layout -->
+                <div style="display:grid; grid-template-columns: 1.25fr 1fr; gap:1.25rem; margin-top:1.5rem;">
+                  <!-- Larger Interactive Map -->
+                  <div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem;">
+                      <span style="font-size:0.85rem; font-weight:700; color:var(--c-forest-950);">🗺️ ক্যাডাস্ট্রাল বাউন্ডারি ও আশেপাশের প্লট</span>
+                      <span style="font-size:0.72rem; color:var(--c-stone-500);">সঞ্চিত কোঅর্ডিনেট ভিত্তিক</span>
+                    </div>
+                    <div id="app-citizen-map" style="height:380px; border-radius:var(--radius-md); border:1px solid var(--c-stone-200); background:#e2e8f0;"></div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:0.4rem; font-size:0.72rem; color:var(--c-stone-500);">
+                      <span>লেজেন্ড: 🟩 নির্বাচিত পার্সেল | 🟦 পার্শ্ববর্তী প্লট | 🟥 সরকারি খাস/অধিগ্রহণ</span>
+                      <button class="btn btn-secondary-stone btn-sm" style="padding:0.2rem 0.5rem; font-size:0.7rem;" onclick="switchAppPage('map')">
+                        জিআইএস ম্যাপে খুলুন ➔
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Linked Records & Chain of Title Shortcut -->
+                  <div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem;">
+                      <span style="font-size:0.85rem; font-weight:700; color:var(--c-forest-950);">📜 সংযুক্ত আইনি রেকর্ড ও হিস্যা</span>
+                      <button class="btn btn-secondary-stone btn-sm" style="padding:0.2rem 0.5rem; font-size:0.7rem;" onclick="viewChainOfTitleForCurrentParcel()">
+                        বায়া টাইমলাইন ➔
+                      </button>
+                    </div>
+                    <div style="background:var(--c-stone-50); border:1px solid var(--c-stone-200); border-radius:var(--radius-md); padding:1rem; height:380px; overflow-y:auto;">
+                      <div id="app-owners-tab-content">লোড হচ্ছে...</div>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <!-- Statutory Disclaimer -->
-              <div style="background:var(--c-stone-100); border-left:4px solid var(--c-stone-600); border-radius:var(--radius-sm); padding:0.75rem 1rem; margin-top:1.5rem; font-size:0.78rem; color:var(--c-stone-600);">
-                <strong>⚖️ আইনি সতর্কতা ও সীমাবদ্ধতা:</strong> রাষ্ট্রীয় অধিগ্রহণ ও প্রজাস্বত্ব আইন ১৯৫০ (SATA 1950) ও রেজিস্ট্রেশন আইন ১৯০৮ অনুযায়ী এটি প্রাথমিক ঝুঁকি নিরূপণ ব্যবস্থা। এটি আদালত বা সহকারী কমিশনার (ভূমি) এর চুড়ান্ত রায় হিসেবে গণ্য নয়।
+                <!-- Statutory Disclaimer -->
+                <div style="background:var(--c-stone-100); border-left:4px solid var(--c-forest-700); border-radius:var(--radius-sm); padding:0.75rem 1rem; margin-top:1.5rem; font-size:0.78rem; color:var(--c-stone-600); line-height:1.5;">
+                  <strong>⚖️ আইনি সতর্কতা ও সীমাবদ্ধতা:</strong> রাষ্ট্রীয় অধিগ্রহণ ও প্রজাস্বত্ব আইন ১৯৫০ (SATA 1950) এবং রেজিস্ট্রেশন আইন ১৯০৮ অনুযায়ী এটি প্রাথমিক ঝুঁকি নিরূপণ ব্যবস্থা। এটি আদালত বা সহকারী কমিশনার (ভূমি) এর চুড়ান্ত রায় হিসেবে গণ্য নয়।
+                </div>
               </div>
-
             </div>
           </div>
 
@@ -679,22 +903,51 @@
                WORKSPACE 3: OFFICER TRIAGE & FRAUD (P3)
                ========================================== -->
           <div id="page-officer" class="workspace-page">
-            <div class="page-header-row">
-              <div class="page-title-block">
-                <h3>সহকারী কমিশনার (ভূমি) ট্রায়াজ কিউ ও জালিয়াতি তদন্ত</h3>
-                <p>শনাক্তকৃত দ্বৈত বিক্রয় (DS-01), ক্ষেত্রফল অমিল ও বিরোধপূর্ণ হস্তান্তরের তদন্ত ও আদেশ প্রদান।</p>
+            <!-- Dedicated Fraud Hero Banner -->
+            <div class="fraud-hero-banner">
+              <div>
+                <div class="pill-tag" style="background:rgba(255,255,255,0.2); color:#fff; font-size:0.75rem; margin-bottom:0.4rem; border:none;">
+                  প্রতারণা ও দ্বৈত বিক্রয় ট্রায়াজ (P3)
+                </div>
+                <h3>সন্দেহজনক জমি লেনদেন শনাক্ত করুন</h3>
+                <p>একই বিক্রেতা কর্তৃক একাধিক হস্তান্তর, মধ্যবর্তী বায়া দলিলের ঘাটতি এবং খতিয়ান হিস্যার অমিল নিরীক্ষা।</p>
               </div>
-              <div style="display:flex; gap:0.5rem;">
-                <select id="app-officer-filter" class="calm-input" style="padding:0.4rem 0.8rem; font-size:0.82rem;">
-                  <option value="">সকল অনিষ্পন্ন কেস</option>
-                  <option value="CRITICAL">অত্যধিক ঝুঁকি (Critical - DS-01)</option>
-                  <option value="HIGH">উচ্চ ঝুঁকি (High - Area/Mutation)</option>
-                </select>
+              <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+                <button class="btn btn-secondary-stone btn-sm" onclick="switchAppPage('audit')">
+                  📋 অডিট ট্রেইল
+                </button>
+              </div>
+            </div>
+
+            <!-- AREA A: Risk Overview (Real Backend Data) -->
+            <div class="fraud-overview-grid">
+              <div class="fraud-stat-card danger" onclick="filterOfficerQueueBySeverity('CRITICAL')">
+                <div style="font-size:0.8rem; color:var(--c-stone-600); font-weight:600;">উচ্চ ঝুঁকির কেস (Critical)</div>
+                <div class="fraud-stat-val" style="color:#ef4444;" id="fraud-stat-high-risk">২,২৫০</div>
+                <div style="font-size:0.75rem; color:var(--c-stone-500);">দ্বৈত বিক্রয় ও ওভারল্যাপিং অ্যালার্ট</div>
+              </div>
+
+              <div class="fraud-stat-card warning" onclick="filterOfficerQueueByStatus('PENDING_REVIEW')">
+                <div style="font-size:0.8rem; color:var(--c-stone-600); font-weight:600;">পর্যালোচনার অপেক্ষায় (Pending)</div>
+                <div class="fraud-stat-val" style="color:#f59e0b;" id="fraud-stat-awaiting-review">৪,৭৪৬</div>
+                <div style="font-size:0.75rem; color:var(--c-stone-500);">রাজস্ব ট্রায়াজে অপেক্ষমাণ কেস</div>
+              </div>
+
+              <div class="fraud-stat-card info" onclick="filterOfficerQueueByFinding('DS-01')">
+                <div style="font-size:0.8rem; color:var(--c-stone-600); font-weight:600;">শনাক্ত ডেমো জালিয়াতি (DS-01)</div>
+                <div class="fraud-stat-val" style="color:#3b82f6;" id="fraud-stat-confirmed-scenarios">৫০০</div>
+                <div style="font-size:0.75rem; color:var(--c-stone-500);">পূর্ববর্তী বিক্রয় গোপনপূর্বক হস্তান্তর</div>
+              </div>
+
+              <div class="fraud-stat-card success" onclick="filterOfficerQueueByStatus('RESOLVED_CLEARED')">
+                <div style="font-size:0.8rem; color:var(--c-stone-600); font-weight:600;">নিষ্পত্তি / ক্লিয়ারড কেস</div>
+                <div class="fraud-stat-val" style="color:#10b981;" id="fraud-stat-cleared-cases">১৫,০০৪</div>
+                <div style="font-size:0.75rem; color:var(--c-stone-500);">যাচাই সাপেক্ষে ছাড়পত্র প্রাপ্ত</div>
               </div>
             </div>
 
             <!-- Permission Lock Guard for Citizen -->
-            <div id="app-officer-lock-banner" style="display:none; text-align:center; padding:3rem; background:#ffffff; border-radius:var(--radius-lg); border:1px dashed var(--c-stone-300);">
+            <div id="app-officer-lock-banner" style="display:none; text-align:center; padding:3rem; background:#ffffff; border-radius:var(--radius-lg); border:1px dashed var(--c-stone-300); margin-bottom:1.5rem;">
               <div style="font-size:2.5rem; margin-bottom:0.5rem;">🔒</div>
               <h4>অফিসার অ্যাকাউন্টের প্রবেশাধিকার প্রয়োজন</h4>
               <p style="font-size:0.85rem; color:var(--c-stone-500); max-width:480px; margin:0.5rem auto 1.25rem;">
@@ -705,21 +958,53 @@
               </button>
             </div>
 
-            <!-- Triage Queue Table -->
-            <div id="app-officer-table-box" class="table-responsive-box">
-              <div style="padding:0.75rem 1.25rem; background:var(--c-stone-100); border-bottom:1px solid var(--c-stone-200); display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-size:0.85rem; font-weight:600;">অনিষ্পন্ন কেস সংখ্যা: <strong id="app-officer-count" class="num">500</strong> টি</span>
-                <span style="font-size:0.78rem; color:var(--c-stone-500);">কেস তদন্ত বোতামে চাপুন</span>
+            <!-- AREA B: Fraud Case Queue -->
+            <div id="app-officer-table-box" class="table-responsive-box" style="margin-bottom:1.5rem;">
+              <div style="padding:0.85rem 1.25rem; background:var(--c-stone-100); border-bottom:1px solid var(--c-stone-200); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem;">
+                <div>
+                  <span style="font-size:0.9rem; font-weight:700; color:var(--c-forest-950);">
+                    তদন্ত কিউ তালিকা — <strong id="app-officer-count" class="num">500</strong> টি কেস
+                  </span>
+                  <span style="font-size:0.75rem; color:var(--c-stone-500); margin-left:0.5rem;">(সন্দেহজনক হিসেবে চিহ্নিত)</span>
+                </div>
+                
+                <!-- Queue Multi-Filter Controls -->
+                <div style="display:flex; gap:0.5rem; flex-wrap:wrap; align-items:center;">
+                  <input type="text" id="officer-queue-search" class="calm-input" placeholder="কেস বা পার্সেল আইডি..." style="width:160px; padding:0.35rem 0.65rem; font-size:0.8rem;" oninput="onOfficerQueueFilterChanged()">
+                  
+                  <select id="officer-queue-finding-filter" class="calm-input" style="padding:0.35rem 0.65rem; font-size:0.8rem;" onchange="onOfficerQueueFilterChanged()">
+                    <option value="">সকল রুল কোড</option>
+                    <option value="DS-01">দ্বৈত বিক্রয় (DS-01)</option>
+                    <option value="DS-03">অমীমাংসিত বায়া (DS-03)</option>
+                    <option value="DS-05">ক্ষেত্রফল অমিল (DS-05)</option>
+                    <option value="P6-ENCROACH">খাস জমি বিরোধ (P6)</option>
+                  </select>
+
+                  <select id="app-officer-filter" class="calm-input" style="padding:0.35rem 0.65rem; font-size:0.8rem;" onchange="onOfficerQueueFilterChanged()">
+                    <option value="">সকল তীব্রতা</option>
+                    <option value="CRITICAL">অত্যধিক ঝুঁকি (Critical)</option>
+                    <option value="HIGH">উচ্চ ঝুঁকি (High)</option>
+                    <option value="MEDIUM">মাঝারি ঝুঁকি (Medium)</option>
+                  </select>
+
+                  <select id="officer-queue-status-filter" class="calm-input" style="padding:0.35rem 0.65rem; font-size:0.8rem;" onchange="onOfficerQueueFilterChanged()">
+                    <option value="">সকল স্থিতি</option>
+                    <option value="PENDING_REVIEW">পর্যালোচনার অপেক্ষায়</option>
+                    <option value="UNDER_INVESTIGATION">তদন্তাধীন</option>
+                    <option value="RESOLVED_CLEARED">নিষ্পত্তি / ক্লিয়ারড</option>
+                  </select>
+                </div>
               </div>
+
               <table class="calm-table">
                 <thead>
                   <tr>
                     <th>কেস আইডি</th>
                     <th>পার্সেল আইডি</th>
                     <th>মৌজা ও দাগ নং</th>
-                    <th>অসঙ্গতি কোড</th>
+                    <th>শনাক্ত রুল</th>
                     <th>ঝুঁকি স্কোর</th>
-                    <th>তদন্ত স্থিতি</th>
+                    <th>পর্যালোচনা স্থিতি</th>
                     <th>অ্যাকশন</th>
                   </tr>
                 </thead>
@@ -727,6 +1012,109 @@
                   <!-- Injected via JavaScript -->
                 </tbody>
               </table>
+            </div>
+
+            <!-- AREA C: Case Investigation Detail Modal / Panel -->
+            <div id="officer-case-detail-panel" class="calm-card" style="display:none; padding:1.5rem; margin-top:1.5rem; border:2px solid var(--c-forest-700);">
+              <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1rem; border-bottom:1px solid var(--c-stone-200); padding-bottom:1rem;">
+                <div>
+                  <div style="display:flex; align-items:center; gap:0.5rem;">
+                    <span class="pill-tag pill-forest" id="case-detail-id-badge">CASE-000001</span>
+                    <span class="pill-tag" id="case-detail-severity-badge" style="background:#fee2e2; color:#991b1b; font-weight:700;">CRITICAL</span>
+                    <span class="pill-tag" style="background:#fef3c7; color:#92400e; font-size:0.7rem; font-weight:700;">সন্দেহজনক রেকর্ড (SUSPECTED)</span>
+                  </div>
+                  <h3 id="case-detail-title" style="font-size:1.25rem; font-weight:800; color:var(--c-forest-950); margin:0.4rem 0 0.2rem;">
+                    দ্বৈত বিক্রয় তদন্ত — পার্সেল BD-PAR-000101
+                  </h3>
+                  <div id="case-detail-subtitle" style="font-size:0.82rem; color:var(--c-stone-500);">
+                    মৌজা: আমিনবাজার | দাগ নং: ১০১ | সাভার, ঢাকা
+                  </div>
+                </div>
+
+                <button class="btn btn-secondary-stone btn-sm" onclick="closeOfficerCaseDetail()">
+                  ✕ প্যানেল বন্ধ করুন
+                </button>
+              </div>
+
+              <!-- Status Progression Indicator -->
+              <div class="case-progression-bar" id="case-detail-progression">
+                <span style="font-weight:700; color:var(--c-stone-700); margin-right:0.5rem;">তদন্ত অগ্রগতি:</span>
+                <span class="case-prog-step active" id="prog-step-1">১. নতুন অ্যালার্ট</span>
+                <span>➔</span>
+                <span class="case-prog-step" id="prog-step-2">২. রাজস্ব পর্যালোচনায়</span>
+                <span>➔</span>
+                <span class="case-prog-step" id="prog-step-3">৩. সিদ্ধান্ত নথিভুক্ত</span>
+              </div>
+
+              <!-- Investigation Grid Layout -->
+              <div class="fraud-investigation-layout">
+                <!-- Left Column: Rule & Deed Comparison -->
+                <div>
+                  <!-- Statutory Rule Specification Card -->
+                  <div style="background:var(--c-stone-50); border:1px solid var(--c-stone-200); border-radius:var(--radius-md); padding:1rem; margin-bottom:1rem;">
+                    <div style="font-size:0.82rem; font-weight:700; color:var(--c-forest-900); margin-bottom:0.4rem;">
+                      ⚖️ প্রযোজ্য আইন ও স্বয়ংক্রিয় অ্যালার্ট শর্তাবলী:
+                    </div>
+                    <div id="case-detail-rule-desc" style="font-size:0.8rem; color:var(--c-stone-700); line-height:1.5;">
+                      লোড হচ্ছে...
+                    </div>
+                  </div>
+
+                  <!-- Conflicting Deed Comparison -->
+                  <div style="border:1px solid var(--c-stone-200); border-radius:var(--radius-md); overflow:hidden; margin-bottom:1rem;">
+                    <div style="padding:0.6rem 1rem; background:var(--c-stone-100); font-size:0.85rem; font-weight:700; color:var(--c-forest-950);">
+                      📑 সংশ্লিষ্ট দলিলের তুলনামূলক নিরীক্ষা:
+                    </div>
+                    <div id="case-detail-deeds-container" style="padding:0.75rem 1rem; font-size:0.8rem;">
+                      লোড হচ্ছে...
+                    </div>
+                  </div>
+
+                  <!-- Review History & Audit Notes -->
+                  <div>
+                    <div style="font-size:0.85rem; font-weight:700; color:var(--c-forest-950); margin-bottom:0.4rem;">
+                      📜 পূর্ববর্তী তদন্ত ও পর্যালোচনা নোট:
+                    </div>
+                    <div id="case-detail-logs-container" style="background:#ffffff; border:1px solid var(--c-stone-200); border-radius:var(--radius-md); padding:0.75rem 1rem; max-height:160px; overflow-y:auto; font-size:0.78rem;">
+                      লোড হচ্ছে...
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Right Column: Interactive Map & Officer Decision Form -->
+                <div>
+                  <!-- Mini Spatial Cadastral Map -->
+                  <div style="margin-bottom:1rem;">
+                    <div style="font-size:0.85rem; font-weight:700; color:var(--c-forest-950); margin-bottom:0.4rem;">
+                      🗺️ পার্সেল জিআইএস বাউন্ডারি ও আশপাশের দাগ:
+                    </div>
+                    <div id="case-investigation-map" style="height:220px; border-radius:var(--radius-md); border:1px solid var(--c-stone-200); background:#e2e8f0;"></div>
+                  </div>
+
+                  <!-- Officer Decision Action Box -->
+                  <div id="officer-decision-action-box" style="background:var(--c-forest-50); border:1px solid var(--c-forest-600); border-radius:var(--radius-md); padding:1rem;">
+                    <div style="font-size:0.88rem; font-weight:800; color:var(--c-forest-950); margin-bottom:0.5rem;">
+                      ✍️ সহকারী কমিশনার (ভূমি) তদন্ত সিদ্ধান্ত ও আদেশ
+                    </div>
+                    <div class="calm-form-field" style="margin-bottom:0.75rem;">
+                      <label for="officer-decision-notes" style="font-size:0.78rem;">তদন্ত মন্তব্য / বালাম তলব নির্দেশিকা:</label>
+                      <textarea id="officer-decision-notes" class="calm-input" rows="3" placeholder="আদালতের মামলার নথি, সরেজমিন কানুনগো তদন্ত প্রতিবেদন বা বালাম তলবের বিস্তারিত লিখুন..." style="font-size:0.8rem;"></textarea>
+                    </div>
+
+                    <div style="display:flex; flex-wrap:wrap; gap:0.5rem;">
+                      <button class="btn btn-sm" style="background:#15803d; color:#ffffff; font-weight:700;" onclick="submitOfficerCaseDecision('APPROVED_LEGITIMATE')">
+                        ✓ রেকর্ড সঠিক (অনুমোদন)
+                      </button>
+                      <button class="btn btn-sm" style="background:#dc2626; color:#ffffff; font-weight:700;" onclick="submitOfficerCaseDecision('REJECTED_FRAUD_FLAG')">
+                        🚨 দ্বৈত বিক্রয় (স্থগিতাদেশ)
+                      </button>
+                      <button class="btn btn-sm" style="background:#d97706; color:#ffffff; font-weight:700;" onclick="submitOfficerCaseDecision('REQUESTED_PHYSICAL_INSPECTION')">
+                        🔍 সরেজমিন তদন্ত তলব
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -1780,42 +2168,90 @@
           <div id="page-buyer-ownership-summary" class="workspace-page">
             <div class="page-header-row">
               <div class="page-title-block">
-                <div class="pill-tag" style="background:#ccfbf1; color:#0f766e; border:1px solid #99f6e4; font-size:0.75rem; margin-bottom:0.4rem;">বায়া দলিল ধারাবাহিকতা</div>
+                <div class="pill-tag" style="background:#ccfbf1; color:#0f766e; border:1px solid #99f6e4; font-size:0.75rem; margin-bottom:0.4rem;">
+                  বায়া দলিল ধারাবাহিকতা ও মালিকানা শৃঙ্খল (Chain of Title)
+                </div>
                 <h3>মালিকানা ইতিহাস ও বায়া দলিল হস্তান্তর শৃঙ্খল</h3>
-                <p>সিএস, এসএ, আরএস থেকে বর্তমান বিএস রেকর্ড পর্যন্ত ধারাবাহিক সাফ-কবালা ও নামজারি যাচাই।</p>
+                <p>সিএস, এসএ, আরএস থেকে বর্তমান বিএস রেকর্ড পর্যন্ত ধারাবাহিক সাফ-কবালা, ওয়ারিশান ও নামজারি রূপান্তর।</p>
               </div>
-              <button class="btn btn-secondary-stone btn-sm" onclick="switchAppPage('citizen')">
-                নতুন প্লট খুঁজুন
-              </button>
+              <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+                <button class="btn btn-secondary-stone btn-sm" onclick="switchAppPage('citizen')">
+                  🔍 নতুন প্লট যাচাই
+                </button>
+                <button class="btn btn-secondary-stone btn-sm" onclick="window.print()">
+                  🖨️ টাইমলাইন প্রিন্ট
+                </button>
+              </div>
             </div>
 
+            <!-- Parcel Switcher & Quick Demo Bar -->
+            <div class="calm-card" style="padding:1rem 1.25rem; margin-bottom:1.25rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+              <div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
+                <span style="font-size:0.85rem; font-weight:700; color:var(--c-forest-950);">নির্বাচিত পার্সেল:</span>
+                <span class="pill-tag pill-forest" id="chain-active-parcel-id" style="font-family:monospace; font-weight:700;">BD-PAR-000101</span>
+                <span id="chain-active-parcel-meta" style="font-size:0.85rem; color:var(--c-stone-600);">
+                  সাভার, আমিনবাজার | দাগ নং ১০১ | খতিয়ান নং ৫০১ | ৪৪.৭৬ শতক
+                </span>
+              </div>
+
+              <!-- Quick Demo Parcel Switcher -->
+              <div style="display:flex; gap:0.4rem; align-items:center; flex-wrap:wrap;">
+                <span style="font-size:0.75rem; color:var(--c-stone-500);">নমুনা পার্সেল পরিবর্তন:</span>
+                <button class="btn btn-secondary-stone btn-sm" style="font-size:0.75rem; padding:0.25rem 0.6rem;" onclick="loadChainOfTitleForParcel('BD-PAR-000101')">
+                  🚨 দাগ ১০১ (দ্বৈত বিক্রয়)
+                </button>
+                <button class="btn btn-secondary-stone btn-sm" style="font-size:0.75rem; padding:0.25rem 0.6rem;" onclick="loadChainOfTitleForParcel('BD-PAR-001001')">
+                  🌿 দাগ ১০০১ (নির্দোষ)
+                </button>
+                <button class="btn btn-secondary-stone btn-sm" style="font-size:0.75rem; padding:0.25rem 0.6rem;" onclick="loadChainOfTitleForParcel('BD-PAR-000205')">
+                  🏛️ দাগ ২০৫ (খাস জমি)
+                </button>
+              </div>
+            </div>
+
+            <!-- Area Changes & Ownership Transition Visual Summary -->
+            <div class="area-flow-bar" id="chain-area-transition-summary">
+              <span style="font-weight:700; color:var(--c-forest-950);">📐 জমির পরিমাণ ও হস্তান্তর প্রবাহ:</span>
+              <span id="chain-area-original">আদি রেকর্ড: <strong>৪৪.৭৬ শতক</strong></span>
+              <span>➔</span>
+              <span id="chain-area-transferred">সাফ-কবালা হস্তান্তর: <strong>২০.৫১ শতক</strong></span>
+              <span>➔</span>
+              <span id="chain-area-retained" style="color:var(--c-forest-700);">বর্তমান রেকর্ডীয় হিস্যা: <strong>২৪.২৫ শতক</strong></span>
+            </div>
+
+            <!-- Vertical Sequence Timeline -->
             <div class="calm-card" style="padding:1.5rem; margin-bottom:1.5rem;">
-              <div style="font-size:0.95rem; font-weight:700; color:var(--c-forest-950); margin-bottom:1rem;">
-                দাগ ১০১ (সাভার, আমিনবাজার) — মালিকানা প্রবাহ চিত্র:
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+                <h4 style="font-size:1.05rem; font-weight:800; color:var(--c-forest-950); margin:0;">
+                  ⏳ ধারাবাহিক মালিকানা ও বায়া দলিল রূপান্তর টাইমলাইন
+                </h4>
+                <span class="pill-tag" style="background:var(--c-stone-100); color:var(--c-stone-700); font-size:0.75rem;" id="chain-events-count-badge">
+                  মোট ইভেন্ট: ৬ টি
+                </span>
               </div>
-              <div style="display:flex; flex-direction:column; gap:1rem;">
-                <div style="display:flex; gap:1rem; align-items:flex-start;">
-                  <div style="background:var(--c-forest-900); color:#fff; width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; flex-shrink:0;">১</div>
-                  <div style="flex:1; background:var(--c-stone-50); border:1px solid var(--c-stone-200); padding:0.85rem; border-radius:var(--radius-md);">
-                    <div style="font-weight:700; color:var(--c-forest-950);">সিএস রেকর্ড (১৯৪০): মালিক মৌলভী করিম বখশ</div>
-                    <div style="font-size:0.82rem; color:var(--c-stone-600); margin-top:0.25rem;">সিএস খতিয়ান নং ৪২, দাগ নং ১০১, মোট জমি ৫০ শতক।</div>
-                  </div>
-                </div>
-                <div style="display:flex; gap:1rem; align-items:flex-start;">
-                  <div style="background:var(--c-forest-900); color:#fff; width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; flex-shrink:0;">২</div>
-                  <div style="flex:1; background:var(--c-stone-50); border:1px solid var(--c-stone-200); padding:0.85rem; border-radius:var(--radius-md);">
-                    <div style="font-weight:700; color:var(--c-forest-950);">এসএ রেকর্ড (১৯৬২): ওয়ারিশ সূত্রে রহিম বখশ</div>
-                    <div style="font-size:0.82rem; color:var(--c-stone-600); margin-top:0.25rem;">এসএ খতিয়ান নং ১২৮, বায়া দলিল শৃঙ্খল শতভাগ নিরবচ্ছিন্ন।</div>
-                  </div>
-                </div>
-                <div style="display:flex; gap:1rem; align-items:flex-start;">
-                  <div style="background:var(--c-forest-900); color:#fff; width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; flex-shrink:0;">৩</div>
-                  <div style="flex:1; background:var(--c-stone-50); border:1px solid var(--c-stone-200); padding:0.85rem; border-radius:var(--radius-md);">
-                    <div style="font-weight:700; color:var(--c-forest-950);">আরএস সাফ-কবালা বিক্রয় (২০১৬): দলিল নং ৪২১৫/২০১৬</div>
-                    <div style="font-size:0.82rem; color:var(--c-stone-600); margin-top:0.25rem;">বিক্রেতা: রহিম বখশ | ক্রেতা: মো: রফিকুল ইসলাম (২০.৫১ শতক)। সাব-রেজিস্ট্রি ভলিউমে নিবন্ধিত।</div>
-                  </div>
+
+              <!-- Vertical Timeline Wrapper -->
+              <div class="chain-timeline-wrapper">
+                <div class="chain-timeline-line"></div>
+                <div id="chain-timeline-events-container">
+                  <!-- Dynamically rendered via renderChainOfTitleTimeline() -->
                 </div>
               </div>
+            </div>
+
+            <!-- Expandable Document Evidence & Sub-Registry Citations -->
+            <div class="calm-card" style="padding:1.25rem 1.5rem; margin-bottom:1.5rem;">
+              <h4 style="font-size:0.95rem; font-weight:800; color:var(--c-forest-950); margin:0 0 0.75rem;">
+                📑 বালাম বহি ও সরকারি রেকর্ড রুমের প্রামাণিক উদ্ধৃতি (Document References)
+              </h4>
+              <div id="chain-document-references-container" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:0.75rem;">
+                <!-- Populated via JavaScript -->
+              </div>
+            </div>
+
+            <!-- Statutory Legal Disclaimer -->
+            <div style="background:var(--c-stone-100); border-left:4px solid var(--c-forest-700); border-radius:var(--radius-sm); padding:0.85rem 1.25rem; font-size:0.8rem; color:var(--c-stone-700); line-height:1.5;">
+              <strong>⚖️ আইনি স্পষ্টীকরণ ও সীমাবদ্ধতা:</strong> এই টাইমলাইনটি সরকারি বালাম বহি ও দলিলের ঐতিহাসিক রেকর্ডভিত্তিক চিত্র; এটি কোনো আইনি মালিকানার চূড়ান্ত ডিক্রি বা আদালতীয় ঘোষণা নয়। কোনো প্রকার ক্রয় বা বিক্রয়ের পূর্বে বিজ্ঞ আইনজীবীর মাধ্যমে সংশ্লিষ্ট সাব-রেজিস্ট্রি কার্যালয়ের মূল বালাম বহি তল্লাশি দেওয়া বাঞ্ছনীয়।
             </div>
           </div>
 

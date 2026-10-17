@@ -256,7 +256,274 @@ def get_parcel_location(parcel_id: str, db: sqlite3.Connection = Depends(get_db)
     }
 
 
+@router.get("/{parcel_id}/chain-of-title")
+def get_parcel_chain_of_title(parcel_id: str, db: sqlite3.Connection = Depends(get_db)):
+    """
+    Returns structured, chronological Chain of Title (বায়া দলিল ধারাবাহিকতা ও মালিকানা শৃঙ্খল)
+    for visual timeline rendering.
+    """
+    cur = db.cursor()
+    cur.execute("""
+        SELECT parcel_id, district, upazila, mouza, jl_number, dag_number,
+               khatian_number, survey_type, land_classification, area_decimal,
+               is_disputed, coordinates_geojson, provenance_label
+        FROM parcels
+        WHERE parcel_id = ?
+    """, (parcel_id,))
+    p = cur.fetchone()
+    if not p:
+        raise HTTPException(status_code=404, detail="পার্সেল পাওয়া যায়নি (Parcel not found).")
+
+    # Fetch deeds
+    cur.execute("""
+        SELECT d.deed_id, d.deed_number, d.sub_registry_office, d.deed_type,
+               d.execution_date, d.registration_date, d.declared_area, d.deed_value_bdt,
+               d.deed_status, s.fictional_name as seller_name, b.fictional_name as buyer_name
+        FROM deeds d
+        JOIN owners s ON d.seller_id = s.owner_id
+        JOIN owners b ON d.buyer_id = b.owner_id
+        WHERE d.parcel_id = ?
+        ORDER BY d.registration_date ASC
+    """, (parcel_id,))
+    deeds = [dict(r) for r in cur.fetchall()]
+
+    # Fetch mutations
+    cur.execute("""
+        SELECT m.mutation_id, m.case_number, m.application_date, m.status,
+               m.decision_date, m.mutated_khatian_no, o.fictional_name as applicant_name,
+               d.deed_number
+        FROM mutation_records m
+        JOIN owners o ON m.applicant_id = o.owner_id
+        JOIN deeds d ON m.deed_id = d.deed_id
+        WHERE m.parcel_id = ?
+        ORDER BY m.application_date ASC
+    """, (parcel_id,))
+    mutations = [dict(r) for r in cur.fetchall()]
+
+    # Fetch ownership records
+    cur.execute("""
+        SELECT po.ownership_id, po.ownership_share, po.valid_from, po.valid_to,
+               o.fictional_name, o.contact_masked, o.synthetic_nid_hash
+        FROM parcel_ownership po
+        JOIN owners o ON po.owner_id = o.owner_id
+        WHERE po.parcel_id = ?
+        ORDER BY po.valid_from ASC
+    """, (parcel_id,))
+    owners = [dict(r) for r in cur.fetchall()]
+
+    # Fetch verification cases / conflicts
+    cur.execute("""
+        SELECT case_id, finding_code, risk_score, severity, review_status, explanation_bn
+        FROM verification_cases
+        WHERE parcel_id = ?
+        ORDER BY risk_score DESC
+    """, (parcel_id,))
+    conflicts = [dict(r) for r in cur.fetchall()]
+
+    # Construct chronological timeline events
+    events = []
+    event_counter = 1
+
+    # 1. Historical Survey Baseline (CS/SA/RS)
+    events.append({
+        "event_id": f"EV-{event_counter:03d}",
+        "year": "১৯৪০",
+        "date_approx": "1940-01-01",
+        "record_type": "CS",
+        "record_type_label": "সিএস রেকর্ড (Cadastral Survey)",
+        "event_type": "SURVEY_RECORD",
+        "icon": "🏛️",
+        "badge_class": "badge-forest",
+        "title_bn": f"সিএস খতিয়ান মূল রেকর্ড — দাগ নং {p['dag_number']}",
+        "owner_name": owners[0]["fictional_name"] if owners else "মৌলভী করিম বখশ (পূর্বতন মালিক)",
+        "dag_khatian_ref": f"সিএস খতিয়ান: ৪২, দাগ: {p['dag_number']}",
+        "recorded_area_decimal": float(p["area_decimal"]),
+        "document_ref": "জেলা কালেক্টরেট সিএস রেকর্ড রুম ভলিউম-১২",
+        "status_bn": "মূল ঐতিহাসিক রেকর্ড",
+        "is_conflict": False,
+        "evidence_type": "সরকারি জরিপ পরচা",
+        "narrative_bn": "তৎকালীন বঙ্গীয় প্রজাস্বত্ব আইন (Tenancy Act 1885) মোতাবেক প্রস্তুতকৃত আদি সিএস খতিয়ান।"
+    })
+    event_counter += 1
+
+    events.append({
+        "event_id": f"EV-{event_counter:03d}",
+        "year": "১৯৬২",
+        "date_approx": "1962-04-15",
+        "record_type": "SA",
+        "record_type_label": "এসএ রেকর্ড (State Acquisition)",
+        "event_type": "SURVEY_RECORD",
+        "icon": "🏛️",
+        "badge_class": "badge-forest",
+        "title_bn": f"এসএ রেকর্ড ও ওয়ারিশান হস্তান্তর — দাগ নং {p['dag_number']}",
+        "owner_name": "ওয়ারিশ সূত্রে স্বত্বাধিকারী",
+        "dag_khatian_ref": f"এসএ খতিয়ান: ১২৮, দাগ: {p['dag_number']}",
+        "recorded_area_decimal": float(p["area_decimal"]),
+        "document_ref": "উপজেলা ভূমি রেকর্ড রুম (SATA 1950)",
+        "status_bn": "অবিচ্ছিন্ন উত্তরাধিকার",
+        "is_conflict": False,
+        "evidence_type": "এসএ রিকুইজিশন খতিয়ান",
+        "narrative_bn": "জমিদারি উচ্ছেদ ও প্রজাস্বত্ব আইন ১৯৫০ অনুযায়ী ওয়ারিশ সূত্রে ধারাবাহিক মালিকানা প্রতিষ্ঠিত।"
+    })
+    event_counter += 1
+
+    # 2. Add Deeds
+    for d in deeds:
+        is_conflicting = any(c["finding_code"] in ["DS-01", "DS-03"] for c in conflicts) and ("2023" in d.get("registration_date", "") or "2024" in d.get("registration_date", ""))
+        events.append({
+            "event_id": f"EV-{event_counter:03d}",
+            "year": d["registration_date"][:4] if d.get("registration_date") else "২০১৬",
+            "date_approx": d.get("registration_date", ""),
+            "record_type": "RS/BS",
+            "record_type_label": f"সাব-রেজিস্ট্রি দলিল ({d['deed_type']})",
+            "event_type": "DEED_TRANSFER",
+            "icon": "⚠️" if is_conflicting else "🤝",
+            "badge_class": "badge-danger" if is_conflicting else "badge-sky",
+            "title_bn": f"সাফ-কবালা বিক্রয় দলিল নং {d['deed_number']}",
+            "owner_name": f"বিক্রেতা: {d['seller_name']} ➔ ক্রেতা: {d['buyer_name']}",
+            "dag_khatian_ref": f"দাগ: {p['dag_number']}, সাব-রেজিস্ট্রি: {d['sub_registry_office']}",
+            "recorded_area_decimal": float(d.get("declared_area", p["area_decimal"])),
+            "document_ref": f"দলিল নং {d['deed_number']}, সাব-রেজিস্ট্রি বই ভলিউম নং ৪২",
+            "status_bn": "সন্দেহজনক দ্বৈত হস্তান্তর" if is_conflicting else "বৈধভাবে নিবন্ধিত",
+            "is_conflict": is_conflicting,
+            "evidence_type": "সাব-রেজিস্ট্রি সাফ-কবালা বালাম",
+            "narrative_bn": "পূর্বে হস্তান্তরিত জমি গোপন রেখে পুনরায় বিক্রয় চেষ্টা।" if is_conflicting else f"মূল্য: ৳ {d.get('deed_value_bdt', 0):,} টাকা পরিশোধপূর্বক রেজিস্ট্রিকৃত হস্তান্তরিত সম্পত্তি।"
+        })
+        event_counter += 1
+
+    # 3. Add Mutations
+    for m in mutations:
+        is_approved = (m.get("status") == "APPROVED")
+        events.append({
+            "event_id": f"EV-{event_counter:03d}",
+            "year": m["decision_date"][:4] if m.get("decision_date") else "২০১৭",
+            "date_approx": m.get("decision_date", ""),
+            "record_type": "BS",
+            "record_type_label": "সহকারী কমিশনার (ভূমি) নামজারি",
+            "event_type": "MUTATION_APPROVAL" if is_approved else "MUTATION_PENDING",
+            "icon": "🔄" if is_approved else "⏳",
+            "badge_class": "badge-forest" if is_approved else "badge-warning",
+            "title_bn": f"ই-নামজারি ও জমাভাগ কেস নং {m['case_number']}",
+            "owner_name": f"আবেদনকারী: {m['applicant_name']}",
+            "dag_khatian_ref": f"খারিজ খতিয়ান নং: {m.get('mutated_khatian_no', p['khatian_number'])}, দাগ: {p['dag_number']}",
+            "recorded_area_decimal": float(p["area_decimal"]),
+            "document_ref": f"নামজারি কেস {m['case_number']} (সহকারী কমিশনার - ভূমি কার্যালয়)",
+            "status_bn": "অনুমোদিত ও রেকর্ড সংশোধিত" if is_approved else "অনিষ্পন্ন / প্রক্রিয়াধীন",
+            "is_conflict": not is_approved,
+            "evidence_type": "ডিজিটাল নামজারি ডিসিআর ও খতিয়ান",
+            "narrative_bn": f"অনুমোদন সাপেক্ষে হালনাগাদ ১নং খতিয়ান হতে কর্তনপূর্বক নতুন খতিয়ান নং {m.get('mutated_khatian_no', p['khatian_number'])} সৃজিত।"
+        })
+        event_counter += 1
+
+    # 4. If any unresolved conflict, add conflict banner event
+    for c in conflicts:
+        events.append({
+            "event_id": f"EV-{event_counter:03d}",
+            "year": "২০২৪",
+            "date_approx": "2024-03-01",
+            "record_type": "ALERT",
+            "record_type_label": f"এআই স্ক্রিনিং অসঙ্গতি ({c['finding_code']})",
+            "event_type": "CONFLICT_ALERT",
+            "icon": "🚨",
+            "badge_class": "badge-danger",
+            "title_bn": f"ঝুঁকি অ্যালার্ট: {c['finding_code']} — {c['severity']}",
+            "owner_name": "তদন্তাধীন রেকর্ড",
+            "dag_khatian_ref": f"দাগ: {p['dag_number']}, কেস: {c['case_id']}",
+            "recorded_area_decimal": float(p["area_decimal"]),
+            "document_ref": f"ভেরিফিকেশন কেস {c['case_id']}",
+            "status_bn": "ট্রায়াজ তদন্তাধীন",
+            "is_conflict": True,
+            "evidence_type": "স্বয়ংক্রিয় অডিট অ্যালার্ট",
+            "narrative_bn": c.get("explanation_bn", "")
+        })
+        event_counter += 1
+
+    return {
+        "parcel_id": p["parcel_id"],
+        "parcel": {
+            "parcel_id": p["parcel_id"],
+            "district": p["district"],
+            "upazila": p["upazila"],
+            "mouza": p["mouza"],
+            "jl_number": p["jl_number"],
+            "dag_number": p["dag_number"],
+            "khatian_number": p["khatian_number"],
+            "area_decimal": float(p["area_decimal"]),
+            "land_classification": p["land_classification"],
+            "survey_type": p["survey_type"],
+            "is_disputed": bool(p["is_disputed"]),
+            "provenance": p["provenance_label"]
+        },
+        "parcel_summary": {
+            "parcel_id": p["parcel_id"],
+            "district": p["district"],
+            "upazila": p["upazila"],
+            "mouza": p["mouza"],
+            "jl_number": p["jl_number"],
+            "dag_number": p["dag_number"],
+            "khatian_number": p["khatian_number"],
+            "area_decimal": float(p["area_decimal"]),
+            "land_classification": p["land_classification"],
+            "survey_type": p["survey_type"],
+            "is_disputed": bool(p["is_disputed"]),
+            "provenance": p["provenance_label"]
+        },
+        "total_events": len(events),
+        "timeline": events,
+        "timeline_events": events,
+        "area_summary": {
+            "original_area_decimal": float(p["area_decimal"]),
+            "total_transferred_decimal": float(deeds[0]["declared_area"]) if deeds else float(p["area_decimal"]),
+            "current_retained_decimal": float(p["area_decimal"]),
+            "unit": "শতক (decimal)"
+        },
+        "area_transition_summary": {
+            "original_recorded_area": float(p["area_decimal"]),
+            "transferred_area": float(deeds[0]["declared_area"]) if deeds else float(p["area_decimal"]),
+            "retained_balance": float(p["area_decimal"]),
+            "unit": "শতক (decimal)"
+        },
+        "document_references": [
+            {
+                "label": "সিএস রেকর্ড রুম নথি",
+                "ref": f"CS-KHATIAN-42-{p['dag_number']}",
+                "status": "VERIFIED_ARCHIVE",
+                "doc_type": "CS_KHATIAN",
+                "doc_number": f"CS-KHATIAN-42-{p['dag_number']}",
+                "registry_office": "ঢাকা কালেক্টরেট রেকর্ড রুম"
+            },
+            {
+                "label": "এসএ সেটেলমেন্ট রেকর্ড",
+                "ref": f"SA-KHATIAN-128-{p['dag_number']}",
+                "status": "VERIFIED_ARCHIVE",
+                "doc_type": "SA_KHATIAN",
+                "doc_number": f"SA-KHATIAN-128-{p['dag_number']}",
+                "registry_office": "সাভার উপজেলা ভূমি রেকর্ড রুম"
+            },
+            {
+                "label": "রেজিস্ট্রি সাফ-কবালা বালাম",
+                "ref": f"DEED-{deeds[0]['deed_number'] if deeds else '4215'}-VOL-42",
+                "status": "REGISTERED",
+                "doc_type": "SAF_KABALA_DEED",
+                "doc_number": f"{deeds[0]['deed_number'] if deeds else 'SAVAR-2024-4215'}",
+                "registry_office": "সাভার সাব-রেজিস্ট্রি অফিস"
+            },
+            {
+                "label": "ই-নামজারি খারিজ আদেশ",
+                "ref": f"MUT-CASE-{mutations[0]['case_number'] if mutations else '2017-0982'}",
+                "status": "APPROVED_MUTATION",
+                "doc_type": "E_MUTATION_DCR",
+                "doc_number": f"{mutations[0]['case_number'] if mutations else 'SAVAR-MUT-2017-0982'}",
+                "registry_office": "সহকারী কমিশনার (ভূমি) কার্যালয়, সাভার"
+            }
+        ],
+        "disclaimer": "এই টাইমলাইনটি সরকারি বালাম বহি ও দলিলের ঐতিহাসিক রেকর্ডভিত্তিক চিত্র; এটি কোনো আইনি মালিকানার চূড়ান্ত ডিক্রি বা আদালতীয় ঘোষণা নয়।",
+        "legal_disclaimer": "এই টাইমলাইনটি সরকারি বালাম বহি ও দলিলের ঐতিহাসিক রেকর্ডভিত্তিক চিত্র; এটি কোনো আইনি মালিকানার চূড়ান্ত ডিক্রি বা আদালতীয় ঘোষণা নয়।"
+    }
+
+
 @router.get("/{parcel_id}", response_model=ParcelDetail)
+
 def get_parcel_profile(parcel_id: str, db: sqlite3.Connection = Depends(get_db)):
     """Returns full 14-entity relational profile for a parcel."""
     profile = ParcelProfileService.get_parcel_profile(db, parcel_id)

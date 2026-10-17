@@ -26,6 +26,7 @@ from backend.app.api import (
     buyer,
     geography,
     officials,
+    dashboard,
 )
 from backend.app.database import get_db, get_db_connection, init_auth_tables
 
@@ -75,6 +76,7 @@ app.include_router(citizen.router, prefix=API_PREFIX)
 app.include_router(buyer.router, prefix=API_PREFIX)
 app.include_router(geography.router, prefix=API_PREFIX)
 app.include_router(officials.router, prefix=API_PREFIX)
+app.include_router(dashboard.router, prefix=API_PREFIX)
 
 
 @app.get("/api/v1/health", tags=["System"])
