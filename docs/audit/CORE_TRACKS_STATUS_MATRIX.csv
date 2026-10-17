@@ -1,0 +1,39 @@
+requirement_id,track,requirement_description,evidence_observed,status,next_action
+P1-REQ-01,P1,PNG/JPEG/TIFF/PDF Upload and Validation,"Allowed extensions checked, 15MB ceiling enforced, empty file returns HTTP 400",IMPLEMENTED AND VERIFIED,None needed
+P1-REQ-02,P1,Multi-page PDF Rasterization,"PyMuPDF renders PDF pages to 250 DPI RGB buffers, tested on sample_khatian.pdf",IMPLEMENTED AND VERIFIED,None needed
+P1-REQ-03,P1,Image Preprocessing (Contrast/Binarize/Rotate),"enhance_contrast (autocontrast+1.8x), binarize (threshold 140), and rotate (90/180/270)",IMPLEMENTED AND VERIFIED,None needed
+P1-REQ-04,P1,Real Bengali OCR Execution (ben+eng),"Tesseract 5.5.2 executed on sample deed (1,231 chars, 84.1% confidence, real OCR noise)",IMPLEMENTED AND VERIFIED,None needed
+P1-REQ-05,P1,Confidence Calculation,"pytesseract.image_to_data word confidence calculated and averaged (HIGH/MEDIUM/LOW badge)",IMPLEMENTED AND VERIFIED,None needed
+P1-REQ-06,P1,Structured Legal Entity Extraction,"Regex extracts deed number (8452/2024), dags (512, 104), khatians (145, 328), mouza, area, parties",IMPLEMENTED AND VERIFIED,None needed
+P1-REQ-07,P1,Editable Textarea and Export,"#ocr-output-textarea allows live edits, copy-to-clipboard, text download, and cadastral cross-ref",IMPLEMENTED AND VERIFIED,None needed
+P1-REQ-08,P1,Annotated Ground-Truth Benchmark,"No pre-annotated Bangladesh deed corpus for formal WER/CER calculation",NOT IMPLEMENTED,Annotate 20 legacy deeds for future benchmark
+P2-REQ-01,P2,Binary SHA-256 Checksum Calculation,"Server computes hashlib.sha256(bytes).hexdigest() directly from uploaded multipart stream",IMPLEMENTED AND VERIFIED,None needed
+P2-REQ-02,P2,Registered Ledger Comparison,"Matched against documents table (51 entries) returning matched_document_id and parcel_id",IMPLEMENTED AND VERIFIED,None needed
+P2-REQ-03,P2,One-Byte Tamper Detection,"1-bit flip changes hash completely; API returns is_authentic=false and TAMPER_DETECTED",IMPLEMENTED AND VERIFIED,None needed
+P2-REQ-04,P2,Unregistered File Rejection,"Unregistered valid document returns is_authentic=false",IMPLEMENTED AND VERIFIED,None needed
+P2-REQ-05,P2,Integrity vs Legal Ownership Distinction,"UI card explicitly states cryptographic hash proves file byte integrity, not judicial title",IMPLEMENTED AND VERIFIED,None needed
+P3-REQ-01,P3,500 Seeded Double-Selling Scenarios (DS-01),"500 distinct scenarios in scenario_catalog.csv evaluated: 500/500 True Positives (100% Recall)",IMPLEMENTED AND VERIFIED,None needed
+P3-REQ-02,P3,Negative Control Clean Transfers (DS-02),"500 clean sequential conveyances evaluated: 500/500 True Negatives, 0 False Positives",IMPLEMENTED AND VERIFIED,None needed
+P3-REQ-03,P3,Detection Engine Performance Metrics,"Precision: 100.00%, Recall: 100.00%, F1 Score: 100.00%, False Positives: 0, False Negatives: 0",IMPLEMENTED AND VERIFIED,None needed
+P3-REQ-04,P3,AC Land Fraud Triage Queue,"GET /api/v1/officer/queue returns cases sorted by risk_score DESC with mouza/dag info",IMPLEMENTED AND VERIFIED,None needed
+P3-REQ-05,P3,Attributable Review Decisions,"POST /api/v1/officer/decision enforces mandatory reason, records officer user_id and timestamp",IMPLEMENTED AND VERIFIED,None needed
+P3-REQ-06,P3,SQLite Audit Log Persistence,"Actions inserted into review_logs (36+ entries) and case review_status updated in SQLite",IMPLEMENTED AND VERIFIED,None needed
+P4-REQ-01,P4,Citizen Mutation Submission & State Tracking,"POST /api/v1/citizen/applications creates record in citizen_applications with SUBMITTED status",IMPLEMENTED AND VERIFIED,None needed
+P4-REQ-02,P4,Automated Mutation Pre-Check,"MutationBridgeService.run_pre_check evaluates Khas, tax arrears, injunctions, competing deeds",IMPLEMENTED AND VERIFIED,None needed
+P4-REQ-03,P4,Officer Hearing & Summons Notification,"POST /api/v1/officer/hearing-schedule records hearing date and updates citizen notifications",IMPLEMENTED AND VERIFIED,None needed
+P4-REQ-04,P4,Mutation Status Pipeline & Mutated Khatian,"POST /api/v1/mutations/{id}/status transitions to APPROVED, updates transactions to MUTATED",IMPLEMENTED AND VERIFIED,None needed
+P4-REQ-05,P4,IDOR Access Control on Citizen Applications,"Citizen A requesting Citizen B application ID strictly rejected with HTTP 403 Forbidden",IMPLEMENTED AND VERIFIED,None needed
+P4-REQ-06,P4,Live Government Registry Integration,"Zero API integration with mutation.land.gov.bd; operates strictly in local SQLite simulation",NOT IMPLEMENTED,Add export adapter for future government API
+P5-REQ-01,P5,Multi-Attribute Cadastral Search,"Indexed search supports parcel_id, dag, khatian, mouza, deed_number, owner_name",IMPLEMENTED AND VERIFIED,None needed
+P5-REQ-02,P5,5-Point Buyer Safety Dossier,"Generates 5-point checklist (Chain, Double-Selling, LDTax, Injunction, Khas) with safety rating",IMPLEMENTED AND VERIFIED,None needed
+P5-REQ-03,P5,Buyer Review Request Submission,"POST /api/v1/buyer/review-requests allows buyer to flag suspicious parcels to AC Land",IMPLEMENTED AND VERIFIED,None needed
+P5-REQ-04,P5,Buyer Privacy Redaction,"NID hashes, phone numbers, and internal officer investigation notes omitted from buyer payload",IMPLEMENTED AND VERIFIED,None needed
+P5-REQ-05,P5,Printable Dossier Report Export,"window.print() with custom print CSS creates clean PDF due-diligence dossier",IMPLEMENTED AND VERIFIED,None needed
+P6-REQ-01,P6,Interactive Leaflet.js Map Rendering,"Leaflet 1.9.4 canvas renders OpenStreetMap base tiles at Savar coordinates (23.856, 90.260)",IMPLEMENTED AND VERIFIED,None needed
+P6-REQ-02,P6,WGS84 GeoJSON Boundary Polygons,"All 100,000 parcels contain valid GeoJSON polygons served via /api/v1/parcels/{id}/geojson",IMPLEMENTED AND VERIFIED,None needed
+P6-REQ-03,P6,Khas Land Identification & Overlay,"1,500 Khas parcels flagged; sample Khas polygon rendered on map with legal warning",IMPLEMENTED AND VERIFIED,None needed
+P6-REQ-04,P6,Dynamic Spatial Corridor Intersection,"is_acquisition hardcoded to False in due_diligence.py; no dynamic Shapely polygon intersection",UI-ONLY / SIMULATED,Implement server-side Shapely polygon intersection
+P6-REQ-05,P6,Synthetic Cadastral Disclaimer,"UI and GeoJSON feature properties clearly state SYNTHETIC_CADASTRAL_VISUALIZATION",IMPLEMENTED AND VERIFIED,None needed
+SEC-REQ-01,SEC,Separation of Duties (Admin vs Officer),"Admin blocked from officer decision queue (HTTP 403); Officer blocked from user management (HTTP 403)",IMPLEMENTED AND VERIFIED,None needed
+SEC-REQ-02,SEC,Privilege Escalation Blocked,"Public signup for OFFICER or ADMINISTRATOR rejected with HTTP 403 Forbidden",IMPLEMENTED AND VERIFIED,None needed
+SEC-REQ-03,SEC,Password & OTP Cryptography,"PBKDF2-HMAC-SHA256 (600,000 iterations), OTP stored as HMAC-SHA256 digest, 60s resend cooldown",IMPLEMENTED AND VERIFIED,None needed
