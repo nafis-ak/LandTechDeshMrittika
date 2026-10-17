@@ -24,96 +24,63 @@
        ========================================================================== -->
   <div id="landing-view">
     
-    <!-- Top Landing Header -->
-    <header class="landing-header">
-      <div class="container landing-nav-container">
-        <div class="brand-badge-group">
-          <div class="brand-symbol">🌿</div>
-          <div class="brand-title-wrap">
-            <h1>দেশমৃত্তিকা</h1>
-            <span>BHUMI-SYNC | LandTech 2026</span>
-          </div>
+    <!-- Hero Section (Full-Bleed AgroAI Experience with Floating Navbar) -->
+    <section id="hero" class="agro-hero-container">
+      
+      <!-- Floating Pill Navbar -->
+      <nav class="agro-floating-nav">
+        <div class="agro-brand-group" onclick="location.hash='#hero'">
+          <span class="agro-brand-sprout">🌿</span>
+          <span class="agro-brand-name">দেশমৃত্তিকা</span>
         </div>
 
-        <ul class="landing-links">
-          <li><a href="#hero">হোম</a></li>
-          <li><a href="#walkthrough">কীভাবে কাজ করে</a></li>
-          <li><a href="#features">ফিচারসমূহ (P1–P6)</a></li>
-          <li><a href="#trust">স্বচ্ছতা ও মেথডলজি</a></li>
+        <ul class="agro-nav-menu">
+          <li><a href="#hero" class="active">হোম</a></li>
+          <li><a href="#walkthrough">আমাদের সম্পর্কে</a></li>
+          <li><a href="#features">সেবাসমূহ</a></li>
+          <li><a href="#trust">ফিচারসমূহ</a></li>
         </ul>
 
-        <div class="landing-actions">
-          <button id="lang-toggle-landing" class="btn btn-secondary-stone btn-sm">English</button>
-          <button id="open-app-btn" class="btn btn-primary-forest btn-sm" onclick="navigateToApp('overview')">
+        <div class="agro-nav-actions">
+          <button id="open-app-btn" class="agro-nav-cta-btn" onclick="navigateToApp('overview')">
             <span>প্ল্যাটফর্ম এক্সপ্লোর করুন</span>
-            <span>➔</span>
+            <span class="agro-arrow-circle">➔</span>
           </button>
         </div>
-      </div>
-    </header>
+      </nav>
 
-    <!-- Hero Section -->
-    <section id="hero" class="hero-section">
-      <div class="container hero-grid">
-        <div class="hero-copy">
-          <div class="pill-tag pill-forest">
-            <span class="status-dot"></span>
-            <span id="hero-status-text">অনলাইন: ১০০,০০০ প্লট সংযুক্ত | সাভার পাইলট</span>
-          </div>
-
-          <h2>বাংলাদেশের নির্ভরযোগ্য ও স্বচ্ছ ভূমি রেকর্ড সুরক্ষা অবকাঠামো</h2>
-
-          <p>
-            সাব-রেজিস্ট্রি অফিসের দলিল রেজিস্ট্রি এবং এসি ল্যান্ড অফিসের ই-নামজারির মধ্যকার তথ্য-ব্যবধান দূর করে দ্বৈত বিক্রয় ও জাল দলিল স্বয়ংক্রিয়ভাবে শনাক্তকরণে দেশমৃত্তিকার কৃত্রিম রিলেশনাল ক্যাডাস্ট্রাল ভেরিফিকেশন ব্যবস্থা।
+      <!-- Bottom Hero Content Grid -->
+      <div class="agro-hero-bottom">
+        
+        <!-- Left Side: Large Bengali Typography & CTA -->
+        <div class="agro-hero-left">
+          <h1 class="agro-hero-headline">
+            স্মার্ট প্রযুক্তি ও কৃত্রিম বুদ্ধিমত্তায়<br>স্বচ্ছ ও নিরাপদ ভূমি ব্যবস্থাপনা
+          </h1>
+          <p class="agro-hero-tagline">
+            সাব-রেজিস্ট্রি এবং এসি ল্যান্ড অফিসের মধ্যকার তথ্য-ব্যবধান দূর করে দ্বৈত বিক্রয় ও জালিয়াতি রোধে আধুনিক ভূমি সুরক্ষা প্ল্যাটফর্ম।
           </p>
-
-          <div class="hero-cta-group">
-            <button class="btn btn-primary-forest" onclick="navigateToApp('citizen')">
-              <span>প্ল্যাটফর্ম এক্সপ্লোর করুন</span>
-              <span>➔</span>
+          <div class="agro-hero-btn-wrap">
+            <button class="agro-cta-pill" onclick="navigateToApp('citizen')">
+              <span>শুরু করুন</span>
+              <span class="agro-cta-arrow">➔</span>
             </button>
-            <a href="#walkthrough" class="btn btn-secondary-stone">
-              <span>কীভাবে কাজ করে দেখুন</span>
-            </a>
-          </div>
-
-          <div class="hero-stats-row">
-            <div class="stat-item">
-              <div class="stat-num num">১০০,০০০</div>
-              <div class="stat-lbl">ক্যাডাস্ট্রাল প্লট (সাভার পাইলট)</div>
-            </div>
-            <div class="stat-item">
-              <div class="stat-num num">০.০%</div>
-              <div class="stat-lbl">ফলস পজিটিভ (১৫,০০০ নির্দোষ বিক্রি)</div>
-            </div>
-            <div class="stat-item">
-              <div class="stat-num num">৫০০</div>
-              <div class="stat-lbl">দ্বৈত বিক্রয় গ্রাউন্ড-ট্রুথ প্রতিরোধ</div>
-            </div>
           </div>
         </div>
 
-        <!-- Hero Visual Composition -->
-        <div class="hero-visual-card">
-          <img src="/static/assets/images/hero_bangladesh_aerial.jpg" alt="Aerial Bangladesh Agricultural Land Parcels" class="hero-main-img">
-          
-          <div class="hero-floating-pill pill-top-right">
-            <div class="floating-icon" style="background:#ecfdf5; color:#059669;">✓</div>
-            <div class="floating-meta">
-              <h4>বিএস সিটি জরিপ লেজার</h4>
-              <p>১৪-স্তরী রিলেশনাল ডাটাবেস</p>
-            </div>
+        <!-- Right Side: Floating Preview Card -->
+        <div class="agro-preview-card">
+          <div class="agro-card-thumb-wrap">
+            <img src="/static/assets/images/card_cadastral_preview.jpg" alt="প্রিসিশন ক্যাডাস্ট্রাল ড্রাফটিং" class="agro-card-thumb">
           </div>
-
-          <div class="hero-floating-pill pill-bottom-left">
-            <div class="floating-icon" style="background:#fef2f2; color:#dc2626;">🚨</div>
-            <div class="floating-meta">
-              <h4>দ্বৈত বিক্রয় শনাক্ত (DS-01)</h4>
-              <p>অনিষ্পন্ন হস্তান্তরের পর গোপন বিক্রি ব্লকড</p>
-            </div>
+          <div class="agro-card-info">
+            <h4 class="agro-card-title">প্রিসিশন ক্যাডাস্ট্রাল ড্রাফটিং</h4>
+            <p class="agro-card-desc">রিয়েলটাইম স্যাটেলাইট ও বাফার ইন্টারসেকশন বিশ্লেষণ।</p>
           </div>
         </div>
+
       </div>
+
     </section>
 
     <!-- Interactive Product Walkthrough Section -->
@@ -127,18 +94,18 @@
 
         <!-- Stepper Navigation -->
         <div class="journey-stepper-nav">
-          <button class="journey-step-btn active" data-step="1">১. ডিজিটাইজ (OCR)</button>
-          <button class="journey-step-btn" data-step="2">২. প্রামাণিকতা (SHA-256)</button>
-          <button class="journey-step-btn" data-step="3">৩. প্রতারণা শনাক্ত (DS-01)</button>
-          <button class="journey-step-btn" data-step="4">৪. ই-নামজারি ব্রিজ</button>
-          <button class="journey-step-btn" data-step="5">৫. ক্রেতা ডসিয়ার (৫-দফা)</button>
-          <button class="journey-step-btn" data-step="6">৬. খাস ও সীমানা রক্ষা</button>
+          <button class="journey-step-btn active" data-step="1">১. ডিজিটাইজ (ওসিআর)</button>
+          <button class="journey-step-btn" data-step="2">২. ডিজিটাল প্রামাণিকতা (হ্যাশ)</button>
+          <button class="journey-step-btn" data-step="3">৩. দ্বৈত বিক্রয় শনাক্তকরণ</button>
+          <button class="journey-step-btn" data-step="4">৪. সমন্বিত ই-নামজারি</button>
+          <button class="journey-step-btn" data-step="5">৫. ৫-দফা ক্রেতা সুরক্ষা</button>
+          <button class="journey-step-btn" data-step="6">৬. খাসজমি ও সীমানা রক্ষা</button>
         </div>
 
         <!-- Dynamic Display Card -->
         <div id="journey-card" class="journey-display-card">
           <div class="journey-content-pane">
-            <div class="pill-tag pill-forest" id="step-track-tag">Track P1 — Digitize Old Records</div>
+            <div class="pill-tag pill-forest" id="step-track-tag">ট্র্যাক ১ — প্রাচীন রেকর্ড ডিজিটাইজেশন</div>
             <h4 id="step-title">প্রাচীন খতিয়ান ও দলিলের অপটিক্যাল ক্যারেক্টার রিকগনিশন</h4>
             <p id="step-desc">
               হাতে লেখা বা টাইপ করা প্রাচীন সিএস, এসএ, আরএস ও বিএস খতিয়ানের স্ক্যান কপি এবং মাল্টি-পেইজ পিডিএফ থেকে স্বয়ংক্রিয়ভাবে দাগ, খতিয়ান, মৌজা ও দলিলের টেক্সট নির্ভুলভাবে নিষ্কাশন।
@@ -177,7 +144,7 @@
             <div>
               <div class="feature-header">
                 <div class="feature-icon-box">📜</div>
-                <span class="pill-tag">P1 Track</span>
+                <span class="pill-tag">ট্র্যাক ১ (পি১)</span>
               </div>
               <h4>প্রাচীন রেকর্ড ডিজিটাইজেশন</h4>
               <p>পিডিএফ ও ইমেজ প্রসেসিংয়ের মাধ্যমে প্রাচীন পরচা ও সাফ-কবালা দলিলের বাংলা/ইংরেজি টেক্সট রূপান্তর ও কনফিডেন্স টেলিমেট্রি।</p>
@@ -190,7 +157,7 @@
             <div>
               <div class="feature-header">
                 <div class="feature-icon-box">🛡️</div>
-                <span class="pill-tag">P2 Track</span>
+                <span class="pill-tag">ট্র্যাক ২ (পি২)</span>
               </div>
               <h4>ক্রিপ্টোগ্রাফিক প্রামাণিকতা</h4>
               <p>SHA-256 হ্যাশের মাধ্যমে দলিলের ডিজিটাল ফিঙ্গারপ্রিন্ট যাচাই। ফাইলের একটি বাইট বিকৃত হলেও তাৎক্ষণিক জালিয়াতি শনাক্ত।</p>
@@ -203,7 +170,7 @@
             <div>
               <div class="feature-header">
                 <div class="feature-icon-box">⚖️</div>
-                <span class="pill-tag pill-danger">P3 Showcase</span>
+                <span class="pill-tag pill-danger">ট্র্যাক ৩ (পি৩) মুখ্য সমস্যা</span>
               </div>
               <h4>দ্বৈত বিক্রয় জালিয়াতি দমন</h4>
               <p>একই বিক্রেতা প্রথম বিক্রির নামজারি অনিষ্পন্ন রেখে দ্বিতীয় ক্রেতার কাছে জমি হস্তান্তর করলেই ক্রমানুসারী ডিটারমিনিস্টিক অ্যালগরিদমে ব্লক।</p>
@@ -216,7 +183,7 @@
             <div>
               <div class="feature-header">
                 <div class="feature-icon-box">🔄</div>
-                <span class="pill-tag">P4 Track</span>
+                <span class="pill-tag">ট্র্যাক ৪ (পি৪)</span>
               </div>
               <h4>স্মার্ট ই-নামজারি ও রেজিস্ট্রি সেতু</h4>
               <p>দলিল রেজিস্ট্রি হওয়া মাত্র সাব-রেজিস্ট্রি থেকে এসি ল্যান্ড কার্যক্রমে স্বয়ংক্রিয় প্রাক-যাচাই ও ৪-স্তরী নামজারি ট্র্যাকার।</p>
@@ -229,7 +196,7 @@
             <div>
               <div class="feature-header">
                 <div class="feature-icon-box">🔍</div>
-                <span class="pill-tag pill-safe">P5 Track</span>
+                <span class="pill-tag pill-safe">ট্র্যাক ৫ (পি৫)</span>
               </div>
               <h4>ক্রয়ের পূর্বে ৫-দফা যাচাই বাতায়ন</h4>
               <p>সাধারণ নাগরিকদের জন্য বায়া দলিল ধারাবাহিকতা, নামজারি স্থিতি, দেওয়ানি নিষেধাজ্ঞা, কর বকেয়া ও খাস জমির একক ছাড়পত্র।</p>
@@ -242,7 +209,7 @@
             <div>
               <div class="feature-header">
                 <div class="feature-icon-box">🗺️</div>
-                <span class="pill-tag">P6 Innovation</span>
+                <span class="pill-tag">ট্র্যাক ৬ (পি৬) জিআইএস</span>
               </div>
               <h4>ক্যাডাস্ট্রাল বাউন্ডারি ও খাস রক্ষা</h4>
               <p>১-নং খাস খতিয়ান ও ঢাকা-আরিচা মহাসড়ক ১০০-মিটার অধিগ্রহণ বাফারের সাথে দাগের জিওস্পেশিয়াল ওভারলে ইন্টারসেকশন।</p>
