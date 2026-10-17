@@ -491,7 +491,104 @@ class TestAuthAndSecurity(unittest.TestCase):
         self.assertEqual(res_chk.status_code, 200)
         self.assertTrue(res_chk.json()["success"])
 
+    def test_21_client_side_role_tampering_blocked(self):
+        """Client-side role claims cannot elevate privileges; server derives role exclusively from HMAC session token."""
+        res_login = client.post("/api/v1/auth/login", json={
+            "email": "citizen@example.com",
+            "password": "Password123!"
+        })
+        cit_token = res_login.json()["access_token"]
+
+        # Client attempts to send headers or spoofed role claim
+        headers = {
+            "Authorization": f"Bearer {cit_token}",
+            "X-Client-Role": "ADMINISTRATOR"
+        }
+
+        # Attempt to access admin endpoint
+        res = client.get("/api/v1/admin/users", headers=headers)
+        self.assertEqual(res.status_code, 403)
+        self.assertIn("Access denied", res.json()["detail"])
+
+    def test_22_cross_citizen_idor_application_access_blocked(self):
+        """Citizen A cannot access Citizen B's private application by ID (IDOR protection)."""
+        # 1. Create Citizen B
+        email_b = f"{self.test_prefix}_citizen_b@example.com"
+        client.post("/api/v1/auth/signup", json={
+            "full_name": "নাগরিক বি",
+            "email": email_b,
+            "password": "Password123!",
+            "confirm_password": "Password123!",
+            "role": "CITIZEN"
+        })
+        otp_b = DevMailbox.get_latest_otp(email_b, "EMAIL_VERIFY")
+        res_v_b = client.post("/api/v1/auth/verify-email", json={"email": email_b, "code": otp_b})
+        tok_b = res_v_b.json()["access_token"]
+        h_b = {"Authorization": f"Bearer {tok_b}"}
+
+        # Citizen B submits application
+        res_app_b = client.post("/api/v1/citizen/applications", headers=h_b, json={
+            "parcel_id": "BD-PAR-000001",
+            "service_type": "নামজারি",
+            "remarks": "নাগরিক বি এর গোপন আবেদন"
+        })
+        self.assertEqual(res_app_b.status_code, 200)
+        app_id_b = res_app_b.json()["app_id"]
+
+        # 2. Citizen A logs in and attempts to access Citizen B's application
+        res_cit_a = client.post("/api/v1/auth/login", json={
+            "email": "citizen@example.com",
+            "password": "Password123!"
+        })
+        tok_a = res_cit_a.json()["access_token"]
+        h_a = {"Authorization": f"Bearer {tok_a}"}
+
+        # Citizen A requests Citizen B's application by ID
+        res_idor = client.get(f"/api/v1/citizen/my-applications/{app_id_b}", headers=h_a)
+        self.assertEqual(res_idor.status_code, 403)
+        self.assertIn("অন্য নাগরিকের ব্যক্তিগত আবেদন", res_idor.json()["detail"])
+
+    def test_23_suspended_account_session_rejected(self):
+        """Suspended accounts immediately lose API access with 401 Unauthorized."""
+        email_sus = f"{self.test_prefix}_suspendee@example.com"
+        client.post("/api/v1/auth/signup", json={
+            "full_name": "স্থগিত ইউজার",
+            "email": email_sus,
+            "password": "Password123!",
+            "confirm_password": "Password123!",
+            "role": "CITIZEN"
+        })
+        otp = DevMailbox.get_latest_otp(email_sus, "EMAIL_VERIFY")
+        res_v = client.post("/api/v1/auth/verify-email", json={"email": email_sus, "code": otp})
+        sus_token = res_v.json()["access_token"]
+        sus_user_id = res_v.json()["user_id"]
+        h_sus = {"Authorization": f"Bearer {sus_token}"}
+
+        # User currently has access
+        res_before = client.get("/api/v1/auth/me", headers=h_sus)
+        self.assertEqual(res_before.status_code, 200)
+
+        # Admin suspends user account
+        res_admin = client.post("/api/v1/auth/login", json={
+            "email": "admin@deshmrittika.gov.bd",
+            "password": "Password123!"
+        })
+        admin_token = res_admin.json()["access_token"]
+        h_admin = {"Authorization": f"Bearer {admin_token}"}
+
+        res_sus_action = client.post("/api/v1/admin/users/status", headers=h_admin, json={
+            "target_user_id": sus_user_id,
+            "new_status": "SUSPENDED",
+            "reason": "নিরাপত্তা অডিট কারণে স্থগিত"
+        })
+        self.assertEqual(res_sus_action.status_code, 200)
+
+        # Suspended user's existing token is rejected with 401
+        res_after = client.get("/api/v1/auth/me", headers=h_sus)
+        self.assertEqual(res_after.status_code, 401)
+
 
 if __name__ == "__main__":
     unittest.main()
+
 
