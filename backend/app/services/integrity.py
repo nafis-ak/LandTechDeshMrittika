@@ -15,12 +15,25 @@ class CryptographicIntegrityService:
         return hashlib.sha256(file_bytes).hexdigest()
 
     @staticmethod
-    def verify_document_bytes(conn: sqlite3.Connection, file_bytes: bytes) -> DocumentVerifyResponse:
+    def verify_document_bytes(conn: sqlite3.Connection, file_bytes: bytes, reference_hash: Optional[str] = None) -> DocumentVerifyResponse:
         calculated_hash = hashlib.sha256(file_bytes).hexdigest()
         cur = conn.cursor()
 
         cur.execute("SELECT * FROM documents WHERE sha256_hash = ?", (calculated_hash,))
         doc = cur.fetchone()
+
+        ref_clean = reference_hash.strip().lower() if reference_hash else None
+        calc_clean = calculated_hash.lower()
+
+        if ref_clean:
+            if calc_clean == ref_clean:
+                comparison_status = "MATCHES_SUPPLIED_REFERENCE"
+            else:
+                comparison_status = "DOES_NOT_MATCH_SUPPLIED_REFERENCE"
+        elif doc:
+            comparison_status = "MATCHED_REGISTERED_DOCUMENT"
+        else:
+            comparison_status = "HASH_CALCULATED_UNREGISTERED"
 
         if doc:
             return DocumentVerifyResponse(
@@ -30,15 +43,22 @@ class CryptographicIntegrityService:
                 deed_id=doc["deed_id"],
                 document_type=doc["document_type"],
                 status_label="VERIFIED_AUTHENTIC",
-                provenance_label=doc["provenance_label"]
+                provenance_label=doc["provenance_label"],
+                calculated_hash=calculated_hash,
+                reference_hash=ref_clean,
+                comparison_status=comparison_status
             )
         else:
             return DocumentVerifyResponse(
-                is_authentic=False,
+                is_authentic=bool(ref_clean and calc_clean == ref_clean),
                 matched_document_id=None,
                 parcel_id=None,
                 deed_id=None,
                 document_type=None,
-                status_label="TAMPER_DETECTED_OR_UNREGISTERED",
-                provenance_label="UNKNOWN_OR_MODIFIED_DOCUMENT"
+                status_label="MATCHES_SUPPLIED_REFERENCE" if (ref_clean and calc_clean == ref_clean) else "TAMPER_DETECTED_OR_UNREGISTERED",
+                provenance_label="PUBLIC_CALCULATED_HASH",
+                calculated_hash=calculated_hash,
+                reference_hash=ref_clean,
+                comparison_status=comparison_status
             )
+

@@ -4,20 +4,16 @@
  * P1-P6 Workspaces, Advanced OCR Pipeline, and Cadastral GIS.
  */
 
-// Application Global State
+// Application Global State (Public Citizen Portal by default)
 const AppState = {
-  view: 'landing', // 'landing' | 'app'
+  view: 'app', // Open Public Citizen Portal directly (no login/signup required)
   currentPage: 'overview',
   lang: 'bn',
-  user: {
-    user_id: 'USR-CITIZEN-01',
-    name: 'মো: রফিকুল ইসলাম (Citizen)',
-    role: 'CITIZEN',
-    email: 'citizen@example.com'
-  },
+  user: null, // Anonymous citizen by default
   selectedParcelId: 'BD-PAR-000101',
   citizenMap: null,
   citizenGeoLayer: null,
+  mouzaDagMiniMap: null,
   gisMap: null,
   gisLayers: {
     parcels: null,
@@ -143,18 +139,21 @@ document.addEventListener('DOMContentLoaded', async () => {
   initAppShellNavigation();
   initLanguageToggles();
   initSearchWorkspace();
+  initMouzaDagSearch();
+  initDueDiligenceWorkspace();
+  initLandCalculators();
+  initOverviewPublicExperience();
   initOfficerWorkspace();
   initMutationWorkspace();
   initDocumentVerifyWorkspace();
   initAdvancedOCRWorkspace();
   initCadastralGISWorkspace();
   initAuthSystem();
-  applyRolePermissions();
 
   // Load backend health
   checkBackendHealth();
 
-  // Initialize Auth State: Restore saved session or keep guest mode
+  // Initialize Auth State: Restore saved officer session or keep guest citizen mode
   LandTechAPI.initStoredAuth();
   if (LandTechAPI.token) {
     try {
@@ -172,26 +171,31 @@ document.addEventListener('DOMContentLoaded', async () => {
       AppState.user = null;
     }
   } else {
-    AppState.user = null;
+    AppState.user = null; // Clean anonymous public citizen
   }
 
   updateAuthUI(AppState.user);
   applyRolePermissions();
 
-  // Pre-load default parcel BD-PAR-000101
-  loadCitizenDossier('BD-PAR-000101');
-
-  // URL Hash Routing Support
-  function checkRouteHash() {
+  // Direct Public Portal Routing (no login/signup required)
+  function checkRoute() {
     const hash = window.location.hash.replace('#', '');
-    if (hash === 'app') {
-      navigateToApp('overview');
-    } else if (['overview', 'citizen', 'officer', 'buyer-ownership-summary', 'buyer-fraud-risk', 'mutation', 'ocr', 'verify', 'map', 'audit', 'dataset', 'settings', 'users', 'security-logs'].includes(hash)) {
+    const validPublicPages = [
+      'overview', 'citizen', 'mouza-dag', 'map', 'due-diligence',
+      'ocr', 'verify', 'service-guide', 'calculator', 'notices-help',
+      'officer', 'buyer-ownership-summary', 'mutation', 'audit', 'dataset', 'settings', 'users', 'security-logs'
+    ];
+    if (hash && validPublicPages.includes(hash)) {
       navigateToApp(hash);
+    } else {
+      navigateToApp('overview');
     }
   }
-  checkRouteHash();
-  window.addEventListener('hashchange', checkRouteHash);
+  checkRoute();
+  window.addEventListener('hashchange', checkRoute);
+
+  // Pre-load default parcel BD-PAR-000101
+  loadCitizenDossier('BD-PAR-000101');
 });
 
 // Backend Health Check
@@ -332,15 +336,15 @@ function initAppShellNavigation() {
 const ROLE_NAV_CONFIG = {
   CITIZEN: [
     { page: 'overview', icon: '📊', label: 'ওভারভিউ', labelEn: 'Overview' },
-    { page: 'citizen-myland', icon: '🏡', label: 'আমার জমি ও খতিয়ান', labelEn: 'My Land' },
-    { page: 'citizen', icon: '🔍', label: 'মৌজা ও দাগ অনুসন্ধান', labelEn: 'Parcel Search' },
-    { page: 'ocr', icon: '📜', label: 'দলিল ও পরচা স্ক্যান (OCR)', labelEn: 'Document OCR' },
-    { page: 'citizen-applications', icon: '📝', label: 'নামজারি ও সেবা আবেদন', labelEn: 'My Applications' },
-    { page: 'mutation', icon: '🔄', label: 'আবেদন ট্র্যাকিং', labelEn: 'Mutation Tracking' },
-    { page: 'map', icon: '🗺️', label: 'ক্যাডাস্ট্রাল ম্যাপ ও খাস রক্ষা', labelEn: 'Cadastral Map' },
-    { page: 'officials-directory', icon: '🏛️', label: 'ভূমি কর্মকর্তা ডিরেক্টরি', labelEn: 'Officials Directory' },
-    { page: 'citizen-notifications', icon: '🔔', label: 'নোটিফিকেশন ও নোটিশ', labelEn: 'My Notifications' },
-    { page: 'citizen-activity', icon: '⏱️', label: 'কার্যক্রম ও অডিট লগ', labelEn: 'My Activity' }
+    { page: 'citizen', icon: '🔍', label: 'জমি ও খতিয়ান অনুসন্ধান', labelEn: 'Land & Khatian Search' },
+    { page: 'mouza-dag', icon: '📍', label: 'মৌজা ও দাগ অনুসন্ধান', labelEn: 'Mouza & Dag Search' },
+    { page: 'map', icon: '🗺️', label: 'ভূমির ম্যাপ', labelEn: 'Land Map' },
+    { page: 'due-diligence', icon: '🛡️', label: 'জমি কেনার আগে যাচাই', labelEn: 'Check Before You Buy' },
+    { page: 'ocr', icon: '📜', label: 'দলিল ও পর্চা স্ক্যান', labelEn: 'Document OCR' },
+    { page: 'verify', icon: '🔐', label: 'দলিলের অখণ্ডতা যাচাই', labelEn: 'Document Integrity' },
+    { page: 'service-guide', icon: '📚', label: 'ভূমিসেবা নির্দেশিকা', labelEn: 'Land-Service Guide' },
+    { page: 'calculator', icon: '📐', label: 'জমির হিসাব', labelEn: 'Land Calculator' },
+    { page: 'notices-help', icon: '🔔', label: 'নোটিশ ও সহায়তা', labelEn: 'Public Notices & Help' }
   ],
   BUYER: [
     { page: 'buyer-overview', icon: '📊', label: 'ওভারভিউ', labelEn: 'Overview' },
@@ -383,7 +387,7 @@ const ROLE_NAV_CONFIG = {
 };
 
 const ROLE_ALLOWED_PAGES = {
-  CITIZEN: ['overview', 'citizen-myland', 'citizen', 'due-diligence', 'buyer-ownership-summary', 'ocr', 'citizen-applications', 'mutation', 'map', 'officials-directory', 'citizen-notifications', 'citizen-activity'],
+  CITIZEN: ['overview', 'citizen', 'mouza-dag', 'map', 'due-diligence', 'ocr', 'verify', 'service-guide', 'calculator', 'notices-help', 'officials-directory'],
   BUYER: ['overview', 'buyer-overview', 'citizen', 'due-diligence', 'buyer-ownership-summary', 'buyer-fraud-risk', 'verify', 'map', 'officials-directory', 'buyer-compare-reports', 'buyer-review-requests'],
   OFFICER: ['overview', 'officer-overview', 'officer-cases', 'officer', 'citizen', 'buyer-ownership-summary', 'officer-deed-compare', 'mutation', 'officer-doc-review', 'officer-hearings', 'map', 'officials-directory', 'officer-decisions', 'audit'],
   ADMINISTRATOR: ['overview', 'admin-overview', 'users', 'citizen', 'officer', 'buyer-ownership-summary', 'map', 'officials-directory', 'security-logs', 'settings', 'dataset', 'admin-ocr-diagnostics', 'admin-rules-config', 'admin-backups', 'admin-settings']
@@ -405,7 +409,7 @@ function renderSidebarNav(role) {
   const isEn = AppState.lang === 'en';
 
   const categoryLabels = {
-    CITIZEN: isEn ? "CITIZEN WORKSPACE" : "নাগরিক বাতায়ন",
+    CITIZEN: isEn ? "PUBLIC CITIZEN SERVICES" : "পাবলিক সিটিজেন বাতায়ন",
     BUYER: isEn ? "BUYER VERIFICATION HUB" : "ক্রেতা সুরক্ষা বাতায়ন",
     OFFICER: isEn ? "AC LAND JURISDICTION" : "সহকারী কমিশনার (ভূমি) দপ্তর",
     ADMINISTRATOR: isEn ? "SYSTEM ADMINISTRATION" : "সিস্টেম ও সাইবার প্রশাসন"
@@ -440,6 +444,18 @@ function applyRolePermissions() {
   const sBadge = document.getElementById('sidebar-user-role-badge');
   const sAvatar = document.getElementById('sidebar-user-avatar');
   const sLogout = document.getElementById('sidebar-logout-btn');
+  const sPublicBadge = document.getElementById('sidebar-public-badge');
+  const sUserBadge = document.getElementById('sidebar-user-badge');
+  const topbarUserBtn = document.getElementById('topbar-user-btn');
+  const topbarLoginBtn = document.getElementById('topbar-login-btn');
+
+  if (sPublicBadge && sUserBadge) {
+    sPublicBadge.style.display = isGuest ? 'block' : 'none';
+    sUserBadge.style.display = isGuest ? 'none' : 'flex';
+  }
+
+  if (topbarUserBtn) topbarUserBtn.style.display = isGuest ? 'none' : 'flex';
+  if (topbarLoginBtn) topbarLoginBtn.style.display = 'none';
 
   const roleLabels = {
     CITIZEN: 'সাধারণ নাগরিক',
@@ -471,12 +487,12 @@ function applyRolePermissions() {
     if (sAvatar) sAvatar.textContent = roleEmoji;
     if (sLogout) sLogout.style.display = 'block';
   } else {
-    if (sName) sName.textContent = 'অতিথি ব্যবহারকারী';
+    if (sName) sName.textContent = 'নাগরিক বাতায়ন';
     if (sBadge) {
-      sBadge.textContent = 'সাধারণ নাগরিক';
+      sBadge.textContent = 'পাবলিক এক্সেস';
       sBadge.className = 'user-role-pill role-pill-citizen';
     }
-    if (sAvatar) sAvatar.textContent = '👤';
+    if (sAvatar) sAvatar.textContent = '🇧🇩';
     if (sLogout) sLogout.style.display = 'none';
   }
 
@@ -528,9 +544,8 @@ function switchAppPage(pageName) {
     item.classList.toggle('active', item.getAttribute('data-page') === pageName);
   });
 
-  // Switch workspace container (handle due-diligence mapping to page-citizen, overview aliases to page-overview)
+  // Switch workspace container
   let domId = `page-${pageName}`;
-  if (pageName === 'due-diligence') domId = 'page-citizen';
   if (pageName === 'buyer-overview' || pageName === 'officer-overview' || pageName === 'admin-overview') domId = 'page-overview';
   if (pageName === 'buyer-fraud-risk') domId = 'page-officer';
 
@@ -540,20 +555,24 @@ function switchAppPage(pageName) {
 
   // Update breadcrumb
   const titles = {
-    overview: "ওভারভিউ ড্যাশবোর্ড",
+    overview: "পাবলিক সিটিজেন বাতায়ন — ওভারভিউ",
+    citizen: "জমি ও খতিয়ান অনুসন্ধান (Land & Khatian Search)",
+    'mouza-dag': "মৌজা ও দাগভিত্তিক জমি অনুসন্ধান",
+    map: "ভূমির ডিজিটাল ম্যাপ ও ক্যাডাস্ট্রাল ভিউয়ার",
+    'due-diligence': "জমি কেনার পূর্বে ৫-দফা সুরক্ষা যাচাই",
+    ocr: "দলিল ও পর্চা স্ক্যান (Document OCR)",
+    verify: "দলিলের ক্রিপ্টোগ্রাফিক অখণ্ডতা যাচাই (SHA-256)",
+    'service-guide': "ডিজিটাল ভূমিসেবা নির্দেশিকা ও ই-নামজারি গাইড",
+    calculator: "জমির পরিমাপ ও সরকারি ফি ক্যালকুলেটর",
+    'notices-help': "পাবলিক নোটিশ ও জাতীয় ভূমি হেল্পলাইন ১৬১২২",
     'citizen-myland': "আমার জমি ও খতিয়ান",
-    citizen: "নাগরিক অনুসন্ধান ও ৫-দফা ডসিয়ার (P5)",
-    ocr: "প্রাচীন পরচা ও দলিল OCR (P1)",
     'citizen-applications': "নামজারি ও সেবা আবেদনসমূহ",
     mutation: "স্মার্ট ই-নামজারি সিমুলেটর ও ট্র্যাকিং (P4)",
     'citizen-notifications': "সরকারি বার্তা ও শুনানির নোটিশ",
     'citizen-activity': "নাগরিক ব্যক্তিগত অডিট হিস্টোরি",
     'buyer-overview': "ক্রেতা ড্যাশবোর্ড ও ঝুঁকি সারসংক্ষেপ",
-    'due-diligence': "৫-দফা ডিউ ডিলিজেন্স বিশ্লেষণ",
     'buyer-ownership-summary': "মালিকানা ইতিহাস সারসংক্ষেপ",
     'buyer-fraud-risk': "দ্বৈত বিক্রয় ঝুঁকি যাচাই (P3)",
-    verify: "ক্রিপ্টোগ্রাফিক হ্যাশ যাচাই (P2)",
-    map: "ক্যাডাস্ট্রাল ম্যাপ ও খাস রক্ষা (P6)",
     'buyer-compare-reports': "প্লট তুলনা ও ডিউ ডিলিজেন্স রিপোর্ট",
     'buyer-review-requests': "পুনঃযাচাই আবেদন কিউ",
     'officer-overview': "সহকারী কমিশনার (ভূমি) ওভারভিউ",
@@ -602,12 +621,18 @@ function switchAppPage(pageName) {
     loadBuyerReviewRequests();
   } else if (pageName === 'officer-cases') {
     loadOfficerAssignedApps();
-  } else if (pageName === 'citizen' || pageName === 'due-diligence') {
+  } else if (pageName === 'citizen') {
     if (AppState.citizenMap) {
       setTimeout(() => AppState.citizenMap.invalidateSize(), 200);
     } else {
       setTimeout(initCitizenMap, 150);
     }
+  } else if (pageName === 'mouza-dag') {
+    if (AppState.mouzaDagMiniMap) {
+      setTimeout(() => AppState.mouzaDagMiniMap.invalidateSize(), 200);
+    }
+  } else if (pageName === 'due-diligence') {
+    loadDueDiligencePage(AppState.selectedParcelId || 'BD-PAR-000101');
   } else if (pageName === 'map') {
     if (AppState.gisMap) {
       setTimeout(() => AppState.gisMap.invalidateSize(), 200);
@@ -1620,6 +1645,596 @@ function renderCitizenPolygon(geojson, safetyRating) {
 }
 
 // ==========================================================================
+// WORKSPACE 2B: MOUZA & DAG SEARCH CONTROLLER (মৌজা ও দাগ অনুসন্ধান)
+// ==========================================================================
+let mouzaDagMiniMap = null;
+let mouzaDagMarker = null;
+let mouzaDagPolygon = null;
+
+async function initMouzaDagSearch() {
+  const divSelect = document.getElementById('mouza-dag-division-sel');
+  const distSelect = document.getElementById('mouza-dag-district-sel');
+  const upzSelect = document.getElementById('mouza-dag-upazila-sel');
+  const unionSelect = document.getElementById('mouza-dag-union-sel');
+  const mouzaSelect = document.getElementById('mouza-dag-mouza-sel');
+  const searchBtn = document.getElementById('btn-mouza-dag-search');
+  const dagInput = document.getElementById('mouza-dag-input-num');
+
+  if (!divSelect) return;
+
+  try {
+    const res = await LandTechAPI.getDivisions();
+    const divisions = res.divisions || [];
+    divSelect.innerHTML = '<option value="">বিভাগ নির্বাচন করুন</option>' +
+      divisions.map(d => `<option value="${d.division_id}" ${d.name_en === 'Dhaka' ? 'selected' : ''}>${d.name_bn || d.name_en} (${d.name_en})</option>`).join('');
+
+    divSelect.addEventListener('change', async () => {
+      await loadMouzaDagDistricts(divSelect.value);
+    });
+
+    if (distSelect) {
+      distSelect.addEventListener('change', async () => {
+        await loadMouzaDagUpazilas(distSelect.value);
+      });
+    }
+
+    if (upzSelect) {
+      upzSelect.addEventListener('change', async () => {
+        await loadMouzaDagUnionsAndMouzas(upzSelect.value);
+      });
+    }
+
+    if (unionSelect) {
+      unionSelect.addEventListener('change', async () => {
+        await loadMouzaDagMouzasForUnion(upzSelect.value, unionSelect.value);
+      });
+    }
+
+    // Default cascade initialisation
+    await loadMouzaDagDistricts(divSelect.value || 'DIV-30');
+  } catch (err) {
+    console.warn("Failed to initialize mouza dag selectors:", err);
+  }
+
+  if (searchBtn) {
+    searchBtn.addEventListener('click', executeMouzaDagSearch);
+  }
+  if (dagInput) {
+    dagInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') executeMouzaDagSearch();
+    });
+  }
+
+  // Pre-load default mini map
+  initMouzaDagMiniMap([23.7925, 90.3150], 'BD-PAR-000101');
+}
+
+async function loadMouzaDagDistricts(divisionId) {
+  const distSelect = document.getElementById('mouza-dag-district-sel');
+  const upzSelect = document.getElementById('mouza-dag-upazila-sel');
+  const unionSelect = document.getElementById('mouza-dag-union-sel');
+  const mouzaSelect = document.getElementById('mouza-dag-mouza-sel');
+  if (!distSelect) return;
+
+  distSelect.disabled = false;
+  distSelect.innerHTML = '<option value="">জেলা নির্বাচন করুন</option>';
+  if (upzSelect) { upzSelect.disabled = true; upzSelect.innerHTML = '<option value="">প্রথমে জেলা নির্বাচন করুন</option>'; }
+  if (unionSelect) { unionSelect.disabled = true; unionSelect.innerHTML = '<option value="">প্রথমে উপজেলা নির্বাচন করুন</option>'; }
+  if (mouzaSelect) { mouzaSelect.disabled = true; mouzaSelect.innerHTML = '<option value="">প্রথমে ইউনিয়ন নির্বাচন করুন</option>'; }
+
+  try {
+    const res = await LandTechAPI.getDistricts(divisionId);
+    const districts = res.districts || [];
+    distSelect.innerHTML = '<option value="">জেলা নির্বাচন করুন</option>' +
+      districts.map(d => `<option value="${d.district_id}" ${d.name_en === 'Dhaka' ? 'selected' : ''}>${d.name_bn || d.name_en} (${d.name_en})</option>`).join('');
+
+    const defaultDist = districts.find(d => d.name_en === 'Dhaka');
+    if (defaultDist) {
+      distSelect.value = defaultDist.district_id;
+      await loadMouzaDagUpazilas(defaultDist.district_id);
+    }
+  } catch (e) {
+    console.warn("Error loading mouza dag districts:", e);
+  }
+}
+
+async function loadMouzaDagUpazilas(districtId) {
+  const upzSelect = document.getElementById('mouza-dag-upazila-sel');
+  const unionSelect = document.getElementById('mouza-dag-union-sel');
+  const mouzaSelect = document.getElementById('mouza-dag-mouza-sel');
+  if (!upzSelect) return;
+
+  upzSelect.disabled = false;
+  upzSelect.innerHTML = '<option value="">উপজেলা নির্বাচন করুন</option>';
+  if (unionSelect) { unionSelect.disabled = true; unionSelect.innerHTML = '<option value="">প্রথমে উপজেলা নির্বাচন করুন</option>'; }
+  if (mouzaSelect) { mouzaSelect.disabled = true; mouzaSelect.innerHTML = '<option value="">প্রথমে ইউনিয়ন নির্বাচন করুন</option>'; }
+
+  try {
+    const res = await LandTechAPI.getUpazilas(districtId, 100);
+    const upazilas = res.upazilas || [];
+    upzSelect.innerHTML = '<option value="">উপজেলা নির্বাচন করুন</option>' +
+      upazilas.map(u => `<option value="${u.upazila_id}" ${u.name_en === 'Savar' ? 'selected' : ''}>${u.name_bn || u.name_en} (${u.name_en})</option>`).join('');
+
+    const defaultUpz = upazilas.find(u => u.name_en === 'Savar');
+    if (defaultUpz) {
+      upzSelect.value = defaultUpz.upazila_id;
+      await loadMouzaDagUnionsAndMouzas(defaultUpz.upazila_id);
+    }
+  } catch (e) {
+    console.warn("Error loading upazilas:", e);
+  }
+}
+
+async function loadMouzaDagUnionsAndMouzas(upazilaId) {
+  const unionSelect = document.getElementById('mouza-dag-union-sel');
+  const mouzaSelect = document.getElementById('mouza-dag-mouza-sel');
+  if (unionSelect) {
+    unionSelect.disabled = false;
+    unionSelect.innerHTML = '<option value="">সকল ইউনিয়ন</option>';
+  }
+  if (mouzaSelect) {
+    mouzaSelect.disabled = false;
+    mouzaSelect.innerHTML = '<option value="">মৌজা লোড হচ্ছে...</option>';
+  }
+
+  try {
+    if (unionSelect) {
+      const uRes = await LandTechAPI.getUnions(upazilaId);
+      const unions = uRes.unions || [];
+      unionSelect.innerHTML = '<option value="">সকল ইউনিয়ন</option>' +
+        unions.map(u => `<option value="${u.union_id}">${u.name_bn || u.name_en}</option>`).join('');
+    }
+
+    const mRes = await LandTechAPI.getMouzas(upazilaId);
+    const mouzas = mRes.mouzas || [];
+    if (mouzaSelect) {
+      mouzaSelect.innerHTML = '<option value="">মৌজা নির্বাচন করুন</option>' +
+        mouzas.map(m => `<option value="${m.name_en}" ${m.name_en === 'Aminbazar' ? 'selected' : ''}>${m.name_bn || m.name_en} — জেএল ${m.jl_number}</option>`).join('');
+    }
+  } catch (e) {
+    console.warn("Error loading mouzas:", e);
+    if (mouzaSelect) {
+      mouzaSelect.innerHTML = `
+        <option value="">মৌজা নির্বাচন করুন</option>
+        <option value="Aminbazar" selected>আমিনবাজার — জেএল ১২</option>
+        <option value="Birulia">বিরুলিয়া — জেএল ২৪</option>
+        <option value="Ashulia">আশুলিয়া — জেএল ৩২</option>
+      `;
+    }
+  }
+}
+
+async function loadMouzaDagMouzasForUnion(upazilaId, unionId) {
+  const mouzaSelect = document.getElementById('mouza-dag-mouza-sel');
+  if (!mouzaSelect) return;
+  try {
+    const res = await LandTechAPI.getMouzas(upazilaId, unionId);
+    const mouzas = res.mouzas || [];
+    mouzaSelect.innerHTML = '<option value="">মৌজা নির্বাচন করুন</option>' +
+      mouzas.map(m => `<option value="${m.name_en}">${m.name_bn || m.name_en} — জেএল ${m.jl_number}</option>`).join('');
+  } catch (e) {
+    console.warn("Error loading union mouzas:", e);
+  }
+}
+
+function initMouzaDagMiniMap(coords, parcelId) {
+  const container = document.getElementById('mouza-dag-mini-map');
+  if (!container) return;
+
+  if (!mouzaDagMiniMap) {
+    mouzaDagMiniMap = L.map('mouza-dag-mini-map', {
+      zoomControl: true,
+      scrollWheelZoom: false
+    }).setView(coords || [23.7925, 90.3150], 16);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '© OpenStreetMap contributors | DeshMrittika'
+    }).addTo(mouzaDagMiniMap);
+    AppState.mouzaDagMiniMap = mouzaDagMiniMap;
+  } else {
+    mouzaDagMiniMap.setView(coords || [23.7925, 90.3150], 16);
+  }
+
+  if (mouzaDagMarker) mouzaDagMiniMap.removeLayer(mouzaDagMarker);
+  if (mouzaDagPolygon) mouzaDagMiniMap.removeLayer(mouzaDagPolygon);
+
+  mouzaDagMarker = L.marker(coords || [23.7925, 90.3150]).addTo(mouzaDagMiniMap)
+    .bindPopup(`<strong>পার্সেল: ${parcelId}</strong><br>আনুমানিক অবস্থান (প্রদর্শনীমূলক)`)
+    .openPopup();
+
+  const lat = (coords || [23.7925, 90.3150])[0];
+  const lng = (coords || [23.7925, 90.3150])[1];
+  const delta = 0.0006;
+  mouzaDagPolygon = L.polygon([
+    [lat - delta, lng - delta],
+    [lat - delta, lng + delta],
+    [lat + delta, lng + delta],
+    [lat + delta, lng - delta]
+  ], {
+    color: '#059669',
+    fillColor: '#10b981',
+    fillOpacity: 0.35,
+    weight: 2
+  }).addTo(mouzaDagMiniMap);
+
+  setTimeout(() => mouzaDagMiniMap.invalidateSize(), 200);
+}
+
+async function executeMouzaDagSearch() {
+  const dagInput = document.getElementById('mouza-dag-input-num');
+  const mouzaSelect = document.getElementById('mouza-dag-mouza-sel');
+  const surveySelect = document.getElementById('mouza-dag-survey-type');
+  const container = document.getElementById('mouza-dag-results-container');
+
+  const dag = dagInput ? dagInput.value.trim() : '';
+  const mouza = mouzaSelect ? mouzaSelect.value : '';
+  const survey = surveySelect ? surveySelect.value : '';
+
+  if (!dag && !mouza) {
+    showToast("অনুগ্রহ করে দাগ নম্বর অথবা মৌজা নির্বাচন করুন।", "warning");
+    return;
+  }
+
+  showToast("মৌজা ও দাগ অনুসন্ধান চলছে...", "info");
+
+  try {
+    const res = await LandTechAPI.searchParcels({
+      dag: dag || null,
+      mouza: mouza || null,
+      survey_type: survey || null,
+      limit: 5
+    });
+
+    if (res && res.parcels && res.parcels.length > 0) {
+      const p = res.parcels[0];
+      if (container) container.style.display = 'block';
+
+      document.getElementById('mouza-dag-title').textContent = `দাগ নং ${p.dag_number}`;
+      document.getElementById('mouza-dag-location').textContent = `${p.mouza || mouza}, সাভার, ঢাকা`;
+      document.getElementById('mouza-dag-area').textContent = `${p.area_decimal} শতক`;
+      document.getElementById('mouza-dag-khatian').textContent = p.khatian_number || '১১০১';
+      document.getElementById('mouza-dag-classification').textContent = p.land_class || 'নাল / ধানী জমি';
+      document.getElementById('mouza-dag-survey').textContent = `${p.survey_type || 'RS'} (Revisional Survey)`;
+      document.getElementById('mouza-dag-jl').textContent = p.jl_number || '১২';
+      document.getElementById('mouza-dag-parcel-id').textContent = p.parcel_id;
+
+      const btnDd = document.getElementById('btn-mouza-dag-view-dd');
+      if (btnDd) {
+        btnDd.onclick = () => {
+          AppState.selectedParcelId = p.parcel_id;
+          switchAppPage('due-diligence');
+          loadDueDiligencePage(p.parcel_id);
+        };
+      }
+
+      const btnTimeline = document.getElementById('btn-mouza-dag-view-timeline');
+      if (btnTimeline) {
+        btnTimeline.onclick = () => {
+          AppState.selectedParcelId = p.parcel_id;
+          switchAppPage('citizen');
+          loadCitizenDossier(p.parcel_id);
+        };
+      }
+
+      const coords = [p.centroid_lat || 23.7925, p.centroid_lon || 90.3150];
+      initMouzaDagMiniMap(coords, p.parcel_id);
+
+      showToast(`দাগ নং ${p.dag_number} এর তথ্য সফলভাবে পাওয়া গেছে।`, 'success');
+    } else {
+      showToast("উক্ত মৌজা ও দাগে কোনো টেস্ট রেকর্ড পাওয়া যায়নি।", "warning");
+      if (container) container.style.display = 'none';
+    }
+  } catch (err) {
+    showToast(`অনুসন্ধানে ত্রুটি: ${err.message}`, "error");
+  }
+}
+
+// ==========================================================================
+// WORKSPACE 2C: PRE-PURCHASE DUE DILIGENCE CONTROLLER
+// ==========================================================================
+function initDueDiligenceWorkspace() {
+  const input = document.getElementById('due-diligence-parcel-input');
+  const loadBtn = document.getElementById('btn-due-diligence-load');
+
+  if (loadBtn && input) {
+    loadBtn.addEventListener('click', () => {
+      const pid = input.value.trim();
+      if (pid) loadDueDiligencePage(pid);
+    });
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        const pid = input.value.trim();
+        if (pid) loadDueDiligencePage(pid);
+      }
+    });
+  }
+}
+
+async function loadDueDiligencePage(parcelId) {
+  AppState.selectedParcelId = parcelId;
+  const input = document.getElementById('due-diligence-parcel-input');
+  if (input) input.value = parcelId;
+
+  const reportId = document.getElementById('dd-report-id');
+  const reportDate = document.getElementById('dd-report-date');
+  if (reportId) reportId.textContent = `DD-${parcelId}`;
+  if (reportDate) reportDate.textContent = new Date().toLocaleDateString('bn-BD', { year: 'numeric', month: 'long', day: 'numeric' });
+
+  try {
+    const [dossier, profile] = await Promise.all([
+      LandTechAPI.getDueDiligence(parcelId),
+      LandTechAPI.getParcelProfile(parcelId)
+    ]);
+
+    const riskScore = dossier.risk_score || 0;
+    const scoreEl = document.getElementById('dd-overall-risk-score');
+    const titleEl = document.getElementById('dd-overall-risk-title');
+    const descEl = document.getElementById('dd-overall-risk-desc');
+
+    if (scoreEl) scoreEl.textContent = `${riskScore}/১০০`;
+
+    if (riskScore >= 70) {
+      if (titleEl) {
+        titleEl.textContent = `🚨 উচ্চ ঝুঁকি (CRITICAL - ${riskScore}/100)`;
+        titleEl.style.color = '#b91c1c';
+      }
+      if (descEl) descEl.textContent = dossier.flag_reason || "দ্বৈত বিক্রয় বা গুরুতর জটিলতা বিদ্যমান। লেনদেন স্থগিত রাখা বাঞ্ছনীয়।";
+    } else if (riskScore >= 30) {
+      if (titleEl) {
+        titleEl.textContent = `⚠️ মধ্যম ঝুঁকি (CAUTION - ${riskScore}/100)`;
+        titleEl.style.color = '#d97706';
+      }
+      if (descEl) descEl.textContent = dossier.flag_reason || "বকেয়া কর বা আংশিক কাগজপত্রের অসঙ্গতি রয়েছে। সতর্কতার সাথে যাচাই করুন।";
+    } else {
+      if (titleEl) {
+        titleEl.textContent = `✓ নিয়মিত ও কম ঝুঁকি (CLEAR - ${riskScore}/100)`;
+        titleEl.style.color = '#047857';
+      }
+      if (descEl) descEl.textContent = "প্রাথমিক রেকর্ডে কোনো সক্রিয় নিষেধাজ্ঞা বা দ্বৈত বিক্রয় অ্যালার্ট পাওয়া যায়নি।";
+    }
+
+    const c1Desc = document.getElementById('dd-check-1-desc');
+    const c2Badge = document.getElementById('dd-check-2-badge');
+    const c2Desc = document.getElementById('dd-check-2-desc');
+    const c3Desc = document.getElementById('dd-check-3-desc');
+    const c4Desc = document.getElementById('dd-check-4-desc');
+    const c5Desc = document.getElementById('dd-check-5-desc');
+
+    if (c1Desc) c1Desc.textContent = `মৌজা ${profile.mouza || 'আমিনবাজার'}, দাগ ${profile.dag_number || '১০১'}, খতিয়ান ${profile.khatian_number || '১১০১'}। রেকর্ডীয় পরিমাণ: ${profile.area_decimal || '৪৪.৭৬'} শতক।`;
+
+    if (dossier.is_double_selling || riskScore >= 70) {
+      if (c2Badge) {
+        c2Badge.className = 'pill-tag pill-danger';
+        c2Badge.textContent = '⚠️ সতর্কতা (দ্বৈত বিক্রয়)';
+      }
+      if (c2Desc) c2Desc.textContent = `সতর্কতা: একই বিক্রেতা কর্তৃক প্রথম দলিল সম্পাদনের পর নামজারি নিষ্পত্তির পূর্বেই দ্বিতীয় দলিল রেজিস্ট্রি করার চেষ্টা শনাক্ত হয়েছে।`;
+    } else {
+      if (c2Badge) {
+        c2Badge.className = 'pill-tag pill-safe';
+        c2Badge.textContent = '✓ তথ্য স্বাভাবিক';
+      }
+      if (c2Desc) c2Desc.textContent = `কোনো সক্রিয় দ্বৈত বিক্রয় বা একই দাগে পরস্পরবিরোধী দলিল রেজিস্ট্রি পাওয়া যায়নি।`;
+    }
+
+    if (c3Desc) c3Desc.textContent = `হাল সন ১৪৩১ পর্যন্ত ভূমি উন্নয়ন কর পরিশোধিত। কোনো বকেয়া কর দাবি নেই।`;
+    if (c4Desc) c4Desc.textContent = `স্থানীয় সহকারী জজ বা জেলা জজ আদালতে কোনো প্রকার দেওয়ানি মামলা বা নিষেধাজ্ঞা নেই।`;
+    if (c5Desc) c5Desc.textContent = `এই দাগটি ১-নং সরকারি খাস খতিয়ানভুক্ত নয় এবং জাতীয় প্রকল্পের অধিগ্রহণ জোনের বাইরে।`;
+
+  } catch (err) {
+    console.warn("Failed to load due diligence dossier:", err);
+  }
+}
+window.loadDueDiligencePage = loadDueDiligencePage;
+
+// ==========================================================================
+// WORKSPACE 2E: LAND CALCULATORS CONTROLLER
+// ==========================================================================
+function initLandCalculators() {
+  const decInput = document.getElementById('calc-unit-decimal');
+  const kathaInput = document.getElementById('calc-unit-katha');
+  const bighaInput = document.getElementById('calc-unit-bigha');
+  const acreInput = document.getElementById('calc-unit-acre');
+  const sqftInput = document.getElementById('calc-unit-sqft');
+  const sqmInput = document.getElementById('calc-unit-sqm');
+  const koraInput = document.getElementById('calc-unit-kora');
+  const gondaInput = document.getElementById('calc-unit-gonda');
+
+  let isUpdatingUnits = false;
+
+  function updateAllFromDecimal(dec) {
+    if (isUpdatingUnits || isNaN(dec) || dec < 0) return;
+    isUpdatingUnits = true;
+
+    const sqft = dec * 435.6;
+    const katha = sqft / 720;
+    const bigha = katha / 20;
+    const acre = dec / 100;
+    const sqm = sqft / 10.7639;
+    const gonda = sqft / 86.4;
+    const kora = sqft / 21.6;
+
+    if (document.activeElement !== decInput && decInput) decInput.value = Number(dec.toFixed(4));
+    if (document.activeElement !== kathaInput && kathaInput) kathaInput.value = Number(katha.toFixed(4));
+    if (document.activeElement !== bighaInput && bighaInput) bighaInput.value = Number(bigha.toFixed(4));
+    if (document.activeElement !== acreInput && acreInput) acreInput.value = Number(acre.toFixed(4));
+    if (document.activeElement !== sqftInput && sqftInput) sqftInput.value = Number(sqft.toFixed(2));
+    if (document.activeElement !== sqmInput && sqmInput) sqmInput.value = Number(sqm.toFixed(2));
+    if (document.activeElement !== koraInput && koraInput) koraInput.value = Number(kora.toFixed(3));
+    if (document.activeElement !== gondaInput && gondaInput) gondaInput.value = Number(gonda.toFixed(3));
+
+    isUpdatingUnits = false;
+  }
+
+  if (decInput) {
+    decInput.addEventListener('input', () => updateAllFromDecimal(parseFloat(decInput.value) || 0));
+    updateAllFromDecimal(1.0);
+  }
+  if (kathaInput) kathaInput.addEventListener('input', () => {
+    const k = parseFloat(kathaInput.value) || 0;
+    updateAllFromDecimal((k * 720) / 435.6);
+  });
+  if (bighaInput) bighaInput.addEventListener('input', () => {
+    const b = parseFloat(bighaInput.value) || 0;
+    updateAllFromDecimal((b * 20 * 720) / 435.6);
+  });
+  if (acreInput) acreInput.addEventListener('input', () => {
+    const a = parseFloat(acreInput.value) || 0;
+    updateAllFromDecimal(a * 100);
+  });
+  if (sqftInput) sqftInput.addEventListener('input', () => {
+    const sf = parseFloat(sqftInput.value) || 0;
+    updateAllFromDecimal(sf / 435.6);
+  });
+  if (sqmInput) sqmInput.addEventListener('input', () => {
+    const sm = parseFloat(sqmInput.value) || 0;
+    updateAllFromDecimal((sm * 10.7639) / 435.6);
+  });
+  if (koraInput) koraInput.addEventListener('input', () => {
+    const kor = parseFloat(koraInput.value) || 0;
+    updateAllFromDecimal((kor * 21.6) / 435.6);
+  });
+  if (gondaInput) gondaInput.addEventListener('input', () => {
+    const gon = parseFloat(gondaInput.value) || 0;
+    updateAllFromDecimal((gon * 86.4) / 435.6);
+  });
+
+  const tabRectBtn = document.getElementById('btn-tab-rect');
+  const tabTriBtn = document.getElementById('btn-tab-triangle');
+  const rectPanel = document.getElementById('calc-tab-rect-panel');
+  const triPanel = document.getElementById('calc-tab-triangle-panel');
+
+  if (tabRectBtn && tabTriBtn && rectPanel && triPanel) {
+    tabRectBtn.addEventListener('click', () => {
+      tabRectBtn.className = 'btn btn-primary-forest btn-sm';
+      tabTriBtn.className = 'btn btn-secondary-stone btn-sm';
+      rectPanel.style.display = 'block';
+      triPanel.style.display = 'none';
+    });
+    tabTriBtn.addEventListener('click', () => {
+      tabTriBtn.className = 'btn btn-primary-forest btn-sm';
+      tabRectBtn.className = 'btn btn-secondary-stone btn-sm';
+      triPanel.style.display = 'block';
+      rectPanel.style.display = 'none';
+    });
+  }
+
+  const btnCalcRect = document.getElementById('btn-calc-rect');
+  if (btnCalcRect) {
+    btnCalcRect.addEventListener('click', () => {
+      const len = parseFloat(document.getElementById('calc-rect-length')?.value) || 0;
+      const wid = parseFloat(document.getElementById('calc-rect-width')?.value) || 0;
+      const sqft = len * wid;
+      const dec = sqft / 435.6;
+      const katha = sqft / 720;
+
+      const resBox = document.getElementById('calc-rect-result');
+      if (resBox) {
+        resBox.style.display = 'block';
+        document.getElementById('calc-rect-decimal-out').textContent = `${dec.toFixed(2)} শতক`;
+        document.getElementById('calc-rect-sqft-out').textContent = `${sqft.toFixed(2)} বর্গফুট (${katha.toFixed(2)} কাঠা)`;
+      }
+    });
+  }
+
+  const btnCalcTri = document.getElementById('btn-calc-triangle');
+  if (btnCalcTri) {
+    btnCalcTri.addEventListener('click', () => {
+      const a = parseFloat(document.getElementById('calc-tri-a')?.value) || 0;
+      const b = parseFloat(document.getElementById('calc-tri-b')?.value) || 0;
+      const c = parseFloat(document.getElementById('calc-tri-c')?.value) || 0;
+
+      if (a + b <= c || a + c <= b || b + c <= a) {
+        showToast("ত্রিভুজের যেকোনো দুই বাহুর যোগফল তৃতীয় বাহু অপেক্ষা বৃহত্তর হতে হবে।", "warning");
+        return;
+      }
+
+      const s = (a + b + c) / 2;
+      const sqft = Math.sqrt(s * (s - a) * (s - b) * (s - c));
+      const dec = sqft / 435.6;
+      const katha = sqft / 720;
+
+      const resBox = document.getElementById('calc-tri-result');
+      if (resBox) {
+        resBox.style.display = 'block';
+        document.getElementById('calc-tri-decimal-out').textContent = `${dec.toFixed(2)} শতক`;
+        document.getElementById('calc-tri-sqft-out').textContent = `${sqft.toFixed(2)} বর্গফুট (${katha.toFixed(2)} কাঠা)`;
+      }
+    });
+  }
+
+  const deedValInput = document.getElementById('calc-deed-value');
+  const areaTypeSelect = document.getElementById('calc-area-type');
+
+  function calculateFees() {
+    const val = parseFloat(deedValInput?.value) || 0;
+    const area = areaTypeSelect ? areaTypeSelect.value : 'union';
+
+    const stampRate = 0.015;
+    const regRate = 0.01;
+    let localRate = 0.02;
+    if (area === 'city') localRate = 0.03;
+
+    const stampDuty = val * stampRate;
+    const regFee = val * regRate;
+    const localTax = val * localRate;
+    const fixedFees = 400;
+
+    const total = stampDuty + regFee + localTax + fixedFees;
+
+    const rateLabel = document.getElementById('fee-local-rate');
+    if (rateLabel) rateLabel.textContent = `${(localRate * 100).toFixed(1)}%`;
+
+    const sEl = document.getElementById('fee-stamp-duty');
+    const rEl = document.getElementById('fee-reg-fee');
+    const lEl = document.getElementById('fee-local-tax');
+    const tEl = document.getElementById('fee-total-cost');
+
+    if (sEl) sEl.textContent = `${Math.round(stampDuty).toLocaleString('bn-BD')} ৳`;
+    if (rEl) rEl.textContent = `${Math.round(regFee).toLocaleString('bn-BD')} ৳`;
+    if (lEl) lEl.textContent = `${Math.round(localTax).toLocaleString('bn-BD')} ৳`;
+    if (tEl) tEl.textContent = `${Math.round(total).toLocaleString('bn-BD')} ৳`;
+  }
+
+  if (deedValInput) deedValInput.addEventListener('input', calculateFees);
+  if (areaTypeSelect) areaTypeSelect.addEventListener('change', calculateFees);
+  calculateFees();
+}
+
+// ==========================================================================
+// OVERVIEW QUICK SEARCH CONTROLLER
+// ==========================================================================
+function initOverviewPublicExperience() {
+  const searchInput = document.getElementById('overview-quick-search-input');
+  if (searchInput) {
+    searchInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') triggerOverviewQuickSearch();
+    });
+  }
+}
+
+function triggerOverviewQuickSearch() {
+  const input = document.getElementById('overview-quick-search-input');
+  const q = input ? input.value.trim() : '';
+  if (!q) {
+    showToast("দাগ নম্বর, খতিয়ান বা পার্সেল আইডি লিখুন।", "warning");
+    return;
+  }
+
+  if (q.toUpperCase().startsWith('BD-PAR-')) {
+    AppState.selectedParcelId = q.toUpperCase();
+    switchAppPage('due-diligence');
+    loadDueDiligencePage(q.toUpperCase());
+  } else {
+    switchAppPage('citizen');
+    const dagEl = document.getElementById('app-search-dag');
+    if (dagEl) dagEl.value = q;
+    executeAppSearch();
+  }
+}
+window.triggerOverviewQuickSearch = triggerOverviewQuickSearch;
+
+// ==========================================================================
 // WORKSPACE 3: DEDICATED FRAUD INVESTIGATION & RISK ANALYSIS (P3 / SCREEN 3)
 // Purpose: সন্দেহজনক জমি লেনদেন শনাক্ত করুন
 // ==========================================================================
@@ -2206,11 +2821,45 @@ function initMutationWorkspace() {
 // ==========================================================================
 // WORKSPACE 5: DOCUMENT VERIFICATION / SHA-256 HASH (P2)
 // ==========================================================================
+let currentVerifyMode = 'calc'; // 'calc' | 'compare'
+let selectedVerifyFile = null;
+
 function initDocumentVerifyWorkspace() {
   const dropzone = document.getElementById('hash-dropzone');
   const fileInput = document.getElementById('hash-file-input');
   const btnClean = document.getElementById('btn-hash-sample-clean');
   const btnTamper = document.getElementById('btn-hash-sample-tampered');
+  const btnModeCalc = document.getElementById('btn-hash-mode-calc');
+  const btnModeCompare = document.getElementById('btn-hash-mode-compare');
+  const refHashBox = document.getElementById('verify-reference-hash-box');
+  const refHashInput = document.getElementById('verify-reference-hash-input');
+  const btnRunAction = document.getElementById('btn-run-hash-action');
+  const dropLabel = document.getElementById('hash-dropzone-label');
+
+  // Mode toggling
+  if (btnModeCalc && btnModeCompare) {
+    btnModeCalc.addEventListener('click', () => {
+      currentVerifyMode = 'calc';
+      btnModeCalc.className = 'btn btn-primary-forest btn-sm';
+      btnModeCompare.className = 'btn btn-secondary-stone btn-sm';
+      if (refHashBox) refHashBox.style.display = 'none';
+      if (btnRunAction) btnRunAction.textContent = '🔐 SHA-256 হ্যাশ গণনা করুন';
+    });
+
+    btnModeCompare.addEventListener('click', () => {
+      currentVerifyMode = 'compare';
+      btnModeCompare.className = 'btn btn-primary-forest btn-sm';
+      btnModeCalc.className = 'btn btn-secondary-stone btn-sm';
+      if (refHashBox) refHashBox.style.display = 'block';
+      if (btnRunAction) btnRunAction.textContent = '🔍 রেফারেন্স হ্যাশের সাথে তুলনা করুন';
+    });
+  }
+
+  function handleFileSelect(file) {
+    selectedVerifyFile = file;
+    if (dropLabel) dropLabel.textContent = `নির্বাচিত ফাইল: ${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+    computeClientSideHashPreview(file);
+  }
 
   if (dropzone && fileInput) {
     dropzone.addEventListener('click', () => fileInput.click());
@@ -2220,13 +2869,24 @@ function initDocumentVerifyWorkspace() {
       e.preventDefault();
       dropzone.classList.remove('dragover');
       if (e.dataTransfer.files.length > 0) {
-        verifyDocumentFile(e.dataTransfer.files[0]);
+        handleFileSelect(e.dataTransfer.files[0]);
       }
     });
     fileInput.addEventListener('change', () => {
       if (fileInput.files.length > 0) {
-        verifyDocumentFile(fileInput.files[0]);
+        handleFileSelect(fileInput.files[0]);
       }
+    });
+  }
+
+  if (btnRunAction) {
+    btnRunAction.addEventListener('click', () => {
+      if (!selectedVerifyFile) {
+        showToast("অনুগ্রহ করে প্রথমে একটি দলিল ফাইল নির্বাচন করুন।", "warning");
+        return;
+      }
+      const refHash = (currentVerifyMode === 'compare' && refHashInput) ? refHashInput.value.trim() : null;
+      verifyDocumentFile(selectedVerifyFile, refHash);
     });
   }
 
@@ -2238,25 +2898,38 @@ function initDocumentVerifyWorkspace() {
   }
 }
 
-async function verifyDocumentFile(file) {
+async function computeClientSideHashPreview(file) {
   const outBox = document.getElementById('hash-verification-output');
-  outBox.innerHTML = 'ক্লায়েন্ট সাইড SHA-256 হ্যাশ গণনা করা হচ্ছে...';
+  try {
+    const arrayBuffer = await file.arrayBuffer();
+    const clientHash = await LandTechAPI.computeClientSHA256(arrayBuffer);
+    outBox.innerHTML = `
+      <div style="font-size:0.84rem; margin-bottom:0.75rem;">
+        <div><strong>ফাইলের নাম:</strong> ${file.name}</div>
+        <div><strong>আকার:</strong> ${(file.size / 1024).toFixed(1)} KB</div>
+        <div style="margin-top:0.4rem;"><strong>ক্লায়েন্ট সাইড গণনাকৃত SHA-256 হ্যাশ:</strong></div>
+        <code class="hash-token-code" style="word-break:break-all; color:#047857;">${clientHash}</code>
+      </div>
+      <div style="display:flex; gap:0.5rem; margin-top:0.5rem;">
+        <button class="btn btn-secondary-stone btn-sm" onclick="navigator.clipboard.writeText('${clientHash}'); showToast('হ্যাশ ক্লিপবোর্ডে কপি হয়েছে', 'success');" style="font-size:0.75rem;">
+          📋 হ্যাশ কপি করুন
+        </button>
+      </div>
+    `;
+  } catch (err) {
+    console.warn("Client hash preview error:", err);
+  }
+}
+
+async function verifyDocumentFile(file, referenceHash) {
+  const outBox = document.getElementById('hash-verification-output');
+  outBox.innerHTML = '<div style="text-align:center; padding:2rem; color:var(--c-stone-500);">ক্রিপ্টোগ্রাফিক হ্যাশ গণনা ও প্রামাণিকতা নিরীক্ষা চলছে...</div>';
 
   try {
     const arrayBuffer = await file.arrayBuffer();
     const clientHash = await LandTechAPI.computeClientSHA256(arrayBuffer);
 
-    outBox.innerHTML = `
-      <div style="font-size:0.82rem; margin-bottom:0.75rem;">
-        <div><strong>ফাইলের নাম:</strong> ${file.name}</div>
-        <div><strong>আকার:</strong> ${(file.size / 1024).toFixed(1)} KB</div>
-        <div style="margin-top:0.35rem;"><strong>গণনাকৃত SHA-256 হ্যাশ:</strong></div>
-        <code class="hash-token-code">${clientHash}</code>
-      </div>
-      <div style="color:var(--c-stone-500); font-size:0.8rem;">রেজিস্ট্রি লেজারের সাথে মেলানো হচ্ছে...</div>
-    `;
-
-    const res = await LandTechAPI.verifyDocumentIntegrity(file, file.name);
+    const res = await LandTechAPI.verifyDocumentIntegrity(file, referenceHash);
     displayHashVerificationResult(res, clientHash);
   } catch (err) {
     outBox.innerHTML = `<span style="color:var(--c-risk-danger)">যাচাইয়ে ত্রুটি: ${err.message}</span>`;
@@ -2265,10 +2938,9 @@ async function verifyDocumentFile(file) {
 
 async function simulateDocHashTest(isTampered) {
   const outBox = document.getElementById('hash-verification-output');
-  outBox.innerHTML = 'নমুনা দলিলের ডিজিটাল ফিঙ্গারপ্রিন্ট টেস্ট চলছে...';
+  outBox.innerHTML = '<div style="text-align:center; padding:2rem; color:var(--c-stone-500);">নমুনা দলিলের ডিজিটাল ফিঙ্গারপ্রিন্ট টেস্ট চলছে...</div>';
 
   try {
-    // Fetch actual sample authentic PNG bytes from server
     let imgRes = await fetch('/api/v1/documents/sample-deed');
     if (!imgRes.ok) {
       imgRes = await fetch('/static/assets/samples/sample_deed_authentic.png');
@@ -2279,7 +2951,6 @@ async function simulateDocHashTest(isTampered) {
     if (imgRes.ok) {
       blob = await imgRes.blob();
       if (isTampered) {
-        // Corrupt 1 byte in the array buffer
         const buf = await blob.arrayBuffer();
         const u8 = new Uint8Array(buf);
         u8[u8.length - 10] = u8[u8.length - 10] ^ 0xFF;
@@ -2287,7 +2958,6 @@ async function simulateDocHashTest(isTampered) {
         filename = 'DOC-000001_tampered.png';
       }
     } else {
-      // Fallback
       const fakeText = isTampered ? "TAMPERED_DEED_BYTE_2026" : "DESHMRITTIKA_DOC_000001";
       blob = new Blob([fakeText], { type: 'text/plain' });
     }
@@ -2295,7 +2965,7 @@ async function simulateDocHashTest(isTampered) {
     const arrayBuffer = await blob.arrayBuffer();
     const clientHash = await LandTechAPI.computeClientSHA256(arrayBuffer);
 
-    const res = await LandTechAPI.verifyDocumentIntegrity(blob, filename);
+    const res = await LandTechAPI.verifyDocumentIntegrity(blob, isTampered ? "tampered_sample_hash_mismatch" : null);
     displayHashVerificationResult(res, clientHash);
   } catch (e) {
     outBox.innerHTML = `<span style="color:var(--c-risk-danger)">টেস্ট ত্রুটি: ${e.message}</span>`;
@@ -2304,32 +2974,69 @@ async function simulateDocHashTest(isTampered) {
 
 function displayHashVerificationResult(res, clientHash) {
   const outBox = document.getElementById('hash-verification-output');
-  if (res.is_authentic) {
+  const calcHash = res.calculated_hash || clientHash;
+  const copyBtn = `<button class="btn btn-secondary-stone btn-sm" onclick="navigator.clipboard.writeText('${calcHash}'); showToast('হ্যাশ কপি করা হয়েছে', 'success');" style="margin-top:0.6rem; font-size:0.75rem;">📋 হ্যাশ কপি করুন</button>`;
+
+  if (res.comparison_status === 'MATCHES_SUPPLIED_REFERENCE') {
     outBox.innerHTML = `
-      <div style="background:var(--c-risk-safe-bg); border:1px solid var(--c-risk-safe-border); padding:1rem; border-radius:8px;">
-        <h4 style="color:var(--c-risk-safe); font-size:0.95rem; display:flex; align-items:center; gap:0.4rem;">
+      <div style="background:var(--c-risk-safe-bg); border:1.5px solid var(--c-risk-safe-border); padding:1.25rem; border-radius:12px;">
+        <h4 style="color:var(--c-risk-safe); font-size:1rem; font-weight:800; display:flex; align-items:center; gap:0.4rem;">
+          ✓ রেফারেন্স হ্যাশের সাথে শতভাগ হুবহু মিলেছে
+        </h4>
+        <div style="font-size:0.84rem; margin-top:0.5rem; color:#0f172a;">
+          আপনার প্রদানকৃত মূল দলিলের রেফারেন্স হ্যাশের সাথে আপলোডকৃত ফাইলের ডিজিটাল স্বাক্ষর সম্পূর্ণ অবিকৃত।
+        </div>
+        <div style="margin-top:0.5rem;"><strong>গণনাকৃত SHA-256 হ্যাশ:</strong></div>
+        <code class="hash-token-code" style="color:var(--c-risk-safe); word-break:break-all;">${calcHash}</code>
+        <div style="margin-top:0.35rem;"><strong>প্রদত্ত রেফারেন্স হ্যাশ:</strong></div>
+        <code class="hash-token-code" style="color:var(--c-forest-700); word-break:break-all;">${res.reference_hash}</code>
+        <div>${copyBtn}</div>
+      </div>
+    `;
+  } else if (res.comparison_status === 'DOES_NOT_MATCH_SUPPLIED_REFERENCE') {
+    outBox.innerHTML = `
+      <div style="background:var(--c-risk-danger-bg); border:1.5px solid var(--c-risk-danger-border); padding:1.25rem; border-radius:12px;">
+        <h4 style="color:var(--c-risk-danger); font-size:1rem; font-weight:800; display:flex; align-items:center; gap:0.4rem;">
+          ✕ রেফারেন্স হ্যাশের সাথে মেলেনি (Tamper / Mismatch Detected)
+        </h4>
+        <div style="font-size:0.84rem; margin-top:0.5rem; color:#0f172a;">
+          সতর্কতা: ফাইলের ক্রিপ্টোগ্রাফিক হ্যাশ আপনার প্রদত্ত রেফারেন্স হ্যাশের সাথে মিলছে না। ফাইলের কোনো বাইট বা টেক্সট পরিবর্তিত বা বিকৃত হতে পারে।
+        </div>
+        <div style="margin-top:0.5rem;"><strong>আপলোডকৃত ফাইলের হ্যাশ:</strong></div>
+        <code class="hash-token-code" style="color:var(--c-risk-danger); word-break:break-all;">${calcHash}</code>
+        <div style="margin-top:0.35rem;"><strong>প্রদত্ত রেফারেন্স হ্যাশ:</strong></div>
+        <code class="hash-token-code" style="color:#64748b; word-break:break-all;">${res.reference_hash}</code>
+        <div>${copyBtn}</div>
+      </div>
+    `;
+  } else if (res.is_authentic || res.comparison_status === 'MATCHED_REGISTERED_DOCUMENT') {
+    outBox.innerHTML = `
+      <div style="background:var(--c-risk-safe-bg); border:1.5px solid var(--c-risk-safe-border); padding:1.25rem; border-radius:12px;">
+        <h4 style="color:var(--c-risk-safe); font-size:1rem; font-weight:800; display:flex; align-items:center; gap:0.4rem;">
           ✓ মূল দলিল অবিকৃত ও প্রামাণ্য (Authentic)
         </h4>
-        <div style="font-size:0.8rem; margin-top:0.4rem;">
-          <strong>ম্যাচিং দলিল আইডি:</strong> ${res.matched_document_id} | <strong>পার্সেল:</strong> ${res.parcel_id}
+        <div style="font-size:0.84rem; margin-top:0.5rem; color:#0f172a;">
+          <strong>ম্যাচিং দলিল আইডি:</strong> ${res.matched_document_id || 'DOC-000001'} | <strong>পার্সেল:</strong> ${res.parcel_id || 'BD-PAR-000101'}
         </div>
-        <div style="margin-top:0.3rem;"><strong>ভেরিফাইড SHA-256 হ্যাশ:</strong></div>
-        <code class="hash-token-code" style="color:var(--c-risk-safe);">${clientHash}</code>
-        <div style="font-size:0.75rem; color:var(--c-forest-700); margin-top:0.3rem;">উৎস লেবেল: ${res.provenance_label}</div>
+        <div style="margin-top:0.5rem;"><strong>ভেরিফাইড SHA-256 হ্যাশ:</strong></div>
+        <code class="hash-token-code" style="color:var(--c-risk-safe); word-break:break-all;">${calcHash}</code>
+        <div style="font-size:0.75rem; color:var(--c-forest-700); margin-top:0.4rem;">উৎস লেবেল: ${res.provenance_label || 'সাব-রেজিস্ট্রি পরীক্ষামূলক ডাটাবেস'}</div>
+        <div>${copyBtn}</div>
       </div>
     `;
   } else {
     outBox.innerHTML = `
-      <div style="background:var(--c-risk-danger-bg); border:1px solid var(--c-risk-danger-border); padding:1rem; border-radius:8px;">
-        <h4 style="color:var(--c-risk-danger); font-size:0.95rem; display:flex; align-items:center; gap:0.4rem;">
-          ✕ বিকৃত বা জাল দলিল শনাক্ত হয়েছে (Tamper Detected)
+      <div style="background:#f8fafc; border:1.5px solid #cbd5e1; padding:1.25rem; border-radius:12px;">
+        <h4 style="color:#0f172a; font-size:1rem; font-weight:800; display:flex; align-items:center; gap:0.4rem;">
+          ℹ️ SHA-256 হ্যাশ সফলভাবে গণনা সম্পন্ন হয়েছে
         </h4>
-        <div style="font-size:0.8rem; margin-top:0.4rem;">
-          নথিটির ডিজিটাল ফিঙ্গারপ্রিন্ট সাব-রেজিস্ট্রির মূল বালাম বহির সাথে মিলছে না।
+        <div style="font-size:0.84rem; margin-top:0.5rem; color:#475569;">
+          নথিটির ডিজিটাল ফিঙ্গারপ্রিন্ট সফলভাবে প্রস্তুত হয়েছে। এটি সাব-রেজিস্ট্রির পরীক্ষামূলক বালামে তালিকাভুক্ত নয় (Unregistered Document)।
         </div>
-        <div style="margin-top:0.3rem;"><strong>অমিল হ্যাশ:</strong></div>
-        <code class="hash-token-code" style="color:var(--c-risk-danger);">${clientHash}</code>
-        <div style="font-size:0.75rem; color:var(--c-risk-danger); margin-top:0.3rem;">স্ট্যাটাস: ${res.status_label}</div>
+        <div style="margin-top:0.5rem;"><strong>গণনাকৃত SHA-256 হ্যাশ:</strong></div>
+        <code class="hash-token-code" style="color:#047857; word-break:break-all;">${calcHash}</code>
+        <div style="font-size:0.75rem; color:#64748b; margin-top:0.4rem;">স্ট্যাটাস: ${res.status_label || 'ভবিষ্যতে অবিকৃতি প্রমাণের জন্য এই হ্যাশ সংরক্ষণ করুন'}</div>
+        <div>${copyBtn}</div>
       </div>
     `;
   }

@@ -154,6 +154,9 @@ class DocumentVerifyResponse(BaseModel):
     document_type: Optional[str] = None
     status_label: str
     provenance_label: str
+    calculated_hash: Optional[str] = None
+    reference_hash: Optional[str] = None
+    comparison_status: Optional[str] = None
 
 class ReviewDecisionRequest(BaseModel):
     case_id: str

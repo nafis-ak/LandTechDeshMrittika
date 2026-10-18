@@ -18,6 +18,9 @@ class SearchService:
         parcel_id: Optional[str] = None,
         deed_number: Optional[str] = None,
         owner_name: Optional[str] = None,
+        survey_type: Optional[str] = None,
+        district: Optional[str] = None,
+        upazila: Optional[str] = None,
         limit: int = 50,
         offset: int = 0
     ) -> SearchResult:
@@ -46,9 +49,21 @@ class SearchService:
             conditions.append("p.parcel_id = ?")
             params.append(parcel_id.strip())
 
+        if district:
+            conditions.append("p.district LIKE ?")
+            params.append(f"%{district.strip()}%")
+
+        if upazila:
+            conditions.append("p.upazila LIKE ?")
+            params.append(f"%{upazila.strip()}%")
+
         if mouza:
-            conditions.append("p.mouza = ?")
-            params.append(mouza.strip())
+            conditions.append("p.mouza LIKE ?")
+            params.append(f"%{mouza.strip()}%")
+
+        if survey_type:
+            conditions.append("p.survey_type = ?")
+            params.append(survey_type.strip().upper())
 
         if dag_number:
             conditions.append("p.dag_number = ?")
@@ -61,6 +76,7 @@ class SearchService:
         base_query = " ".join(query_parts)
         if conditions:
             base_query += " WHERE " + " AND ".join(conditions)
+
 
         # Count total
         count_query = f"SELECT COUNT(DISTINCT parcel_id) FROM ({base_query}) AS sub"

@@ -325,7 +325,7 @@ class LandTechAPI {
     return await res.json();
   }
 
-  static async searchParcels({ mouza, dag, khatian, parcel_id, deed_number, owner_name, limit = 20, offset = 0 }) {
+  static async searchParcels({ mouza, dag, khatian, parcel_id, deed_number, owner_name, survey_type, district, upazila, limit = 20, offset = 0 } = {}) {
     const params = new URLSearchParams();
     if (mouza) params.append('mouza', mouza);
     if (dag) params.append('dag', dag);
@@ -333,6 +333,9 @@ class LandTechAPI {
     if (parcel_id) params.append('parcel_id', parcel_id);
     if (deed_number) params.append('deed_number', deed_number);
     if (owner_name) params.append('owner_name', owner_name);
+    if (survey_type) params.append('survey_type', survey_type);
+    if (district) params.append('district', district);
+    if (upazila) params.append('upazila', upazila);
     params.append('limit', limit);
     params.append('offset', offset);
 
@@ -392,9 +395,12 @@ class LandTechAPI {
     return await res.json();
   }
 
-  static async verifyDocumentIntegrity(fileBytesOrBlob, filename = 'document.png') {
+  static async verifyDocumentIntegrity(fileBytesOrBlob, filename = 'document.png', referenceHash = null) {
     const formData = new FormData();
     formData.append('file', fileBytesOrBlob, filename);
+    if (referenceHash) {
+      formData.append('reference_hash', referenceHash);
+    }
 
     const res = await fetch(`${API_BASE}/documents/verify-integrity`, {
       method: 'POST',
@@ -413,6 +419,7 @@ class LandTechAPI {
     const hashArray = Array.from(new Uint8Array(hashBuffer));
     return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
   }
+
 
   static async uploadDocumentOCR(fileBytesOrBlob, filename = 'document.png', preprocessMode = 'enhance_contrast', rotateDeg = 0, langOverride = null) {
     const formData = new FormData();

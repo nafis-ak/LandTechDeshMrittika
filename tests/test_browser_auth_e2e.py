@@ -38,7 +38,10 @@ class BrowserAuthE2ETest(unittest.TestCase):
         self.driver.get(BASE_URL)
         self.driver.execute_script("localStorage.clear(); sessionStorage.clear();")
         self.driver.get(BASE_URL)
-        time.sleep(1)
+        time.sleep(0.5)
+        # Navigate to landing view for testing landing auth modals
+        self.driver.execute_script("if (window.navigateToLanding) window.navigateToLanding();")
+        time.sleep(0.5)
 
     def test_01_landing_page_guest_state(self):
         """Verify landing page loads cleanly in guest mode with login and signup CTAs."""

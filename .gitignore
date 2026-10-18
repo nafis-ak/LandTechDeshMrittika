@@ -8,3 +8,7 @@ __pycache__/
 .dev_mail.log
 data/backups/
 
+
+# Local database files - do not push to GitHub
+data/generated/full_scale/*.db
+data/backups/*.db

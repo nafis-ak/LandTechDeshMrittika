@@ -111,12 +111,15 @@ if FRONTEND_DIR.exists():
     if assets_dir.exists():
         app.mount("/assets", StaticFiles(directory=str(assets_dir)), name="assets")
 
-    @app.get("/", include_in_schema=False)
+    @app.api_route("/", methods=["GET", "HEAD"], include_in_schema=False)
+    @app.api_route("/citizen", methods=["GET", "HEAD"], include_in_schema=False)
+    @app.api_route("/public", methods=["GET", "HEAD"], include_in_schema=False)
     def serve_index():
         index_file = FRONTEND_DIR / "index.html"
         if index_file.exists():
             return FileResponse(str(index_file))
         return JSONResponse({"message": "দেশমৃত্তিকা API Server running. Visit /docs for OpenAPI specifications."})
+
 else:
     @app.get("/", include_in_schema=False)
     def root():

@@ -15,13 +15,15 @@ router = APIRouter(prefix="/documents", tags=["Documents"])
 @router.post("/verify-integrity", response_model=DocumentVerifyResponse)
 async def verify_document_integrity(
     file: UploadFile = File(...),
+    reference_hash: Optional[str] = Form(None),
     db: sqlite3.Connection = Depends(get_db)
 ):
     content = await file.read()
     if not content:
         raise HTTPException(status_code=400, detail="Uploaded file is empty.")
 
-    return CryptographicIntegrityService.verify_document_bytes(db, content)
+    return CryptographicIntegrityService.verify_document_bytes(db, content, reference_hash=reference_hash)
+
 
 @router.post("/upload-ocr")
 async def upload_document_ocr(

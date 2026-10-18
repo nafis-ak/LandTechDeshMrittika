@@ -361,85 +361,78 @@
 
         <!-- Sidebar Navigation Menu (Dynamically populated by user role) -->
         <nav class="sidebar-nav" id="sidebar-nav-container">
-          <div class="nav-category-title">মূল কার্যক্রম</div>
-          <div class="sidebar-nav-item active" data-page="overview">
+          <div class="nav-category-title">পাবলিক সিটিজেন বাতায়ন</div>
+          <div class="sidebar-nav-item active" data-page="overview" id="nav-item-overview" onclick="switchAppPage('overview')">
             <span class="nav-icon">📊</span>
-            <span class="nav-label">ওভারভিউ ড্যাশবোর্ড</span>
+            <span class="nav-label">ওভারভিউ</span>
           </div>
-          <div class="sidebar-nav-item" data-page="citizen">
+          <div class="sidebar-nav-item" data-page="citizen" id="nav-item-citizen" onclick="switchAppPage('citizen')">
             <span class="nav-icon">🔍</span>
-            <span class="nav-label">নাগরিক অনুসন্ধান ও ডসিয়ার</span>
-            <span class="nav-badge">P5</span>
+            <span class="nav-label">জমি ও খতিয়ান অনুসন্ধান</span>
           </div>
-          <div class="sidebar-nav-item" data-page="officer">
-            <span class="nav-icon">⚖️</span>
-            <span class="nav-label">দ্বৈত বিক্রয় ট্রায়াজ কিউ</span>
-            <span class="nav-badge">P3</span>
+          <div class="sidebar-nav-item" data-page="mouza-dag" id="nav-item-mouza-dag" onclick="switchAppPage('mouza-dag')">
+            <span class="nav-icon">📍</span>
+            <span class="nav-label">মৌজা ও দাগ অনুসন্ধান</span>
           </div>
-          <div class="sidebar-nav-item" data-page="mutation">
-            <span class="nav-icon">🔄</span>
-            <span class="nav-label">ই-নামজারি সিমুলেটর</span>
-            <span class="nav-badge">P4</span>
-          </div>
-
-          <div class="nav-category-title">প্রামাণিকতা ও প্রযুক্তি</div>
-          <div class="sidebar-nav-item" data-page="ocr">
-            <span class="nav-icon">📜</span>
-            <span class="nav-label">দলিল ও পরচা OCR</span>
-            <span class="nav-badge">P1</span>
-          </div>
-          <div class="sidebar-nav-item" data-page="verify">
-            <span class="nav-icon">🛡️</span>
-            <span class="nav-label">ক্রিপ্টোগ্রাফিক হ্যাশ যাচাই</span>
-            <span class="nav-badge">P2</span>
-          </div>
-          <div class="sidebar-nav-item" data-page="map">
+          <div class="sidebar-nav-item" data-page="map" id="nav-item-map" onclick="switchAppPage('map')">
             <span class="nav-icon">🗺️</span>
-            <span class="nav-label">ক্যাডাস্ট্রাল ম্যাপ ও খাস রক্ষা</span>
-            <span class="nav-badge">P6</span>
+            <span class="nav-label">ভূমির ম্যাপ</span>
           </div>
-          <div class="sidebar-nav-item" data-page="officials-directory" id="nav-item-officials">
-            <span class="nav-icon">🏛️</span>
-            <span class="nav-label">ভূমি কর্মকর্তা ও দপ্তর ডিরেক্টরি</span>
-            <span class="nav-badge" style="background:#047857; color:#ffffff;">ডিরেক্টরি</span>
+          <div class="sidebar-nav-item" data-page="due-diligence" id="nav-item-due-diligence" onclick="switchAppPage('due-diligence')">
+            <span class="nav-icon">🛡️</span>
+            <span class="nav-label">জমি কেনার আগে যাচাই</span>
           </div>
-
-          <div class="nav-category-title" id="nav-cat-admin">সিস্টেম ও প্রশাসন</div>
-          <div class="sidebar-nav-item" data-page="audit" id="nav-item-audit">
-            <span class="nav-icon">📋</span>
-            <span class="nav-label">অফিসার নিরীক্ষা ট্রেইল</span>
+          <div class="sidebar-nav-item" data-page="ocr" id="nav-item-ocr" onclick="switchAppPage('ocr')">
+            <span class="nav-icon">📜</span>
+            <span class="nav-label">দলিল ও পর্চা স্ক্যান</span>
           </div>
-          <div class="sidebar-nav-item" data-page="users" id="nav-item-users">
-            <span class="nav-icon">👥</span>
-            <span class="nav-label">ব্যবহারকারী ও রোল (RBAC)</span>
-            <span class="nav-badge" style="background:#4338ca; color:#ffffff;">Admin</span>
+          <div class="sidebar-nav-item" data-page="verify" id="nav-item-verify" onclick="switchAppPage('verify')">
+            <span class="nav-icon">🔐</span>
+            <span class="nav-label">দলিলের অখণ্ডতা যাচাই</span>
           </div>
-          <div class="sidebar-nav-item" data-page="security-logs" id="nav-item-security-logs">
-            <span class="nav-icon">🔒</span>
-            <span class="nav-label">প্ল্যাটফর্ম সিকিউরিটি অডিট</span>
-            <span class="nav-badge" style="background:#4338ca; color:#ffffff;">Admin</span>
+          <div class="sidebar-nav-item" data-page="service-guide" id="nav-item-service-guide" onclick="switchAppPage('service-guide')">
+            <span class="nav-icon">📖</span>
+            <span class="nav-label">ভূমিসেবা নির্দেশিকা</span>
           </div>
-          <div class="sidebar-nav-item" data-page="dataset" id="nav-item-dataset">
-            <span class="nav-icon">🗄️</span>
-            <span class="nav-label">সিন্থেটিক ডেটাসেট পরিসংখ্যান</span>
+          <div class="sidebar-nav-item" data-page="calculator" id="nav-item-calculator" onclick="switchAppPage('calculator')">
+            <span class="nav-icon">📐</span>
+            <span class="nav-label">জমির হিসাব</span>
           </div>
-          <div class="sidebar-nav-item" data-page="settings" id="nav-item-settings">
-            <span class="nav-icon">⚙️</span>
-            <span class="nav-label">সিস্টেম স্ট্যাটাস ও ডায়াগনস্টিক</span>
+          <div class="sidebar-nav-item" data-page="notices-help" id="nav-item-notices-help" onclick="switchAppPage('notices-help')">
+            <span class="nav-icon">🔔</span>
+            <span class="nav-label">নোটিশ ও সহায়তা</span>
           </div>
-        </nav>
+    </nav>
 
         <!-- Authenticated User Profile Footer (Immutable RBAC Badge) -->
         <div class="sidebar-footer">
-          <div class="authenticated-user-badge" id="sidebar-user-badge" onclick="openUserProfileModal()" style="cursor:pointer;" title="ব্যবহারকারী অ্যাকাউন্ট ও নিরাপত্তা">
+          <!-- Public Citizen Service Badge (Default for anonymous visitors) -->
+          <div id="sidebar-public-badge" style="padding: 0.85rem 0.6rem; border-top: 1px solid rgba(255,255,255,0.12);">
+            <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.4rem;">
+              <span style="font-size:1.15rem;">🇧🇩</span>
+              <div style="font-size:0.78rem; font-weight:700; color:#ffffff; line-height:1.2;">
+                পাবলিক সিটিজেন বাতায়ন
+                <div style="font-size:0.7rem; color:#a7f3d0; font-weight:500;">লগইন প্রয়োজন নেই</div>
+              </div>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:0.4rem; padding-top:0.4rem; border-top:1px solid rgba(255,255,255,0.08);">
+              <span style="font-size:0.72rem; color:#d1fae5;">হেল্পলাইন: <strong style="color:#facc15;">১৬১২২</strong></span>
+              <button class="btn btn-secondary-glass btn-sm" onclick="openAuthModal('login')" style="font-size:0.7rem; padding:2px 8px; border-radius:6px; color:#ffffff;" title="কর্মকর্তা বা সিস্টেম অ্যাডমিন লগইন">
+                🏛️ কর্মকর্তা লগইন
+              </button>
+            </div>
+          </div>
+
+          <!-- Authenticated User Profile Footer (Only displayed when Officer or Administrator logs in) -->
+          <div class="authenticated-user-badge" id="sidebar-user-badge" onclick="openUserProfileModal()" style="display:none; cursor:pointer;" title="ব্যবহারকারী অ্যাকাউন্ট ও নিরাপত্তা">
             <div class="user-avatar-small" id="sidebar-user-avatar">👤</div>
             <div class="user-details-compact">
-              <div class="user-name-compact" id="sidebar-user-name">অতিথি ব্যবহারকারী</div>
-              <div class="user-role-pill role-pill-citizen" id="sidebar-user-role-badge">সাধারণ নাগরিক</div>
+              <div class="user-name-compact" id="sidebar-user-name">কর্মকর্তা</div>
+              <div class="user-role-pill role-pill-officer" id="sidebar-user-role-badge">কর্মকর্তা</div>
             </div>
-            <button class="logout-icon-btn" id="sidebar-logout-btn" onclick="event.stopPropagation(); triggerLogout();" title="লগআউট করুন" aria-label="লগআউট" style="display:none;">⎋</button>
+            <button class="logout-icon-btn" id="sidebar-logout-btn" onclick="event.stopPropagation(); triggerLogout();" title="লগআউট করুন" aria-label="লগআউট">⎋</button>
           </div>
-        </div>
+    </div>
 
       </aside>
 
@@ -490,19 +483,49 @@
                WORKSPACE 1: OVERVIEW DASHBOARD
                ========================================== -->
           <div id="page-overview" class="workspace-page active">
-            <!-- Compact Welcome Header with Bangladesh Aerial Landscape & Glassmorphism -->
-            <div class="dash-welcome-banner">
-              <div class="dash-welcome-text">
-                <div class="welcome-top-badge">
-                  <span>🇧🇩</span> জাতীয় ডিজিটাল ভূমি রেকর্ড ও ক্রেতা সুরক্ষা বাতায়ন
+            <!-- AgriTech Modern Hero Banner with Bangladesh Land Drone Survey Imagery -->
+            <div class="agri-hero-banner">
+              <img src="/static/assets/images/bangladesh_drone_survey.jpg" alt="বাংলাদেশ স্মার্ট ড্রোন সার্ভে ও ভূমি রেকর্ড" class="agri-hero-bg">
+              <div class="agri-hero-overlay">
+                <div class="welcome-top-badge" style="background:rgba(2, 44, 34, 0.85); backdrop-filter:blur(8px); border:1px solid rgba(167, 243, 208, 0.4); width:fit-content; margin-bottom:0.75rem;">
+                  <span>🇧🇩</span> গণপ্রজাতন্ত্রী বাংলাদেশ — পাবলিক সিটিজেন বাতায়ন (No Login Required)
                 </div>
-                <h2>আপনার জমির তথ্য, এক জায়গায়</h2>
-                <p>ভূমি রেকর্ড অনুসন্ধান, দলিলের সত্যতা নিরূপণ, খাস জমি শনাক্তকরণ এবং এসি ল্যান্ড ট্রায়াজ ড্যাশবোর্ড।</p>
+                <h2 class="agri-hero-title">আপনার জমি, আমাদের দায়িত্ব</h2>
+                <p class="agri-hero-subtitle">
+                  ভূমি রেকর্ড অনুসন্ধান, দলিলের সত্যতা নিরূপণ, খাস জমি শনাক্তকরণ এবং ক্রেতা সুরক্ষা যাচাই — সাধারণ নাগরিকের জন্য সম্পূর্ণ উন্মুক্ত ডিজিটাল বাতায়ন।
+                </p>
+
+                <!-- Quick Search Launcher -->
+                <div class="agri-search-launcher">
+                  <span>🔍</span>
+                  <input type="text" id="overview-quick-search-input" placeholder="দাগ নম্বর, খতিয়ান বা পার্সেল আইডি লিখুন (যেমন: ১০১ বা BD-PAR-000101)..." onkeydown="if(event.key==='Enter') triggerOverviewQuickSearch()">
+                  <button class="agri-search-btn" onclick="triggerOverviewQuickSearch()">
+                    জমি খুঁজুন ➔
+                  </button>
+                </div>
               </div>
-              <button class="btn btn-hero-cta" onclick="switchAppPage('citizen')">
-                🔍 জমি যাচাই করুন ➔
-              </button>
             </div>
+
+            <!-- National Helpline 16122 Callout Banner -->
+            <div class="helpline-banner-card">
+              <div class="helpline-left">
+                <div class="helpline-icon-bubble">📞</div>
+                <div>
+                  <div style="font-size:0.85rem; color:#a7f3d0; font-weight:700;">ভূমি মন্ত্রণালয়ের সার্বক্ষণিক সেবা হটলাইন</div>
+                  <div class="helpline-num-badge">১৬১২২</div>
+                  <div class="helpline-subtext">যেকোনো মোবাইল অপারেটর থেকে টোল-ফ্রি ২৪/৭ সক্রিয় | প্রবাসী ভাই-বোনদের জন্য: +880 9612 316122</div>
+                </div>
+              </div>
+              <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+                <button class="btn btn-secondary-glass btn-sm" onclick="switchAppPage('service-guide')">
+                  📖 ভূমিসেবা নির্দেশিকা
+                </button>
+                <button class="btn btn-secondary-glass btn-sm" onclick="switchAppPage('calculator')">
+                  📐 জমির হিসাব
+                </button>
+              </div>
+            </div>
+
 
             <!-- 4 Meaningful Summary Cards (Connected to real backend stats) -->
             <div class="dash-stats-grid">
@@ -540,6 +563,63 @@
                 </div>
                 <div class="stat-num" id="dash-stat-completed">৫৭,০৮৩</div>
                 <div class="stat-desc">অনুমোদিত ই-নামজারি খারিজ (ক্লিক করে ট্র্যাক করুন)</div>
+              </div>
+            </div>
+
+            <!-- AgriTech 3-Feature Visual Cards with Authentic Bangladesh Land Imagery -->
+            <div class="agri-card-grid">
+              <!-- Card 1: Riverine Delta & GIS Map -->
+              <div class="agri-feature-card glass-hover" onclick="switchAppPage('map')">
+                <div class="agri-card-media">
+                  <img src="/static/assets/images/bangladesh_river_boats.jpg" alt="নদীমাতৃক বাংলাদেশ ও ক্যাডাস্ট্রাল ভৌগোলিক জরিপ" class="agri-card-img">
+                  <div class="agri-card-badge">GIS ক্যাডাস্ট্রাল স্তর</div>
+                </div>
+                <div class="agri-card-body">
+                  <h4 class="agri-card-title"><span>🌊</span> নদীমাতৃক ভূ-সম্পদ ও ক্যাডাস্ট্রাল ম্যাপ</h4>
+                  <p class="agri-card-desc">
+                    সাভার পাইলট ও নদী তীরবর্তী মৌজাসমূহের উপগ্রহ চিত্র, ক্যাডাস্ট্রাল বাউন্ডারি ও সরকারি ১-নং খাস খতিয়ানের ইন্টারসেকশন বিশ্লেষণ।
+                  </p>
+                  <div class="agri-card-footer">
+                    <span style="font-size:0.78rem; font-weight:700; color:#059669;">১,৫০০ খাস দাগ সংরক্ষিত</span>
+                    <button class="agri-card-btn">ম্যাপ দেখুন ➔</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Card 2: Rural Roads & Mouza-Dag Search -->
+              <div class="agri-feature-card glass-hover" onclick="switchAppPage('mouza-dag')">
+                <div class="agri-card-media">
+                  <img src="/static/assets/images/bangladesh_rural_road.jpg" alt="গ্রামীণ জনপদ ও মৌজা প্লট অনুসন্ধান" class="agri-card-img">
+                  <div class="agri-card-badge">মৌজা ও দাগ বাতায়ন</div>
+                </div>
+                <div class="agri-card-body">
+                  <h4 class="agri-card-title"><span>📍</span> গ্রামীণ মৌজা ও দাগভিত্তিক প্লট অনুসন্ধান</h4>
+                  <p class="agri-card-desc">
+                    বিভাগ, জেলা, উপজেলা, ইউনিয়ন ও মৌজা ক্যাসকেডিং ড্রপডাউন দিয়ে দাগ নম্বর লিখে তৎক্ষণাৎ জমির শ্রেণি, আয়তন ও জেএল নম্বর যাচাই।
+                  </p>
+                  <div class="agri-card-footer">
+                    <span style="font-size:0.78rem; font-weight:700; color:#059669;">৫-স্তরী প্রশাসনিক হায়ারার্কি</span>
+                    <button class="agri-card-btn">দাগ খুঁজুন ➔</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Card 3: Due Diligence & Pre-Purchase Security -->
+              <div class="agri-feature-card glass-hover" onclick="switchAppPage('due-diligence')">
+                <div class="agri-card-media">
+                  <img src="/static/assets/images/due_diligence_review.jpg" alt="ক্রয়ের পূর্বে ৫-দফা ক্রেতা সুরক্ষা বাতায়ন" class="agri-card-img">
+                  <div class="agri-card-badge">ক্রেতা সুরক্ষা সনদ</div>
+                </div>
+                <div class="agri-card-body">
+                  <h4 class="agri-card-title"><span>🛡️</span> জমি কেনার আগে ৫-দফা ডিউ ডিলিজেন্স</h4>
+                  <p class="agri-card-desc">
+                    বায়া দলিলের ধারাবাহিকতা, দ্বৈত বিক্রয়ের লাল পতাকা, খাজনা পরিশোধ স্থিতি, দেওয়ানি মামলা ও খাস জমি বিষয়ে প্রিন্টযোগ্য প্রাক-ক্রয় সনদ।
+                  </p>
+                  <div class="agri-card-footer">
+                    <span style="font-size:0.78rem; font-weight:700; color:#059669;">প্রিন্টযোগ্য ডসিয়ার</span>
+                    <button class="agri-card-btn">যাচাই শুরু ➔</button>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -907,6 +987,807 @@
 
 
           <!-- ==========================================
+               WORKSPACE 2B: MOUZA & DAG SEARCH (মৌজা ও দাগ অনুসন্ধান)
+               ========================================== -->
+          <div id="page-mouza-dag" class="workspace-page">
+            <div class="dash-welcome-banner" style="background: linear-gradient(135deg, rgba(2, 44, 34, 0.92) 0%, rgba(6, 78, 59, 0.88) 100%), url('/static/assets/images/bangladesh_rural_road.jpg') center/cover no-repeat;">
+              <div class="dash-welcome-text">
+                <div class="welcome-top-badge">
+                  <span>📍</span> ভৌগোলিক ক্যাডাস্ট্রাল স্তর অনুসন্ধান
+                </div>
+                <h2>মৌজা ও দাগভিত্তিক জমি অনুসন্ধান</h2>
+                <p>প্রশাসনিক স্তর অনুযায়ী নির্দিষ্ট মৌজা ও জেএল নির্বাচন করে দাগ নম্বর দিয়ে প্লটের সার্ভে রেকর্ড, আয়তন ও শ্রেণি জানুন।</p>
+              </div>
+              <button class="btn btn-hero-cta" onclick="switchAppPage('map')">
+                🗺️ সম্পূর্ণ ক্যাডাস্ট্রাল ম্যাপ ➔
+              </button>
+            </div>
+
+            <div class="calm-card" style="margin-bottom:1.5rem;">
+              <h4 style="font-size:1.1rem; font-weight:800; color:var(--c-forest-950); margin-bottom:0.75rem; display:flex; align-items:center; gap:0.5rem;">
+                <span>🏛️</span> ধাপ ১: প্রশাসনিক অবস্থান ও মৌজা নির্বাচন
+              </h4>
+              <p style="font-size:0.85rem; color:#475569; margin-bottom:1.25rem;">
+                নিচের ক্যাসকেডিং ড্রপডাউনগুলো থেকে আপনার কাঙ্ক্ষিত প্রশাসনিক এলাকা ও মৌজা নির্বাচন করুন:
+              </p>
+
+              <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; margin-bottom:1.25rem;">
+                <div>
+                  <label style="display:block; font-size:0.84rem; font-weight:700; color:#334155; margin-bottom:0.35rem;">বিভাগ (Division)</label>
+                  <select id="mouza-dag-division-sel" class="select-field" style="width:100%; padding:0.65rem; border-radius:10px; border:1.5px solid #cbd5e1; font-weight:600;">
+                    <option value="">বিভাগ লোড হচ্ছে...</option>
+                  </select>
+                </div>
+                <div>
+                  <label style="display:block; font-size:0.84rem; font-weight:700; color:#334155; margin-bottom:0.35rem;">জেলা (District)</label>
+                  <select id="mouza-dag-district-sel" class="select-field" style="width:100%; padding:0.65rem; border-radius:10px; border:1.5px solid #cbd5e1; font-weight:600;" disabled>
+                    <option value="">প্রথমে বিভাগ নির্বাচন করুন</option>
+                  </select>
+                </div>
+                <div>
+                  <label style="display:block; font-size:0.84rem; font-weight:700; color:#334155; margin-bottom:0.35rem;">উপজেলা / থানা (Upazila)</label>
+                  <select id="mouza-dag-upazila-sel" class="select-field" style="width:100%; padding:0.65rem; border-radius:10px; border:1.5px solid #cbd5e1; font-weight:600;" disabled>
+                    <option value="">প্রথমে জেলা নির্বাচন করুন</option>
+                  </select>
+                </div>
+                <div>
+                  <label style="display:block; font-size:0.84rem; font-weight:700; color:#334155; margin-bottom:0.35rem;">ইউনিয়ন / পৌরসভা (Union)</label>
+                  <select id="mouza-dag-union-sel" class="select-field" style="width:100%; padding:0.65rem; border-radius:10px; border:1.5px solid #cbd5e1; font-weight:600;" disabled>
+                    <option value="">প্রথমে উপজেলা নির্বাচন করুন</option>
+                  </select>
+                </div>
+                <div>
+                  <label style="display:block; font-size:0.84rem; font-weight:700; color:#334155; margin-bottom:0.35rem;">মৌজা ও জেএল নম্বর (Mouza & JL)</label>
+                  <select id="mouza-dag-mouza-sel" class="select-field" style="width:100%; padding:0.65rem; border-radius:10px; border:1.5px solid #cbd5e1; font-weight:600;" disabled>
+                    <option value="">প্রথমে ইউনিয়ন নির্বাচন করুন</option>
+                  </select>
+                </div>
+              </div>
+
+              <div style="display:flex; gap:1rem; align-items:flex-end; flex-wrap:wrap; padding-top:0.75rem; border-top:1px solid #f1f5f9;">
+                <div style="flex:1; min-width:240px;">
+                  <label style="display:block; font-size:0.84rem; font-weight:700; color:#334155; margin-bottom:0.35rem;">দাগ নম্বর (Plot / Dag No.)</label>
+                  <input type="number" id="mouza-dag-input-num" placeholder="যেমন: ১০১ বা ১০০১ বা ২০৫" style="width:100%; padding:0.65rem 0.85rem; border:1.5px solid #cbd5e1; border-radius:10px; font-weight:600; font-size:0.95rem;">
+                </div>
+                <div style="min-width:180px;">
+                  <label style="display:block; font-size:0.84rem; font-weight:700; color:#334155; margin-bottom:0.35rem;">জরিপের ধরন (ঐচ্ছিক)</label>
+                  <select id="mouza-dag-survey-type" class="select-field" style="width:100%; padding:0.65rem; border-radius:10px; border:1.5px solid #cbd5e1; font-weight:600;">
+                    <option value="">সকল জরিপ (RS, BS, SA, CS)</option>
+                    <option value="RS">আরএস (RS - Revisional Survey)</option>
+                    <option value="BS">বিএস / বিআরএস (BS/BRS)</option>
+                    <option value="SA">এসএ (SA - State Acquisition)</option>
+                    <option value="CS">সিএস (CS - Cadastral Survey)</option>
+                  </select>
+                </div>
+                <button id="btn-mouza-dag-search" class="btn btn-primary-forest" style="padding:0.65rem 1.6rem; border-radius:10px; font-weight:700;">
+                  🔍 প্লটের তথ্য খুঁজুন
+                </button>
+              </div>
+            </div>
+
+            <!-- Matching Plot Results & Map View -->
+            <div id="mouza-dag-results-container" style="display:none; margin-bottom:2rem;">
+              <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1.5rem;">
+                <!-- Left: Plot Details Card -->
+                <div class="calm-card" id="mouza-dag-details-card">
+                  <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1rem;">
+                    <div>
+                      <div class="pill-tag pill-forest" id="mouza-dag-badge">দাগ রেকর্ড</div>
+                      <h3 style="font-size:1.35rem; font-weight:800; color:#0f172a; margin-top:0.35rem;" id="mouza-dag-title">দাগ নং ১০১</h3>
+                      <div style="font-size:0.85rem; color:#64748b;" id="mouza-dag-location">আমিনবাজার, সাভার, ঢাকা</div>
+                    </div>
+                    <div style="text-align:right;">
+                      <div style="font-size:0.75rem; color:#64748b;">রেকর্ডীয় পরিমাণ</div>
+                      <div style="font-size:1.5rem; font-weight:900; color:#047857;" id="mouza-dag-area">৪৪.৭৬ শতক</div>
+                    </div>
+                  </div>
+
+                  <table style="width:100%; border-collapse:collapse; font-size:0.88rem; margin-bottom:1.25rem;">
+                    <tbody>
+                      <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:0.5rem 0; color:#64748b; font-weight:600;">খতিয়ান নম্বর:</td><td style="padding:0.5rem 0; font-weight:700; color:#0f172a;" id="mouza-dag-khatian">১১০১</td></tr>
+                      <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:0.5rem 0; color:#64748b; font-weight:600;">জমির শ্রেণি:</td><td style="padding:0.5rem 0; font-weight:700; color:#0f172a;" id="mouza-dag-classification">ভিটি (আবাসিক/উঁচু জমি)</td></tr>
+                      <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:0.5rem 0; color:#64748b; font-weight:600;">জরিপের ধরন:</td><td style="padding:0.5rem 0; font-weight:700; color:#0f172a;" id="mouza-dag-survey">RS (Revisional Survey)</td></tr>
+                      <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:0.5rem 0; color:#64748b; font-weight:600;">জেএল নম্বর:</td><td style="padding:0.5rem 0; font-weight:700; color:#0f172a;" id="mouza-dag-jl">১২</td></tr>
+                      <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:0.5rem 0; color:#64748b; font-weight:600;">পার্সেল আইডি:</td><td style="padding:0.5rem 0; font-weight:700; color:#047857; font-family:monospace;" id="mouza-dag-parcel-id">BD-PAR-000101</td></tr>
+                      <tr><td style="padding:0.5rem 0; color:#64748b; font-weight:600;">ডেটা প্রোভেন্যান্স:</td><td style="padding:0.5rem 0;"><span class="pill-tag" style="background:#fef3c7; color:#92400e; font-size:0.72rem; font-weight:700;">সিন্থেটিক ডেমো রেকর্ড</span></td></tr>
+                    </tbody>
+                  </table>
+
+                  <div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
+                    <button id="btn-mouza-dag-view-dd" class="btn btn-primary-forest btn-sm" style="flex:1;">
+                      🛡️ ৫-দফা ডিউ ডিলিজেন্স দেখুন ➔
+                    </button>
+                    <button id="btn-mouza-dag-view-timeline" class="btn btn-secondary-stone btn-sm" style="flex:1;">
+                      📜 মালিকানা টাইমলাইন ➔
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Right: Mini Cadastral Map View -->
+                <div class="calm-card" style="display:flex; flex-direction:column;">
+                  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+                    <h4 style="font-size:0.95rem; font-weight:700; color:#0f172a; margin:0;">🗺️ প্লট ক্যাডাস্ট্রাল ভৌগোলিক ভিউ</h4>
+                    <span style="font-size:0.75rem; color:#64748b;">WGS-84 স্থানাঙ্ক</span>
+                  </div>
+                  <div id="mouza-dag-mini-map" style="height:320px; width:100%; border-radius:12px; border:1px solid #cbd5e1; background:#e2e8f0;"></div>
+                  <div style="margin-top:0.75rem; font-size:0.78rem; color:#64748b; line-height:1.4;">
+                    * ম্যাপে প্রদর্শিত প্লটের সীমানা প্রদর্শনীমূলক। সরকারি বালাম ও মৌজা সিটের মূল বাউন্ডারির সাথে মিলিয়ে নেওয়া আবশ্যক।
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+          <!-- ==========================================
+               WORKSPACE 2C: PRE-PURCHASE DUE DILIGENCE & PRINT REPORT
+               ========================================== -->
+          <div id="page-due-diligence" class="workspace-page">
+            <div class="dash-welcome-banner" style="background: linear-gradient(135deg, rgba(2, 44, 34, 0.92) 0%, rgba(6, 78, 59, 0.88) 100%), url('/static/assets/images/due_diligence_review.jpg') center/cover no-repeat;">
+              <div class="dash-welcome-text">
+                <div class="welcome-top-badge">
+                  <span>🛡️</span> ক্রেতা সুরক্ষা বাতায়ন (P5 Check Before You Buy)
+                </div>
+                <h2>জমি কেনার পূর্বে ৫-দফা সুরক্ষা যাচাই</h2>
+                <p>বায়া দলিলের ধারাবাহিকতা, দ্বৈত বিক্রয়ের ঝুঁকি, খাজনা বকেয়া, দেওয়ানি মামলা ও খাস জমি সংক্রান্ত প্রাথমিক নিরাপত্তা নিরীক্ষা।</p>
+              </div>
+              <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+                <button class="btn btn-hero-cta" onclick="window.print()">
+                  🖨️ প্রিন্ট / রিপোর্ট সংরক্ষণ ➔
+                </button>
+              </div>
+            </div>
+
+            <!-- Quick Parcel Switcher -->
+            <div class="calm-card" style="margin-bottom:1.5rem;">
+              <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+                <div style="display:flex; align-items:center; gap:0.75rem;">
+                  <span style="font-weight:700; color:#0f172a;">যাচাইকৃত পার্সেল:</span>
+                  <input type="text" id="due-diligence-parcel-input" value="BD-PAR-000101" placeholder="পার্সেল আইডি লিখুন..." style="padding:0.45rem 0.85rem; border:1.5px solid #cbd5e1; border-radius:8px; font-weight:700; color:#047857; font-family:monospace; font-size:0.95rem;">
+                  <button id="btn-due-diligence-load" class="btn btn-primary-forest btn-sm">লোড করুন</button>
+                </div>
+                <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+                  <button class="btn btn-secondary-stone btn-sm" onclick="loadDueDiligencePage('BD-PAR-000101')">🚨 দাগ ১০১ (দ্বৈত বিক্রয়)</button>
+                  <button class="btn btn-secondary-stone btn-sm" onclick="loadDueDiligencePage('BD-PAR-001001')">🌿 দাগ ১০০১ (নির্দোষ)</button>
+                  <button class="btn btn-secondary-stone btn-sm" onclick="loadDueDiligencePage('BD-PAR-000205')">🏛️ দাগ ২০৫ (খাস জমি)</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Printable Due Diligence Dossier -->
+            <div class="due-diligence-printable-report calm-card" id="due-diligence-report-box" style="margin-bottom:2rem;">
+              <!-- Header for Print -->
+              <div class="print-header" style="border-bottom:2px solid #064e3b; padding-bottom:1rem; margin-bottom:1.5rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;">
+                <div>
+                  <div style="display:flex; align-items:center; gap:0.4rem; font-size:1.4rem; font-weight:800; color:#064e3b;">
+                    <span>🌿</span> দেশমৃত্তিকা | BHUMI-SYNC
+                  </div>
+                  <div style="font-size:0.85rem; color:#475569;">প্রাথমিক ভূমি ক্রেতা ডিউ ডিলিজেন্স ও ঝুঁকি নিরীক্ষা প্রতিবেদন</div>
+                </div>
+                <div style="text-align:right;">
+                  <div style="font-size:0.78rem; color:#64748b;">রিপোর্ট আইডি: <strong id="dd-report-id">DD-2026-10101</strong></div>
+                  <div style="font-size:0.78rem; color:#64748b;">তারিখ: <strong id="dd-report-date">১৮ অক্টোবর ২০২৬</strong></div>
+                </div>
+              </div>
+
+              <!-- Risk Overview Banner -->
+              <div style="display:flex; justify-content:space-between; align-items:center; background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:1.25rem 1.5rem; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
+                <div>
+                  <div style="font-size:0.8rem; font-weight:700; color:#64748b;">শনাক্তকৃত সামগ্রিক ঝুঁকি স্তর</div>
+                  <div style="font-size:1.5rem; font-weight:900;" id="dd-overall-risk-title">🚨 উচ্চ ঝুঁকি (CRITICAL - 95/100)</div>
+                  <div style="font-size:0.82rem; color:#475569; margin-top:0.25rem;" id="dd-overall-risk-desc">
+                    পূর্ববর্তী হস্তান্তর অনিষ্পন্ন রেখে দ্বিতীয় বিক্রয়ের চেষ্টা শনাক্ত হয়েছে।
+                  </div>
+                </div>
+                <div style="background:#fee2e2; border:1.5px solid #ef4444; border-radius:12px; padding:0.6rem 1.25rem; text-align:center;">
+                  <div style="font-size:0.72rem; font-weight:800; color:#991b1b;">ঝুঁকি স্কোর</div>
+                  <div style="font-size:1.8rem; font-weight:900; color:#b91c1c;" id="dd-overall-risk-score">৯৫/১০০</div>
+                </div>
+              </div>
+
+              <!-- Mandatory Legal Disclaimer Notice -->
+              <div style="background:#fffbeb; border:1px solid #fde68a; border-radius:8px; padding:0.75rem 1rem; margin-bottom:1.5rem; font-size:0.82rem; color:#92400e; line-height:1.5;">
+                <strong>⚖️ আইনি সতর্কতা ও স্পষ্টীকরণ:</strong> এই স্কোর ও প্রতিবেদনটি সরকারি বালাম বহি ও দলিলের ঐতিহাসিক রেকর্ডভিত্তিক প্রাথমিক ঝুঁকির ইঙ্গিত; এটি জমির আইনি মালিকানার চূড়ান্ত সিদ্ধান্ত বা সরকারি ক্রয় ছাড়পত্র নয়। ক্রয়-বিক্রয়ের পূর্বে সাব-রেজিস্ট্রি বালামে বিজ্ঞ আইনজীবীর মাধ্যমে মূল দলিল তল্লাশি দেওয়া বাঞ্ছনীয়।
+              </div>
+
+              <!-- 5-Point Safety Checks -->
+              <h4 style="font-size:1.1rem; font-weight:800; color:#0f172a; margin-bottom:1rem;">
+                ৫-দফা নিরাপত্তা নিরীক্ষা বিশদ বিবরণ
+              </h4>
+
+              <div style="display:flex; flex-direction:column; gap:1rem; margin-bottom:1.75rem;">
+                <!-- Check 1 -->
+                <div class="calm-card" style="padding:1.25rem; border:1px solid #e2e8f0;">
+                  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+                    <div style="font-size:1rem; font-weight:700; color:#0f172a;">১. মালিকানা ও বায়া দলিলের ধারাবাহিকতা (Chain of Title)</div>
+                    <span class="pill-tag pill-safe" id="dd-check-1-badge">✓ তথ্য পাওয়া গেছে</span>
+                  </div>
+                  <div style="font-size:0.85rem; color:#475569; line-height:1.5;" id="dd-check-1-desc">
+                    সিএস থেকে এসএ এবং আরএস পর্যন্ত ঐতিহাসিক হস্তান্তরের রেকর্ড সরকারি বালাম বইয়ের সাথে সামঞ্জস্যপূর্ণ।
+                  </div>
+                  <div style="margin-top:0.5rem; font-size:0.8rem; color:#065f46; background:#f0fdf4; padding:0.4rem 0.75rem; border-radius:6px;">
+                    <strong>👉 পরবর্তী করণীয়:</strong> সাব-রেজিস্ট্রি কার্যালয়ের ভলিউম বইয়ের সাথে মূল দলিলের ক্রমিক নম্বর মিলিয়ে নিন।
+                  </div>
+                </div>
+
+                <!-- Check 2 -->
+                <div class="calm-card" style="padding:1.25rem; border:1px solid #e2e8f0;">
+                  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+                    <div style="font-size:1rem; font-weight:700; color:#0f172a;">২. একই জমি একাধিকবার বিক্রির ঝুঁকি (Double-Selling Alert)</div>
+                    <span class="pill-tag pill-danger" id="dd-check-2-badge">⚠️ সতর্কতা</span>
+                  </div>
+                  <div style="font-size:0.85rem; color:#475569; line-height:1.5;" id="dd-check-2-desc">
+                    সতর্কতা: একই বিক্রেতা কর্তৃক দলিল SAVAR-20261018-DS1-A101 সম্পাদনের পর নামজারি নিষ্পত্তির পূর্বেই দ্বিতীয় দলিল SAVAR-20261018-DS1-B101 সম্পাদন করা হয়েছে।
+                  </div>
+                  <div style="margin-top:0.5rem; font-size:0.8rem; color:#991b1b; background:#fef2f2; padding:0.4rem 0.75rem; border-radius:6px;">
+                    <strong>👉 পরবর্তী করণীয়:</strong> রেজিস্ট্রেশন আইন ১৯০৮ এর ধারা ৫২ক অনুযায়ী এই জমিতে যেকোনো প্রকার অর্থ লেনদেন স্থগিত রাখুন।
+                  </div>
+                </div>
+
+                <!-- Check 3 -->
+                <div class="calm-card" style="padding:1.25rem; border:1px solid #e2e8f0;">
+                  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+                    <div style="font-size:1rem; font-weight:700; color:#0f172a;">৩. ভূমি উন্নয়ন করের স্থিতি (LDTax Clearance)</div>
+                    <span class="pill-tag pill-safe" id="dd-check-3-badge">✓ তথ্য পাওয়া গেছে</span>
+                  </div>
+                  <div style="font-size:0.85rem; color:#475569; line-height:1.5;" id="dd-check-3-desc">
+                    হাল সন ১৪৩০-১৪৩১ পর্যন্ত কর পরিশোধিত। দাখিলা নং: DAK-2024-00101। কোনো বকেয়া নেই।
+                  </div>
+                </div>
+
+                <!-- Check 4 -->
+                <div class="calm-card" style="padding:1.25rem; border:1px solid #e2e8f0;">
+                  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+                    <div style="font-size:1rem; font-weight:700; color:#0f172a;">৪. দেওয়ানি মামলা ও আইনি জটিলতা (Civil Injunctions)</div>
+                    <span class="pill-tag pill-safe" id="dd-check-4-badge">✓ তথ্য পাওয়া গেছে</span>
+                  </div>
+                  <div style="font-size:0.85rem; color:#475569; line-height:1.5;" id="dd-check-4-desc">
+                    সাভার সহকারী জজ আদালত ও জেলা জজ আদালতে এই দাগ সংক্রান্ত কোনো সক্রিয় বিক্রয় নিষেধাজ্ঞা বা টাইটেল স্যুট পাওয়া যায়নি।
+                  </div>
+                </div>
+
+                <!-- Check 5 -->
+                <div class="calm-card" style="padding:1.25rem; border:1px solid #e2e8f0;">
+                  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+                    <div style="font-size:1rem; font-weight:700; color:#0f172a;">৫. খাস জমি ও অধিগ্রহণ তথ্য (Government Khas Land)</div>
+                    <span class="pill-tag pill-safe" id="dd-check-5-badge">✓ তথ্য পাওয়া গেছে</span>
+                  </div>
+                  <div style="font-size:0.85rem; color:#475569; line-height:1.5;" id="dd-check-5-desc">
+                    এই দাগটি জেলা প্রশাসকের ১-নং খাস খতিয়ানভুক্ত নয় এবং ঢাকা-আরিচা মহাসড়ক বা জাতীয় প্রকল্পের অধিগ্রহণ জোনের বাইরে অবস্থিত।
+                  </div>
+                </div>
+              </div>
+
+              <!-- Report Sign-off / Print Footer -->
+              <div style="border-top:1px solid #cbd5e1; padding-top:1rem; display:flex; justify-content:space-between; align-items:center; font-size:0.75rem; color:#64748b;">
+                <div>দেশমৃত্তিকা ওপেন সিটিজেন প্লাটফর্ম | সিড: ২০২৬১০১৮</div>
+                <button class="btn btn-primary-forest btn-sm btn-print-hide" onclick="window.print()">
+                  🖨️ এই রিপোর্ট প্রিন্ট করুন
+                </button>
+              </div>
+            </div>
+          </div>
+
+
+          <!-- ==========================================
+               WORKSPACE 2D: LAND SERVICE GUIDE (ভূমিসেবা নির্দেশিকা)
+               ========================================== -->
+          <div id="page-service-guide" class="workspace-page">
+            <div class="dash-welcome-banner" style="background: linear-gradient(135deg, rgba(2, 44, 34, 0.92) 0%, rgba(6, 78, 59, 0.88) 100%), url('/static/assets/images/bangladesh_soil_heritage.jpg') center/cover no-repeat;">
+              <div class="dash-welcome-text">
+                <div class="welcome-top-badge">
+                  <span>📖</span> নাগরিক সহায়িকা বাতায়ন
+                </div>
+                <h2>ডিজিটাল ভূমিসেবা নির্দেশিকা ও ই-নামজারি গাইড</h2>
+                <p>নামজারি (e-Mutation), খতিয়ান ও পরচা উত্তোলন, ভূমি উন্নয়ন কর প্রদান ও সাব-রেজিস্ট্রি দলিলের সঠিক আইনি নিয়মাবলি জানুন।</p>
+              </div>
+              <button class="btn btn-hero-cta" onclick="window.open('https://land.gov.bd/', '_blank')">
+                🌐 ভূমি মন্ত্রণালয় পোর্টাল ➔
+              </button>
+            </div>
+
+            <!-- E-Mutation Steps -->
+            <div class="calm-card" style="margin-bottom:1.75rem;">
+              <h3 style="font-size:1.25rem; font-weight:800; color:var(--c-forest-950); margin-bottom:0.4rem;">
+                🔄 ই-নামজারি (e-Mutation) কী এবং কেন বাধ্যতামূলক?
+              </h3>
+              <p style="font-size:0.9rem; color:#475569; line-height:1.6; margin-bottom:1.5rem;">
+                জমি ক্রয়ের পর সাব-রেজিস্ট্রি অফিসে দলিল রেজিস্ট্রি হলেও মালিকানা সম্পূর্ণ নিশ্চিত হয় না যতক্ষণ না সহকারী কমিশনার (ভূমি) দপ্তর থেকে <strong>নামজারি</strong> সম্পন্ন করে নতুন খতিয়ান সৃষ্টি করা হয়। রাষ্ট্রীয় অধিগ্রহণ ও প্রজাস্বত্ব আইন ১৯৫০ এর ধারা ১৪৩ অনুযায়ী নামজারি সম্পন্ন করা আবশ্যক।
+              </p>
+
+              <h4 style="font-size:1.05rem; font-weight:800; color:#0f172a; margin-bottom:0.75rem;">
+                ই-নামজারির ৪টি সুনির্দিষ্ট ধাপ:
+              </h4>
+
+              <div class="step-guide-grid">
+                <div class="step-guide-card">
+                  <div class="step-num-bubble">১</div>
+                  <h5 style="font-size:1rem; font-weight:700; color:#0f172a; margin-bottom:0.35rem;">অনলাইন আবেদন দাখিল</h5>
+                  <p style="font-size:0.82rem; color:#475569; line-height:1.5;">
+                    <a href="https://mutation.land.gov.bd/" target="_blank" style="color:#059669; font-weight:700;">mutation.land.gov.bd</a> এ গিয়ে জাতীয় পরিচয়পত্র, ছবি ও দলিলের স্ক্যান কপি দিয়ে ৭০ টাকা কোর্ট ফি ও নোটিশ জারি ফি দিয়ে আবেদন সম্পন্ন করুন।
+                  </p>
+                </div>
+
+                <div class="step-guide-card">
+                  <div class="step-num-bubble">২</div>
+                  <h5 style="font-size:1rem; font-weight:700; color:#0f172a; margin-bottom:0.35rem;">প্রস্তাব ও নোটিশ জারি</h5>
+                  <p style="font-size:0.82rem; color:#475569; line-height:1.5;">
+                    উপজেলা ভূমি অফিস থেকে আবেদনটি সংশ্লিষ্ট ইউনিয়ন ভূমি অফিসে প্রেরণ করা হয় এবং পূর্ববর্তী মালিক ও ওয়ারিশদের বরাবরে নোটিশ জারি করা হয়।
+                  </p>
+                </div>
+
+                <div class="step-guide-card">
+                  <div class="step-num-bubble">৩</div>
+                  <h5 style="font-size:1rem; font-weight:700; color:#0f172a; margin-bottom:0.35rem;">সরেজমিন তদন্ত ও শুনানি</h5>
+                  <p style="font-size:0.82rem; color:#475569; line-height:1.5;">
+                    ইউনিয়ন ভূমি সহকারী কর্মকর্তা সরেজমিনে দখল, সীমানা ও খাস/অধিগ্রহণ স্থিতি যাচাই করে প্রতিবেদন দাখিল করেন এবং সহকারী কমিশনার শুনানিতে মূল দলিল পর্যবেক্ষণ করেন।
+                  </p>
+                </div>
+
+                <div class="step-guide-card">
+                  <div class="step-num-bubble">৪</div>
+                  <h5 style="font-size:1rem; font-weight:700; color:#0f172a; margin-bottom:0.35rem;">খতিয়ান অনুমোদন ও ডিসিআর</h5>
+                  <p style="font-size:0.82rem; color:#475569; line-height:1.5;">
+                    অনুমোদনের পর ১,১০০/- টাকা সরকারি ডিসিআর ও খতিয়ান ফি অনলাইনে পরিশোধ করলে তাৎক্ষণিক কিউআর কোডযুক্ত ডিজিটাল পরচা/খতিয়ান ডাউনলোড করা যায়।
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Required Documents Checklist -->
+            <div class="calm-card" style="margin-bottom:1.75rem;">
+              <h3 style="font-size:1.25rem; font-weight:800; color:var(--c-forest-950); margin-bottom:0.5rem;">
+                📋 নামজারির জন্য প্রয়োজনীয় কাগজপত্রের চেকলিস্ট
+              </h3>
+              <p style="font-size:0.88rem; color:#475569; margin-bottom:1.25rem;">
+                আবেদন করার পূর্বে নিচের প্রতিটি নথির স্পষ্ট স্ক্যান কপি বা ছবি প্রস্তুত রাখুন:
+              </p>
+
+              <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:1rem;">
+                <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:1rem; display:flex; gap:0.75rem;">
+                  <span style="font-size:1.2rem; color:#059669;">✓</span>
+                  <div>
+                    <div style="font-weight:700; color:#0f172a; font-size:0.92rem;">মূল রেজিস্ট্রি দলিল বা সার্টিফাইড কপি</div>
+                    <div style="font-size:0.8rem; color:#64748b;">সাব-রেজিস্ট্রি অফিস কর্তৃক প্রদত্ত সাফ-কবালা, দানপত্র বা হেবা দলিল।</div>
+                  </div>
+                </div>
+
+                <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:1rem; display:flex; gap:0.75rem;">
+                  <span style="font-size:1.2rem; color:#059669;">✓</span>
+                  <div>
+                    <div style="font-weight:700; color:#0f172a; font-size:0.92rem;">ধারাবাহিক বায়া দলিল (ন্যূনতম ২৫ বছর)</div>
+                    <div style="font-size:0.8rem; color:#64748b;">বর্তমান বিক্রেতা কার নিকট হতে জমি পেয়েছেন তার পূর্ববর্তী সকল দলিলের ধারাবাহিক কপি।</div>
+                  </div>
+                </div>
+
+                <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:1rem; display:flex; gap:0.75rem;">
+                  <span style="font-size:1.2rem; color:#059669;">✓</span>
+                  <div>
+                    <div style="font-weight:700; color:#0f172a; font-size:0.92rem;">সর্বশেষ সিএস/এসএ/আরএস/বিএস খতিয়ান</div>
+                    <div style="font-size:0.8rem; color:#64748b;">রেকর্ড রুম থেকে সংগৃহীত সর্বশেষ সরকার-অনুমোদিত পরচার সত্যায়িত কপি।</div>
+                  </div>
+                </div>
+
+                <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:1rem; display:flex; gap:0.75rem;">
+                  <span style="font-size:1.2rem; color:#059669;">✓</span>
+                  <div>
+                    <div style="font-weight:700; color:#0f172a; font-size:0.92rem;">হাল সনের ভূমি উন্নয়ন করের দাখিলা</div>
+                    <div style="font-size:0.8rem; color:#64748b;">চলতি বাংলা সনের খাজনা পরিশোধের রশিদ (ldtax.gov.bd থেকে প্রাপ্ত)।</div>
+                  </div>
+                </div>
+
+                <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:1rem; display:flex; gap:0.75rem;">
+                  <span style="font-size:1.2rem; color:#059669;">✓</span>
+                  <div>
+                    <div style="font-weight:700; color:#0f172a; font-size:0.92rem;">ওয়ারিশান সনদপত্র (প্রযোজ্য ক্ষেত্রে)</div>
+                    <div style="font-size:0.8rem; color:#64748b;">মৃত ব্যক্তির সম্পত্তি হলে ইউনিয়ন পরিষদ বা সিটি কর্পোরেশনের মেয়র কর্তৃক ওয়ারিশান সনদ।</div>
+                  </div>
+                </div>
+
+                <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:1rem; display:flex; gap:0.75rem;">
+                  <span style="font-size:1.2rem; color:#059669;">✓</span>
+                  <div>
+                    <div style="font-weight:700; color:#0f172a; font-size:0.92rem;">জমির হাত নকশা ও চারদিকের চৌহদ্দি</div>
+                    <div style="font-size:0.8rem; color:#64748b;">উত্তর, দক্ষিণ, পূর্ব ও পশ্চিমে কোন কোন ব্যক্তির জমি রয়েছে তার বিবরণসহ খসড়া নকশা।</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Official Government Links (Verified & External) -->
+            <div class="calm-card" style="margin-bottom:1.75rem;">
+              <h3 style="font-size:1.25rem; font-weight:800; color:var(--c-forest-950); margin-bottom:0.4rem;">
+                🏛️ গণপ্রজাতন্ত্রী বাংলাদেশ সরকারের অফিসিয়াল ভূমিসেবা লিংকসমূহ
+              </h3>
+              <p style="font-size:0.88rem; color:#475569; margin-bottom:1.25rem;">
+                প্রকৃত সরকারি আবেদন, খাজনা পরিশোধ ও ডিজিটাল ম্যাপের জন্য নিচের ভেরিফাইড পোর্টালগুলো ব্যবহার করুন:
+              </p>
+
+              <div class="official-portal-grid">
+                <a href="https://land.gov.bd/" target="_blank" rel="noopener noreferrer" class="official-link-card">
+                  <div>
+                    <div class="link-title">জাতীয় ভূমি সেবা পোর্টাল</div>
+                    <div class="link-url">land.gov.bd</div>
+                  </div>
+                  <span class="external-tag-badge">অফিসিয়াল ↗</span>
+                </a>
+
+                <a href="https://mutation.land.gov.bd/" target="_blank" rel="noopener noreferrer" class="official-link-card">
+                  <div>
+                    <div class="link-title">ই-নামজারি অনলাইন বাতায়ন</div>
+                    <div class="link-url">mutation.land.gov.bd</div>
+                  </div>
+                  <span class="external-tag-badge">অফিসিয়াল ↗</span>
+                </a>
+
+                <a href="https://ldtax.gov.bd/" target="_blank" rel="noopener noreferrer" class="official-link-card">
+                  <div>
+                    <div class="link-title">ভূমি উন্নয়ন কর পোর্টাল</div>
+                    <div class="link-url">ldtax.gov.bd</div>
+                  </div>
+                  <span class="external-tag-badge">অফিসিয়াল ↗</span>
+                </a>
+
+                <a href="https://map.settlement.gov.bd/" target="_blank" rel="noopener noreferrer" class="official-link-card">
+                  <div>
+                    <div class="link-title">ডিজিটাল মৌজা ম্যাপ পোর্টাল</div>
+                    <div class="link-url">map.settlement.gov.bd</div>
+                  </div>
+                  <span class="external-tag-badge">অফিসিয়াল ↗</span>
+                </a>
+
+                <a href="https://www.settlement.gov.bd/" target="_blank" rel="noopener noreferrer" class="official-link-card">
+                  <div>
+                    <div class="link-title">ভূমি রেকর্ড ও জরিপ অধিদপ্তর (DLRS)</div>
+                    <div class="link-url">settlement.gov.bd</div>
+                  </div>
+                  <span class="external-tag-badge">অফিসিয়াল ↗</span>
+                </a>
+
+                <a href="https://grs.gov.bd/" target="_blank" rel="noopener noreferrer" class="official-link-card">
+                  <div>
+                    <div class="link-title">অভিযোগ প্রতিকার ব্যবস্থা (GRS)</div>
+                    <div class="link-url">grs.gov.bd</div>
+                  </div>
+                  <span class="external-tag-badge">অফিসিয়াল ↗</span>
+                </a>
+              </div>
+
+              <div style="background:#f1f5f9; border-radius:10px; padding:0.85rem 1.25rem; font-size:0.8rem; color:#475569; line-height:1.5; margin-top:1rem;">
+                <strong>💡 স্পষ্টীকরণ নোট:</strong> দেশমৃত্তিকা (DESHMRITTIKA) প্ল্যাটফর্মটি একটি স্বাধীন উদ্ভাবনী প্রযুক্তি প্রোটোটাইপ। এটি কোনো সরকারি ফি সংগ্রহ করে না এবং কোনো সরকারি খতিয়ান সরাসরি ইস্যু করে না। সকল আইনি আবেদনের জন্য সর্বদা বাংলাদেশ সরকারের অফিসিয়াল পোর্টালে যোগাযোগ করুন।
+              </div>
+            </div>
+          </div>
+
+
+          <!-- ==========================================
+               WORKSPACE 2E: LAND CALCULATORS (জমির হিসাব)
+               ========================================== -->
+          <div id="page-calculator" class="workspace-page">
+            <div class="dash-welcome-banner" style="background: linear-gradient(135deg, rgba(2, 44, 34, 0.92) 0%, rgba(6, 78, 59, 0.88) 100%), url('/static/assets/images/bangladesh_river_boats.jpg') center/cover no-repeat;">
+              <div class="dash-welcome-text">
+                <div class="welcome-top-badge">
+                  <span>📐</span> ডিজিটাল পরিমাপ ও রূপান্তর বাতায়ন
+                </div>
+                <h2>জমির পরিমাপ ও সরকারি ফি ক্যালকুলেটর</h2>
+                <p>শতক, কাঠা, বিঘা ও একরের লাইভ কনভার্সন, জ্যামিতিক ক্ষেত্রফল এবং জমি রেজিস্ট্রেশনের আনুমানিক সরকারি খরচ নির্ণয় করুন।</p>
+              </div>
+            </div>
+
+            <div class="calc-container">
+              <!-- Box 1: 8-Unit Live Reactive Converter -->
+              <div class="calc-box">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+                  <h4 style="font-size:1.1rem; font-weight:800; color:#0f172a; margin:0;">
+                    🔄 জমির একক লাইভ রূপান্তর
+                  </h4>
+                  <span class="pill-tag pill-forest">রিয়েলটাইম</span>
+                </div>
+                <p style="font-size:0.84rem; color:#475569; margin-bottom:1rem;">
+                  নিচের যেকোনো একটি ঘরে সংখ্যা লিখলে তৎক্ষণাৎ বাকি ৭টি এককে লাইভ রূপান্তর হবে:
+                </p>
+
+                <div class="unit-converter-grid">
+                  <div class="unit-field-group">
+                    <label><span>শতক (Decimal)</span> <span style="font-weight:500; font-size:0.75rem; color:#64748b;">১ শতক = ৪৩৫.৬ বর্গফুট</span></label>
+                    <input type="number" id="calc-unit-decimal" step="any" placeholder="১.০০">
+                  </div>
+                  <div class="unit-field-group">
+                    <label><span>কাঠা (Katha)</span> <span style="font-weight:500; font-size:0.75rem; color:#64748b;">১ কাঠা = ১.৬৫ শতক</span></label>
+                    <input type="number" id="calc-unit-katha" step="any" placeholder="০.৬০৬">
+                  </div>
+                  <div class="unit-field-group">
+                    <label><span>বিঘা (Bigha)</span> <span style="font-weight:500; font-size:0.75rem; color:#64748b;">১ বিঘা = ২০ কাঠা / ৩৩ শতক</span></label>
+                    <input type="number" id="calc-unit-bigha" step="any" placeholder="০.০৩০৩">
+                  </div>
+                  <div class="unit-field-group">
+                    <label><span>একর (Acre)</span> <span style="font-weight:500; font-size:0.75rem; color:#64748b;">১ একর = ১০০ শতক</span></label>
+                    <input type="number" id="calc-unit-acre" step="any" placeholder="০.০১">
+                  </div>
+                  <div class="unit-field-group">
+                    <label><span>বর্গফুট (Sq. Feet)</span> <span style="font-weight:500; font-size:0.75rem; color:#64748b;">ফুট²</span></label>
+                    <input type="number" id="calc-unit-sqft" step="any" placeholder="৪৩৫.৬">
+                  </div>
+                  <div class="unit-field-group">
+                    <label><span>বর্গমিটার (Sq. Meter)</span> <span style="font-weight:500; font-size:0.75rem; color:#64748b;">মিটার²</span></label>
+                    <input type="number" id="calc-unit-sqm" step="any" placeholder="৪০.৪৬৮">
+                  </div>
+                  <div class="unit-field-group">
+                    <label><span>কড়া (Kora)</span> <span style="font-weight:500; font-size:0.75rem; color:#64748b;">৪ কড়া = ১ গণ্ডা</span></label>
+                    <input type="number" id="calc-unit-kora" step="any" placeholder="০.৮৩৩">
+                  </div>
+                  <div class="unit-field-group">
+                    <label><span>গণ্ডা (Gonda)</span> <span style="font-weight:500; font-size:0.75rem; color:#64748b;">১ গণ্ডা = ৪.৮ শতক</span></label>
+                    <input type="number" id="calc-unit-gonda" step="any" placeholder="০.২০৮">
+                  </div>
+                </div>
+
+                <div style="margin-top:1.25rem; padding:0.75rem 1rem; background:#f0fdf4; border-radius:10px; font-size:0.8rem; color:#065f46;">
+                  <strong>বাংলাদেশ আদর্শ সূত্র:</strong> ১ শতক = ৪৩৫.৬ বর্গফুট = ৪০.৪৬৮ বর্গমিটার = ১.৬৫ কাঠা = ০.০৩ বিঘা = ০.০১ একর।
+                </div>
+              </div>
+
+              <!-- Box 2: Geometric Area Calculator -->
+              <div class="calc-box">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+                  <h4 style="font-size:1.1rem; font-weight:800; color:#0f172a; margin:0;">
+                    📏 জ্যামিতিক পরিমাপ ক্যালকুলেটর
+                  </h4>
+                  <div style="display:flex; gap:0.25rem;">
+                    <button id="btn-tab-rect" class="btn btn-primary-forest btn-sm" style="padding:3px 10px; font-size:0.78rem;">আয়তাকার</button>
+                    <button id="btn-tab-triangle" class="btn btn-secondary-stone btn-sm" style="padding:3px 10px; font-size:0.78rem;">ত্রিভুজাকার (হেরন)</button>
+                  </div>
+                </div>
+
+                <!-- Tab 1: Rectangular -->
+                <div id="calc-tab-rect-panel">
+                  <p style="font-size:0.84rem; color:#475569; margin-bottom:1rem;">
+                    জমির গড় দৈর্ঘ্য ও প্রস্থ (ফুটে) লিখে মোট শতক নির্ণয় করুন:
+                  </p>
+                  <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem; margin-bottom:1rem;">
+                    <div>
+                      <label style="display:block; font-size:0.84rem; font-weight:700; color:#334155; margin-bottom:0.35rem;">গড় দৈর্ঘ্য (ফুট)</label>
+                      <input type="number" id="calc-rect-length" placeholder="যেমন: ১০০" style="width:100%; padding:0.65rem; border:1.5px solid #cbd5e1; border-radius:10px; font-weight:600;">
+                    </div>
+                    <div>
+                      <label style="display:block; font-size:0.84rem; font-weight:700; color:#334155; margin-bottom:0.35rem;">গড় প্রস্থ (ফুট)</label>
+                      <input type="number" id="calc-rect-width" placeholder="যেমন: ৪৩.৫৬" style="width:100%; padding:0.65rem; border:1.5px solid #cbd5e1; border-radius:10px; font-weight:600;">
+                    </div>
+                  </div>
+                  <button id="btn-calc-rect" class="btn btn-primary-forest" style="width:100%; padding:0.65rem; border-radius:10px; font-weight:700;">
+                    ক্ষেত্রফল ও শতক হিসাব করুন
+                  </button>
+
+                  <div id="calc-rect-result" style="display:none; margin-top:1.25rem; background:#f0fdf4; border:1px solid #a7f3d0; border-radius:12px; padding:1.25rem; text-align:center;">
+                    <div style="font-size:0.8rem; color:#065f46; font-weight:700;">মোট পরিমাপ</div>
+                    <div style="font-size:1.8rem; font-weight:900; color:#047857;" id="calc-rect-decimal-out">১০.০০ শতক</div>
+                    <div style="font-size:0.85rem; color:#334155; margin-top:0.25rem;" id="calc-rect-sqft-out">৪৩৫৬.০০ বর্গফুট (৬.০৬ কাঠা)</div>
+                  </div>
+                </div>
+
+                <!-- Tab 2: Triangular (Heron's Formula) -->
+                <div id="calc-tab-triangle-panel" style="display:none;">
+                  <p style="font-size:0.84rem; color:#475569; margin-bottom:1rem;">
+                    বিষমবাহু বা ত্রিভুজাকার জমির তিন বাহুর দৈর্ঘ্য (ফুটে) লিখে শতক নির্ণয় করুন:
+                  </p>
+                  <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:0.75rem; margin-bottom:1rem;">
+                    <div>
+                      <label style="display:block; font-size:0.84rem; font-weight:700; color:#334155; margin-bottom:0.35rem;">বাহু ক (ফুট)</label>
+                      <input type="number" id="calc-tri-a" placeholder="৬০" style="width:100%; padding:0.65rem; border:1.5px solid #cbd5e1; border-radius:10px; font-weight:600;">
+                    </div>
+                    <div>
+                      <label style="display:block; font-size:0.84rem; font-weight:700; color:#334155; margin-bottom:0.35rem;">বাহু খ (ফুট)</label>
+                      <input type="number" id="calc-tri-b" placeholder="৮০" style="width:100%; padding:0.65rem; border:1.5px solid #cbd5e1; border-radius:10px; font-weight:600;">
+                    </div>
+                    <div>
+                      <label style="display:block; font-size:0.84rem; font-weight:700; color:#334155; margin-bottom:0.35rem;">বাহু গ (ফুট)</label>
+                      <input type="number" id="calc-tri-c" placeholder="১০০" style="width:100%; padding:0.65rem; border:1.5px solid #cbd5e1; border-radius:10px; font-weight:600;">
+                    </div>
+                  </div>
+                  <button id="btn-calc-triangle" class="btn btn-primary-forest" style="width:100%; padding:0.65rem; border-radius:10px; font-weight:700;">
+                    হেরন এর সূত্রে শতক হিসাব করুন
+                  </button>
+
+                  <div id="calc-tri-result" style="display:none; margin-top:1.25rem; background:#f0fdf4; border:1px solid #a7f3d0; border-radius:12px; padding:1.25rem; text-align:center;">
+                    <div style="font-size:0.8rem; color:#065f46; font-weight:700;">হেরন সূত্রের ক্ষেত্রফল</div>
+                    <div style="font-size:1.8rem; font-weight:900; color:#047857;" id="calc-tri-decimal-out">৫.৫১ শতক</div>
+                    <div style="font-size:0.85rem; color:#334155; margin-top:0.25rem;" id="calc-tri-sqft-out">২৪০০.০০ বর্গফুট (৩.৩৪ কাঠা)</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Box 3: Stamp Duty & Registration Fee Estimator -->
+            <div class="calm-card" style="margin-top:2rem;">
+              <h3 style="font-size:1.25rem; font-weight:800; color:var(--c-forest-950); margin-bottom:0.4rem;">
+                💰 সাফ-কবালা দলিল রেজিস্ট্রেশন ও স্ট্যাম্প ডিউটি সরকারি ফি ক্যালকুলেটর
+              </h3>
+              <p style="font-size:0.88rem; color:#475569; margin-bottom:1.5rem;">
+                রেজিস্ট্রেশন আইন ১৯০৮ এবং স্ট্যাম্প আইন ১৮৯৯ এর প্রযোজ্য ধারানুযায়ী জমি ক্রয়ের আনুমানিক সরকারি খরচের ব্রেকডাউন:
+              </p>
+
+              <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1.5rem; align-items:flex-end;">
+                <div>
+                  <label style="display:block; font-size:0.85rem; font-weight:700; color:#334155; margin-bottom:0.35rem;">দলিলের মোট মূল্য (টাকায় / BDT)</label>
+                  <input type="number" id="calc-deed-value" value="2000000" placeholder="যেমন: ২০,০০,০০০" style="width:100%; padding:0.75rem 1rem; border:1.5px solid #cbd5e1; border-radius:10px; font-size:1.1rem; font-weight:700; color:#047857;">
+                </div>
+                <div>
+                  <label style="display:block; font-size:0.85rem; font-weight:700; color:#334155; margin-bottom:0.35rem;">এলাকার প্রশাসনিক ধরন</label>
+                  <select id="calc-area-type" class="select-field" style="width:100%; padding:0.75rem; border-radius:10px; border:1.5px solid #cbd5e1; font-weight:600;">
+                    <option value="union">ইউনিয়ন পরিষদ এলাকা (গ্রাম/উপজেলা)</option>
+                    <option value="pauro">পৌরসভা এলাকা (পৌর কর ২%)</option>
+                    <option value="city">সিটি কর্পোরেশন এলাকা (স্থানীয় কর ৩%)</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Breakdown Table -->
+              <table class="fee-breakdown-table" style="margin-top:1.5rem;">
+                <thead>
+                  <tr>
+                    <th>সরকারি ফি ও করের বিবরণ</th>
+                    <th>হার (Rate)</th>
+                    <th>আইনি ভিত্তি</th>
+                    <th style="text-align:right;">আনুমানিক পরিমাণ (BDT)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>স্ট্যাম্প ডিউটি (Stamp Duty)</td>
+                    <td>১.৫%</td>
+                    <td>স্ট্যাম্প আইন ১৮৯৯</td>
+                    <td style="text-align:right; font-weight:700;" id="fee-stamp-duty">৩০,০০০ ৳</td>
+                  </tr>
+                  <tr>
+                    <td>রেজিস্ট্রেশন ফি (Registration Fee)</td>
+                    <td>১.০%</td>
+                    <td>রেজিস্ট্রেশন আইন ১৯০৮</td>
+                    <td style="text-align:right; font-weight:700;" id="fee-reg-fee">২০,০০০ ৳</td>
+                  </tr>
+                  <tr>
+                    <td>স্থানীয় সরকার কর (Local Govt Tax)</td>
+                    <td id="fee-local-rate">২.০%</td>
+                    <td>স্থানীয় সরকার অর্থ আইন</td>
+                    <td style="text-align:right; font-weight:700;" id="fee-local-tax">৪০,০০০ ৳</td>
+                  </tr>
+                  <tr>
+                    <td>হলফনামা স্ট্যাম্প ও ই-ফি</td>
+                    <td>নির্দিষ্ট</td>
+                    <td>স্ট্যাম্প ৩০০ ৳ + এন-ফি ১০০ ৳</td>
+                    <td style="text-align:right; font-weight:700;" id="fee-affidavit">৪০০ ৳</td>
+                  </tr>
+                  <tr class="fee-total-row">
+                    <td colspan="3">মোট আনুমানিক সরকারি রেজিস্ট্রেশন খরচ:</td>
+                    <td style="text-align:right; font-size:1.25rem;" id="fee-total-cost">৯০,৪০০ ৳</td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <div style="margin-top:1rem; font-size:0.78rem; color:#64748b; line-height:1.4;">
+                * দ্রষ্টব্য: উৎসে কর (AIT - ধারা ৫৩এইচ) জমির মৌজা রেট ও দলিলের মূল্যের মধ্যে যেটি বেশি তার ওপর এলাকাভেদে প্রযোজ্য হতে পারে। সাব-রেজিস্ট্রার কার্যালয়ের বালাম বই ও সরকারি চালান অনুযায়ী চূড়ান্ত ফি ধার্য হবে।
+              </div>
+            </div>
+          </div>
+
+
+          <!-- ==========================================
+               WORKSPACE 2F: PUBLIC NOTICES & HELP (নোটিশ ও সহায়তা)
+               ========================================== -->
+          <div id="page-notices-help" class="workspace-page">
+            <div class="dash-welcome-banner" style="background: linear-gradient(135deg, rgba(2, 44, 34, 0.92) 0%, rgba(6, 78, 59, 0.88) 100%), url('/static/assets/images/bangladesh_rural_road.jpg') center/cover no-repeat;">
+              <div class="dash-welcome-text">
+                <div class="welcome-top-badge">
+                  <span>🔔</span> নাগরিক গণবিজ্ঞপ্তি ও সহায়তা বাতায়ন
+                </div>
+                <h2>পাবলিক নোটিশ ও জাতীয় ভূমি হেল্পলাইন</h2>
+                <p>জাতীয় হেল্পলাইন ১৬১২২, সাভার পাইলট উপজেলা ভূমি অফিস ডিরেক্টরি এবং সর্বশেষ গণবিজ্ঞপ্তি জানুন।</p>
+              </div>
+            </div>
+
+            <!-- Helpline Banner Card -->
+            <div class="helpline-banner-card">
+              <div class="helpline-left">
+                <div class="helpline-icon-bubble">📞</div>
+                <div>
+                  <div style="font-size:0.85rem; color:#a7f3d0; font-weight:700;">ভূমি মন্ত্রণালয়ের সার্বক্ষণিক সেবা হটলাইন</div>
+                  <div class="helpline-num-badge">১৬১২২</div>
+                  <div class="helpline-subtext">যেকোনো মোবাইল অপারেটর থেকে টোল-ফ্রি ২৪/৭ সক্রিয়</div>
+                </div>
+              </div>
+              <div style="border-left:1px solid rgba(255,255,255,0.2); padding-left:1.5rem;">
+                <div style="font-size:0.8rem; color:#a7f3d0;">প্রবাসী ভাই-বোনদের জন্য আন্তর্জাতিক হেল্পলাইন:</div>
+                <div style="font-size:1.25rem; font-weight:800; color:#facc15; font-family:monospace; margin-top:0.25rem;">+880 9612 316122</div>
+                <div style="font-size:0.75rem; color:#d1fae5; margin-top:0.25rem;">ইমেইল: <a href="mailto:info@land.gov.bd" style="color:#ffffff; text-decoration:underline;">info@land.gov.bd</a></div>
+              </div>
+            </div>
+
+            <!-- Public Announcements -->
+            <div class="calm-card" style="margin-bottom:1.75rem;">
+              <h3 style="font-size:1.25rem; font-weight:800; color:var(--c-forest-950); margin-bottom:1rem;">
+                📢 গুরুত্বপূর্ণ গণবিজ্ঞপ্তি ও নাগরিক সতর্কতা
+              </h3>
+
+              <div style="display:flex; flex-direction:column; gap:1rem;">
+                <div style="background:#f8fafc; border-left:4px solid #059669; border-radius:0 12px 12px 0; padding:1.2rem; border-top:1px solid #e2e8f0; border-right:1px solid #e2e8f0; border-bottom:1px solid #e2e8f0;">
+                  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.35rem;">
+                    <div style="font-size:1rem; font-weight:700; color:#0f172a;">স্মার্ট নামজারি ও কিউআর কোডযুক্ত ডিজিটাল খতিয়ান গ্রহণ সংক্রান্ত</div>
+                    <span style="font-size:0.75rem; color:#64748b;">১৫ অক্টোবর ২০২৬</span>
+                  </div>
+                  <p style="font-size:0.85rem; color:#475569; line-height:1.5;">
+                    সকল নাগরিকের অবগতির জন্য জানানো যাচ্ছে যে, উপজেলা ভূমি অফিস থেকে কোনো প্রকার হস্তলিখিত পরচা প্রদান করা হয় না। শুধুমাত্র কিউআর কোড সম্বলিত অনলাইন খতিয়ান আইনগতভাবে বৈধ হিসেবে বিবেচিত হবে।
+                  </p>
+                </div>
+
+                <div style="background:#f8fafc; border-left:4px solid #ef4444; border-radius:0 12px 12px 0; padding:1.2rem; border-top:1px solid #e2e8f0; border-right:1px solid #e2e8f0; border-bottom:1px solid #e2e8f0;">
+                  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.35rem;">
+                    <div style="font-size:1rem; font-weight:700; color:#0f172a;">সরকারি ১-নং খাস খতিয়ানভুক্ত ও নদী-খালের জমিতে ক্রয়-বিক্রয় নিষিদ্ধ</div>
+                    <span style="font-size:0.75rem; color:#64748b;">১০ অক্টোবর ২০২৬</span>
+                  </div>
+                  <p style="font-size:0.85rem; color:#475569; line-height:1.5;">
+                    সাভার ও তৎসংলগ্ন এলাকার নদী, খাল, তুরাগ নদী অববাহিকা এবং জেলা প্রশাসক ঢাকার ১-নং খাস খতিয়ানভুক্ত কোনো জমি কোনো ব্যক্তি বা আবাসন কোম্পানির নিকট থেকে বায়না বা রেজিস্ট্রি না করার জন্য সতর্ক করা যাচ্ছে।
+                  </p>
+                </div>
+
+                <div style="background:#f8fafc; border-left:4px solid #f59e0b; border-radius:0 12px 12px 0; padding:1.2rem; border-top:1px solid #e2e8f0; border-right:1px solid #e2e8f0; border-bottom:1px solid #e2e8f0;">
+                  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.35rem;">
+                    <div style="font-size:1rem; font-weight:700; color:#0f172a;">দলিল রেজিস্ট্রির ক্ষেত্রে ২৫ বছরের বায়া দলিলের বাধ্যবাধকতা</div>
+                    <span style="font-size:0.75rem; color:#64748b;">০১ অক্টোবর ২০২৬</span>
+                  </div>
+                  <p style="font-size:0.85rem; color:#475569; line-height:1.5;">
+                    রেজিস্ট্রেশন আইন ১৯০৮ এর ধারা ৫২ক অনুসারে জমি হস্তান্তরের সময় বিক্রেতার পূর্ববর্তী ২৫ বছরের বায়া দলিলের ধারাবাহিক বিবরণ ও হাল সনের কর দাখিলা সাব-রেজিস্ট্রারের নিকট প্রদর্শন বাধ্যতামূলক।
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Official Land Office Directory (Savar Pilot) -->
+            <div class="calm-card">
+              <h3 style="font-size:1.25rem; font-weight:800; color:var(--c-forest-950); margin-bottom:0.4rem;">
+                🏛️ সাভার পাইলট উপজেলা ভূমি অফিস ডিরেক্টরি
+              </h3>
+              <p style="font-size:0.85rem; color:#475569; margin-bottom:1.25rem;">
+                যেকোনো সরেজমিন সেবা, শুনানি বা বালাম বই অনুসন্ধানের জন্য সংশ্লিষ্ট দপ্তরে যোগাযোগ করুন:
+              </p>
+
+              <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:1.25rem;">
+                <div style="border:1px solid #cbd5e1; border-radius:12px; padding:1.25rem; background:#ffffff;">
+                  <div style="font-weight:800; color:#0f172a; font-size:1rem;">সহকারী কমিশনার (ভূমি) এর কার্যালয়</div>
+                  <div style="font-size:0.82rem; color:#059669; font-weight:600; margin-top:0.2rem;">উপজেলা ভূমি অফিস, সাভার, ঢাকা</div>
+                  <div style="margin-top:0.75rem; font-size:0.82rem; color:#475569; line-height:1.5;">
+                    📍 ঠিকানা: থানা রোড, সাভার পৌরসভা, ঢাকা-১৩৪০<br>
+                    ⏰ সেবা সময়: রবিবার - বৃহস্পতিবার (সকাল ৯টা - বিকাল ৪টা)<br>
+                    📞 ফোন: ০২-৭৭৪২৫১০<br>
+                    ✉️ ইমেইল: acland.savar@mopa.gov.bd
+                  </div>
+                </div>
+
+                <div style="border:1px solid #cbd5e1; border-radius:12px; padding:1.25rem; background:#ffffff;">
+                  <div style="font-weight:800; color:#0f172a; font-size:1rem;">সাভার সাব-রেজিস্ট্রি কার্যালয়</div>
+                  <div style="font-size:0.82rem; color:#059669; font-weight:600; margin-top:0.2rem;">নিবন্ধন পরিদপ্তর, আইন ও বিচার বিভাগ</div>
+                  <div style="margin-top:0.75rem; font-size:0.82rem; color:#475569; line-height:1.5;">
+                    📍 ঠিকানা: রেজিস্ট্রি ভবন কমপ্লেক্স, সাভার বাসস্ট্যান্ড, ঢাকা<br>
+                    ⏰ বালাম তল্লাশি: সকাল ১০টা - দুপুর ২টা<br>
+                    📞 ফোন: ০২-৭৭৪৩২০০<br>
+                    ✉️ ইমেইল: sro.savar@minlaw.gov.bd
+                  </div>
+                </div>
+
+                <div style="border:1px solid #cbd5e1; border-radius:12px; padding:1.25rem; background:#ffffff;">
+                  <div style="font-weight:800; color:#0f172a; font-size:1rem;">আমিনবাজার ইউনিয়ন ভূমি কার্যালয়</div>
+                  <div style="font-size:0.82rem; color:#059669; font-weight:600; margin-top:0.2rem;">তহশিল অফিস, সাভার</div>
+                  <div style="margin-top:0.75rem; font-size:0.82rem; color:#475569; line-height:1.5;">
+                    📍 ঠিকানা: আমিনবাজার ইউনিয়ন পরিষদ কমপ্লেক্স, সাভার<br>
+                    ⏰ দাখিলা ও খাজনা: সকাল ৯টা - বিকাল ৩টা<br>
+                    📞 দায়িত্বপ্রাপ্ত কর্মকর্তা: ইউনিয়ন ভূমি সহকারী কর্মকর্তা (ULAO)<br>
+                    ✉️ ইমেইল: ulao.aminbazar@gmail.com
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+          <!-- ==========================================
                WORKSPACE 3: OFFICER TRIAGE & FRAUD (P3)
                ========================================== -->
           <div id="page-officer" class="workspace-page">
@@ -1190,48 +2071,83 @@
           <!-- ==========================================
                WORKSPACE 5: DOCUMENT VERIFICATION / HASH (P2)
                ========================================== -->
+          <!-- ==========================================
+               WORKSPACE 5: DOCUMENT VERIFICATION / HASH (P2)
+               ========================================== -->
           <div id="page-verify" class="workspace-page">
-            <div class="page-header-row">
-              <div class="page-title-block">
-                <h3>ক্রিপ্টোগ্রাফিক দলিল প্রামাণিকতা ও বিকৃতি শনাক্তকরণ (P2)</h3>
-                <p>SHA-256 ডিজিটাল ফিঙ্গারপ্রিন্ট যাচাইয়ের মাধ্যমে রেজিস্ট্রি বহি অবিকৃত রাখার নিশ্চয়তা।</p>
+            <div class="dash-welcome-banner" style="background: linear-gradient(135deg, rgba(2, 44, 34, 0.92) 0%, rgba(6, 78, 59, 0.88) 100%), url('/static/assets/images/due_diligence_review.jpg') center/cover no-repeat;">
+              <div class="dash-welcome-text">
+                <div class="welcome-top-badge">
+                  <span>🔐</span> ক্রিপ্টোগ্রাফিক প্রামাণিকতা বাতায়ন (P2 Integrity)
+                </div>
+                <h2>দলিলের ডিজিটাল অখণ্ডতা ও হ্যাশ যাচাই</h2>
+                <p>SHA-256 ক্রিপ্টোগ্রাফিক ডিজিটাল ফিঙ্গারপ্রিন্ট গণনার মাধ্যমে দলিলের বাইট-লেভেল অবিকৃতি যাচাই ও রেফারেন্স তুলনা।</p>
               </div>
             </div>
 
             <div class="calm-card">
-              <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1.5rem;">
+              <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1.75rem;">
                 <!-- Left: Upload & Client Hash -->
                 <div>
-                  <h4 style="font-size:0.95rem; font-weight:700; margin-bottom:0.5rem;">১. দলিল নির্বাচন ও ক্লায়েন্ট হ্যাশ গণনা</h4>
-                  <p style="font-size:0.82rem; color:var(--c-stone-500); margin-bottom:1rem;">
-                    যেকোনো দলিল ফাইল আপলোড করুন। ব্রাউজারের WebCrypto এপিআই তাৎক্ষণিক লোকাল হ্যাশ তৈরি করবে।
+                  <h4 style="font-size:1.05rem; font-weight:800; color:#0f172a; margin-bottom:0.4rem;">
+                    ১. দলিল নির্বাচন ও মোড নির্বাচন
+                  </h4>
+                  <p style="font-size:0.84rem; color:var(--c-stone-500); margin-bottom:1rem;">
+                    যেকোনো দলিল ফাইল (PDF, PNG, JPG) নির্বাচন করুন। ফাইলটি নির্বাচন মাত্রই ব্রাউজারের WebCrypto এপিআই তাৎক্ষণিক লোকাল হ্যাশ তৈরি করবে।
                   </p>
 
+                  <!-- Mode Selector Pills -->
+                  <div style="display:flex; gap:0.5rem; margin-bottom:1rem;">
+                    <button id="btn-hash-mode-calc" class="btn btn-primary-forest btn-sm" style="flex:1; font-size:0.8rem;">
+                      মোড ১: হ্যাশ গণনা
+                    </button>
+                    <button id="btn-hash-mode-compare" class="btn btn-secondary-stone btn-sm" style="flex:1; font-size:0.8rem;">
+                      মোড ২: রেফারেন্সের সাথে তুলনা
+                    </button>
+                  </div>
+
                   <div id="hash-dropzone" class="ocr-upload-zone">
-                    <div style="font-size:2rem; margin-bottom:0.35rem;">📄</div>
-                    <div style="font-size:0.88rem; font-weight:600;">দলিল ফাইল ড্রপ করুন বা ক্লিক করুন</div>
+                    <div style="font-size:2.2rem; margin-bottom:0.35rem;">📄</div>
+                    <div style="font-size:0.92rem; font-weight:700; color:#0f172a;" id="hash-dropzone-label">দলিল ফাইল ড্রপ করুন বা ক্লিক করে নির্বাচন করুন</div>
+                    <div style="font-size:0.75rem; color:#64748b; margin-top:0.2rem;">PDF, PNG, JPG (সর্বোচ্চ ১০ মেগাবাইট)</div>
                     <input type="file" id="hash-file-input" style="display:none;" accept="image/*,.pdf">
                   </div>
 
+                  <!-- Reference Hash Input (Shown in Mode 2) -->
+                  <div id="verify-reference-hash-box" style="margin-top:1rem; display:none;">
+                    <label style="display:block; font-size:0.82rem; font-weight:700; color:#334155; margin-bottom:0.35rem;">
+                      তুলনার জন্য রেফারেন্স SHA-256 হ্যাশ (ঐচ্ছিক):
+                    </label>
+                    <input type="text" id="verify-reference-hash-input" placeholder="যেমন: 3f84ba4813c96b86a1f9ce347258468ff7fe1b00598d24f610713faec38e4399" style="width:100%; padding:0.65rem 0.85rem; border:1.5px solid #cbd5e1; border-radius:8px; font-family:monospace; font-size:0.82rem; color:#0f172a; font-weight:600;">
+                  </div>
+
+                  <button id="btn-run-hash-action" class="btn btn-primary-forest" style="width:100%; margin-top:1rem; padding:0.65rem; border-radius:10px; font-weight:700;">
+                    🔐 হ্যাশ গণনা ও প্রামাণিকতা যাচাই করুন
+                  </button>
+
                   <div style="display:flex; gap:0.5rem; margin-top:1rem;">
-                    <button id="btn-hash-sample-clean" class="btn btn-secondary-stone btn-sm" style="flex:1;">
-                      ✓ আসল দলিল লোড
+                    <button id="btn-hash-sample-clean" class="btn btn-secondary-stone btn-sm" style="flex:1; font-size:0.78rem;">
+                      ✓ নমুনা নিবন্ধিত দলিল লোড
                     </button>
-                    <button id="btn-hash-sample-tampered" class="btn btn-danger-outline btn-sm" style="flex:1;">
-                      ⚠️ জাল/বিকৃত দলিল টেস্ট
+                    <button id="btn-hash-sample-tampered" class="btn btn-danger-outline btn-sm" style="flex:1; font-size:0.78rem;">
+                      ⚠️ কৃত্রিম বিকৃত দলিল টেস্ট
                     </button>
                   </div>
                 </div>
 
                 <!-- Right: Ledger Verification Output -->
                 <div>
-                  <h4 style="font-size:0.95rem; font-weight:700; margin-bottom:0.5rem;">২. রেজিস্ট্রি লেজার যাচাইকরণ ফলাফল</h4>
-                  <div id="hash-verification-output" class="hash-result-box">
-                    <p style="font-size:0.85rem; color:var(--c-stone-500);">ফাইল নির্বাচন করুন বা টেস্ট বাটন ব্যবহার করুন।</p>
+                  <h4 style="font-size:1.05rem; font-weight:800; color:#0f172a; margin-bottom:0.4rem;">
+                    ২. ক্রিপ্টোগ্রাফিক হ্যাশ ও প্রামাণিকতা ফলাফল
+                  </h4>
+                  <div id="hash-verification-output" class="hash-result-box" style="min-height:220px; padding:1.25rem; background:#f8fafc; border:1.5px solid #e2e8f0; border-radius:14px;">
+                    <p style="font-size:0.88rem; color:var(--c-stone-500); text-align:center; padding-top:3.5rem;">
+                      বামে দলিল ফাইল নির্বাচন করুন বা নমুনা টেস্ট বাটন ব্যবহার করুন।
+                    </p>
                   </div>
 
-                  <div style="margin-top:1rem; padding:0.85rem; background:var(--c-stone-100); border-radius:var(--radius-sm); font-size:0.78rem; color:var(--c-stone-600);">
-                    <strong>প্রযুক্তিগত ব্যাখ্যা:</strong> হ্যাশিং মূল দলিলের অপরিবর্তনযোগ্যতা (Tamper-Evidence) প্রমাণ করে। এটি মালিকানা সত্ত্ব সরাসরি প্রদান করে না, বরং পূর্বে নিবন্ধিত মূল দলিলের প্রতিটি বাইট অবিকৃত রয়েছে কিনা তা প্রমাণ করে।
+                  <div style="margin-top:1.25rem; padding:0.85rem 1rem; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:10px; font-size:0.8rem; color:#065f46; line-height:1.5;">
+                    <strong>⚖️ আইনি স্পষ্টীকরণ ও প্রযুক্তিগত সীমাবদ্ধতা:</strong> হ্যাশিং মূল দলিলের ডিজিটাল অবিকৃতি (Tamper-Evidence) নির্দেশ করে। এটি ফাইলের কোনো বাইট বা পিক্সেল পূর্বে নিবন্ধিত রেকর্ডের সাথে মিলে কিনা তা প্রমাণ করে; এটি স্বয়ংক্রিয়ভাবে জমির বৈধ সরকারি মালিকানা নিশ্চিত করে না।
                   </div>
                 </div>
               </div>

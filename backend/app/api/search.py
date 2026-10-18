@@ -19,6 +19,9 @@ def search_parcels(
     parcel_id: Optional[str] = Query(None, description="Exact Parcel ID (e.g. BD-PAR-000101)"),
     deed_number: Optional[str] = Query(None, description="Registered Deed Number"),
     owner_name: Optional[str] = Query(None, description="Proprietor Bengali Name"),
+    survey_type: Optional[str] = Query(None, description="Survey Type (RS, SA, CS, BS)"),
+    district: Optional[str] = Query(None, description="District Name"),
+    upazila: Optional[str] = Query(None, description="Upazila Name"),
     limit: int = Query(50, ge=1, le=500),
     offset: int = Query(0, ge=0),
     db: sqlite3.Connection = Depends(get_db)
@@ -31,6 +34,10 @@ def search_parcels(
         parcel_id=parcel_id,
         deed_number=deed_number,
         owner_name=owner_name,
+        survey_type=survey_type,
+        district=district,
+        upazila=upazila,
         limit=limit,
         offset=offset
     )
+
