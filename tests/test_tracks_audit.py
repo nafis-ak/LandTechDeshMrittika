@@ -174,24 +174,30 @@ class TestCoreTracksAudit(unittest.TestCase):
         self.assertEqual(res_q.status_code, 200)
         case_id = res_q.json()["queue"][0]["case_id"]
 
-        # 2. Officer makes decision with mandatory reason
-        res_dec = client.post("/api/v1/officer/decision", headers=self.off_headers, json={
-            "case_id": case_id,
-            "action": "APPROVED_LEGITIMATE",
-            "reason": "অডিট ট্রেইলে পরীক্ষিত: নথিপত্র সরেজমিনে যাচাইপূর্বক সঠিক পাওয়া গেল।"
-        })
-        self.assertEqual(res_dec.status_code, 200)
-        log_id = res_dec.json()["log_id"]
+        try:
+            # 2. Officer makes decision with mandatory reason
+            res_dec = client.post("/api/v1/officer/decision", headers=self.off_headers, json={
+                "case_id": case_id,
+                "action": "APPROVED_LEGITIMATE",
+                "reason": "অডিট ট্রেইলে পরীক্ষিত: নথিপত্র সরেজমিনে যাচাইপূর্বক সঠিক পাওয়া গেল।"
+            })
+            self.assertEqual(res_dec.status_code, 200)
+            log_id = res_dec.json()["log_id"]
 
-        # 3. Verify in review_logs table directly in SQLite
-        conn = sqlite3.connect(DATABASE_PATH)
-        cur = conn.cursor()
-        cur.execute("SELECT * FROM review_logs WHERE log_id = ?", (log_id,))
-        row = cur.fetchone()
-        self.assertIsNotNone(row)
-        self.assertEqual(row[1], case_id)
-        self.assertEqual(row[3], "APPROVED_LEGITIMATE")
-        conn.close()
+            # 3. Verify in review_logs table directly in SQLite
+            conn = sqlite3.connect(DATABASE_PATH)
+            cur = conn.cursor()
+            cur.execute("SELECT * FROM review_logs WHERE log_id = ?", (log_id,))
+            row = cur.fetchone()
+            self.assertIsNotNone(row)
+            self.assertEqual(row[1], case_id)
+            self.assertEqual(row[3], "APPROVED_LEGITIMATE")
+            conn.close()
+        finally:
+            conn = sqlite3.connect(DATABASE_PATH)
+            conn.execute("UPDATE verification_cases SET review_status = 'PENDING_REVIEW' WHERE case_id = ?", (case_id,))
+            conn.commit()
+            conn.close()
 
     # ==========================================
     # P4: E-MUTATION & REGISTRY WORKFLOW

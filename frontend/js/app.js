@@ -2096,7 +2096,7 @@ async function loadChainOfTitleForParcel(parcelId) {
           return `
             <div class="chain-event-row">
               <div class="chain-event-node ${nodeClass}">${nodeIcon}</div>
-              <div class="chain-event-card">
+              <div class="chain-event-card glass-hover">
                 <div class="chain-event-header">
                   <div>
                     <span class="chain-event-year">${ev.year || ev.date || 'ঐতিহাসিক'}</span>
@@ -2127,9 +2127,9 @@ async function loadChainOfTitleForParcel(parcelId) {
         docsContainer.innerHTML = '<div style="color:var(--c-stone-400); font-size:0.8rem;">কোনো বালাম উদ্ধৃতি পাওয়া যায়নি।</div>';
       } else {
         docsContainer.innerHTML = docRefs.map(d => `
-          <div style="background:var(--c-stone-50); border:1px solid var(--c-stone-200); border-radius:var(--radius-md); padding:0.75rem;">
+          <div class="glass-card glass-hover" style="padding:0.9rem 1rem; border-radius:var(--radius-md);">
             <div style="display:flex; justify-content:space-between; align-items:center;">
-              <strong style="font-size:0.82rem; color:var(--c-forest-950);">${d.doc_type || 'সাফ-কবালা দলিল'}</strong>
+              <strong style="font-size:0.84rem; color:var(--c-forest-950);">${d.doc_type || 'সাফ-কবালা দলিল'}</strong>
               <span class="pill-tag pill-forest" style="font-size:0.65rem;">ভেরিফাইড হ্যাশ</span>
             </div>
             <div style="font-size:0.78rem; color:var(--c-stone-700); margin-top:0.3rem;">
