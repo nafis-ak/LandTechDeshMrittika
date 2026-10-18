@@ -1,5 +1,5 @@
 # দেশমৃত্তিকা | DeshMrittika
-## BHUMI-SYNC — Smart Land Record Verification & Intelligence Platform
+## DeshMrittika— Smart Land Record Verification & Intelligence Platform
 
 **Tagline:** *Your Land, Our Responsibility — আপনার জমি, আমাদের দায়িত্ব*
 
@@ -11,7 +11,7 @@
 
 ## 1. Executive Summary
 
-**DeshMrittika (দেশমৃত্তিকা), powered by BHUMI-SYNC**, is a proposed digital land-management and verification platform designed to support greater transparency, traceability, and informed decision-making in Bangladesh's land administration ecosystem.
+**DeshMrittika (দেশমৃত্তিকা) is a proposed digital land-management and verification platform designed to support greater transparency, traceability, and informed decision-making in Bangladesh's land administration ecosystem.
 
 Land-related transactions frequently require citizens to examine multiple documents, ownership records, mutation status, tax information, and other relevant records. Fragmented information and delays in verification can make it difficult to identify inconsistencies before a transaction takes place.
 
@@ -75,7 +75,7 @@ The final implementation status of each track should be confirmed against the co
 
 ## 5. System Overview
 
-BHUMI-SYNC follows a modular architecture intended to separate the user interface, application logic, data storage, and verification workflows.
+DeshMrittika follows a modular architecture intended to separate the user interface, application logic, data storage, and verification workflows.
 
 - **Presentation Layer:** Web-based interface for citizens, prospective buyers, and authorized reviewers.
 - **Application Layer:** API endpoints, validation rules, authentication, authorization, and land-related business logic.
@@ -149,7 +149,7 @@ These items should be treated as future work until their completion is supported
 
 ## 11. Disclaimer
 
-DeshMrittika / BHUMI-SYNC is an independently developed prototype intended for innovation, demonstration, and evaluation. It is not an official platform of the Ministry of Land or any other government authority.
+DeshMrittika / DeshMrittika is an independently developed prototype intended for innovation, demonstration, and evaluation. It is not an official platform of the Ministry of Land or any other government authority.
 
 All verification results are intended to support further examination and must not be interpreted as conclusive legal determinations. Any operational use would be subject to applicable laws, authorized data access, security requirements, and approval from the relevant authorities.
 
